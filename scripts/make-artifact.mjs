@@ -5,7 +5,10 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 const html = readFileSync('dist/index.html', 'utf8');
 const head = html.slice(html.indexOf('<head>') + 6, html.indexOf('</head>'));
 const body = html.slice(html.indexOf('<body>') + 6, html.lastIndexOf('</body>'));
-const keep = head
+// strip inlined <script>/<style> blocks before looking for <title>/<link> lines: the game's own code
+// contains strings like "<title>" (chart tooltips) that must not be mistaken for page tags
+const headTags = head.replace(/<script[^>]*>[\s\S]*?<\/script>/g, '').replace(/<style[^>]*>[\s\S]*?<\/style>/g, '');
+const keep = headTags
   .split('\n')
   .filter((l) => /<title>|<link rel="(stylesheet|preconnect)"/.test(l))
   .join('\n');
