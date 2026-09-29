@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFF6EF">
+<meta name="description" content="Mèo Trân Châu: game tiệm trà sữa mèo pixel art. Ủ trà, nấu trân châu, pha đúng order và vuốt ve mấy bé mèo của tiệm.">
+<meta property="og:title" content="Mèo Trân Châu">
+<meta property="og:description" content="Game tiệm trà sữa mèo pixel art, chơi ngay trên trình duyệt.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mèo Trân Châu">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23FFF6EF'/%3E%3Cpath d='M3 5V2h1v1h1v1h6V3h1V2h1v3z' fill='%23B9A2B8'/%3E%3Crect x='4' y='5' width='8' height='10' fill='%23C08A5B'/%3E%3Crect x='3' y='4' width='10' height='1' fill='%23FFFFFF'/%3E%3Crect x='10' y='0' width='1' height='5' fill='%23F2708F'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%233B2A2D'/%3E%3Crect x='9' y='8' width='1' height='1' fill='%233B2A2D'/%3E%3Crect x='5' y='13' width='1' height='1' fill='%232A160C'/%3E%3Crect x='7' y='12' width='1' height='1' fill='%232A160C'/%3E%3Crect x='9' y='13' width='1' height='1' fill='%232A160C'/%3E%3C/svg%3E">
+<style>
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Mèo Trân Châu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap&subset=vietnamese">
+</head>
+<body>
+<div class="wrap">
+  <header class="hud">
+    <div class="brand">Mèo Trân Châu</div>
+    <div class="stats">
+      <div class="stat"><span class="lab">Ngày</span><b id="h-day">1</b></div>
+      <div class="stat lv"><span class="lab">Cấp</span><b id="h-lv">1</b></div>
+      <div class="stat"><span class="lab">Giờ</span><b id="h-clock">10:00</b></div>
+      <div class="stat"><span class="lab">Hôm nay</span><b id="h-cash">0k</b></div>
+      <div class="stat"><span class="lab" id="h-goallab">Mục tiêu</span><div class="goal"><i id="h-goal"></i></div></div>
+      <div class="stat streak"><span class="lab">Chuỗi</span><b id="h-streak">0</b></div>
+      <div class="stat"><span class="lab">Nhiệm vụ</span><b id="h-quests">0/3</b></div>
+    </div>
+    <div class="hudbtns">
+      <button class="btn" id="pause" type="button">Tạm dừng</button>
+  <button class="iconbtn" id="settings" type="button" aria-label="Cài đặt" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+  <button class="iconbtn" id="music" type="button" aria-pressed="true" aria-label="Nhạc: bật" title="Nhạc nền"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></button>
+  <button class="iconbtn" id="mute" type="button" aria-pressed="false" aria-label="Hiệu ứng âm thanh: bật" title="Hiệu ứng âm thanh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+    </div>
+  </header>
+
+  <div class="floor">
+  <div class="scene">
+    <canvas id="scene" width="160" height="80" aria-label="Tiệm trà sữa mèo, khách đang chờ ở quầy"></canvas>
+    <div class="floats" id="floats"></div>
+    <div class="pausedlab" id="pausedlab" hidden>Tạm dừng</div>
+  </div>
+
+  <div class="tickets" id="tickets"></div>
+  </div>
+
+  <section class="station">
+    <div class="cupcol">
+      <canvas id="cup" width="40" height="56" aria-label="Ly trà bạn đang pha"></canvas>
+      <p class="cupsum" id="cupsum">Ly trống</p>
+      <div class="gear" id="gear"></div>
+    </div>
+    <div class="controls">
+      <p class="focuschip" id="focus" hidden></p>
+      <div class="group"><h3 class="lab">Trà</h3><div class="opts" id="o-tea"></div></div>
+      <div class="group"><h3 class="lab">Đường</h3><div class="opts" id="o-sugar"></div></div>
+      <div class="group"><h3 class="lab">Đá</h3><div class="opts" id="o-ice"></div></div>
+      <div class="group"><h3 class="lab" id="toplab">Topping</h3><div class="opts" id="o-top"></div></div>
+    </div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="actionbar">
+      <button class="btn ghost danger" id="dump" type="button">Đổ ly</button>
+      <button class="btn seal" id="seal" type="button">Dán nắp</button>
+      <button class="serveBig" id="serveBig" type="button"><span id="serveLab">Chờ khách</span><kbd>Enter</kbd></button>
+    </div>
+  </section>
+  <p class="keys">Phím: 1 2 3 phục vụ · X đổ ly · P hoặc Esc tạm dừng · Space khi chuẩn bị</p>
+</div>
+
+
+<div class="overlay" id="start">
+  <div class="card">
+    <h1 class="title">Mèo Trân Châu</h1>
+    <p class="sub">Tiệm trà sữa mèo nho nhỏ, nơi mấy bé mèo nằm ườn quanh quầy và mỗi ly nước đều có tai mèo.</p>
+    <ul class="how">
+      <li><span>1</span>Buổi sáng: đi chợ mua lá trà, bột năng và topping. Để dành tiền mở công thức mới và nâng cấp tiệm.</li>
+      <li><span>2</span>Chuẩn bị: ủ trà và nấu trân châu. Làm càng khéo, tip càng nhiều.</li>
+      <li><span>3</span>Bán hàng: pha đúng ly trên phiếu, dán nắp rồi phục vụ. Đơn nhiều ly và đơn online phải cho từng ly vào túi rồi đóng túi. Đã cho vào ly là không lấy ra được.</li>
+      <li><span>4</span>Ly đúng từng chi tiết được tip và XP. 3 ly hoàn hảo liên tiếp tip +50%. Khách khó tính không chấp nhận sai sót. Chạm vào mấy bé mèo để vuốt ve nhé.</li>
+    </ul>
+    <div class="row" id="startbtns"></div>
+  </div>
+</div>
+
+<div class="overlay" id="market" hidden>
+  <div class="card prepcard">
+    <div class="mhead">
+      <div><span class="lab" id="mday">Buổi sáng · Ngày 1</span><h2 class="preptitle">Đi chợ</h2></div>
+      <div class="wallet"><span class="lab">Tiết kiệm</span><b id="mwallet">0k</b><span class="lab" id="mlv">Cấp 1</span><div class="goal"><i id="mxp"></i></div></div>
+    </div>
+    <p class="sub">Nhập nguyên liệu, học công thức mới và nâng cấp tiệm. Lá trà, bột năng và hũ topping để được qua nhiều ngày. Pha ly hoàn hảo để lên cấp và mở khóa thêm.</p>
+    <h3 class="lab">Nhiệm vụ hôm nay</h3><div class="qlist" id="m-quests"></div><p class="qbonus">Nhận thưởng khi đóng cửa. Xong cả 3 nhiệm vụ được thưởng thêm 50k.</p>
+    <div class="newbox" id="m-new" hidden></div>
+    <h3 class="lab">Doanh thu</h3><div class="revbox" id="m-rev"></div>
+    <h3 class="lab">Cần mua</h3><div class="needbox" id="m-need"></div>
+    <h3 class="lab">Nguyên liệu</h3><div class="mgrid" id="m-supply"></div><p class="qbonus">Hết tiền cũng đừng lo: đang bán mà hết hàng thì chạm vào món đó để đặt giao gấp bằng tiền vừa bán được. Giá đắt hơn 20% và phải chờ 15 giây.</p>
+    <h3 class="lab">Vật dụng</h3><div class="mgrid" id="m-gear"></div><p class="qbonus">Mỗi ly dùng 1 ly nhựa, 1 ống hút và 1 màng dán. Đơn nhiều ly dùng thêm 1 túi giấy.</p>
+    <h3 class="lab">Công thức</h3><div class="mgrid" id="m-recipe"></div>
+    <h3 class="lab">Nâng cấp tiệm</h3><div class="mgrid" id="m-up"></div>
+    <h3 class="lab">Nhân viên</h3><div class="mgrid" id="m-staff"></div><p class="qbonus">Lương trả mỗi tối khi đóng cửa. Cho nghỉ một hôm thì không phải trả lương hôm đó.</p>
+    <div class="prepfoot"><span id="mmsg" aria-live="polite"></span><button class="btn big" id="mgo" type="button">Đi chuẩn bị</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="prep" hidden>
+  <div class="card prepcard">
+    <div><span class="lab" id="prepday">Trước giờ mở cửa · Ngày 1</span><h2 class="preptitle">Chuẩn bị quầy</h2></div>
+    <p class="sub">Mỗi lần pha dùng một gói trong kho. Mỗi mẻ giữ chất lượng riêng và mẻ cũ được dùng trước. Trà đã pha và trân châu đã nấu không để qua đêm được, phần dư sẽ bỏ đi khi đóng cửa.</p>
+    <div class="prepgrid">
+      <div class="prepbox"><h3 class="lab" id="p-tealab">Quầy trà · 8 ly mỗi mẻ</h3><div class="plist" id="p-teas"></div></div>
+      <div class="prepbox"><h3 class="lab">Nồi trân châu · 10 muỗng mỗi mẻ</h3><div class="plist" id="p-pearl"></div></div>
+    </div>
+    <div class="mini" id="mini" hidden>
+      <canvas id="mcv" width="64" height="40" aria-label="Khu pha chế"></canvas>
+      <div class="meter"><div class="zone" id="mzone"></div><div class="fill" id="mfill"></div><div class="needle" id="mneedle"></div></div>
+      <p class="minitext" id="mtext" aria-live="polite"></p>
+      <button class="btn big" id="mact" type="button">Nhấc túi trà</button>
+    </div>
+    <div class="prepfoot">
+      <span id="pspent"></span>
+      <button class="btn big" id="popen" type="button">Mở cửa tiệm</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="pausemenu" hidden>
+  <div class="card">
+    <div><span class="lab" id="pm-lab">Tạm dừng</span><h2 class="preptitle" id="pm-title">Nghỉ tay chút nhé</h2></div>
+    <section class="qlist" id="pm-qsec"><h3 class="lab">Nhiệm vụ hôm nay</h3><div class="qlist" id="pm-quests"></div></section>
+    <section class="settings">
+      <h3 class="lab">Cài đặt</h3>
+      <div class="setting"><label for="set-music">Âm lượng nhạc</label><output id="out-music" for="set-music"></output><input type="range" id="set-music" min="0" max="100" step="5"></div>
+      <div class="setting"><label for="set-sfx">Âm lượng hiệu ứng</label><output id="out-sfx" for="set-sfx"></output><input type="range" id="set-sfx" min="0" max="100" step="5"></div>
+      <div class="setting"><label for="set-shake">Rung màn hình</label><input type="checkbox" class="switch" id="set-shake" role="switch"><small>Rung nhẹ khi khách từ chối ly nước.</small></div>
+      <div class="setting"><label for="set-vi">Hiện tên gốc của món</label><input type="checkbox" class="switch" id="set-vi" role="switch"><small>Ví dụ “Trà đen sữa” dưới tên Trà sữa Mèo Mun.</small></div>
+    </section>
+    <section class="settings">
+      <h3 class="lab">Sao lưu dữ liệu</h3>
+      <p class="bk-note">Tạo mã để chơi tiếp trên máy khác, hoặc cất đi phòng khi trình duyệt xóa dữ liệu.</p>
+      <div class="row"><button class="btn" id="bk-make" type="button">Tạo mã sao lưu</button><button class="btn" id="bk-copy" type="button" hidden>Sao chép mã</button></div>
+      <textarea id="bk-code" rows="3" spellcheck="false" placeholder="Dán mã sao lưu vào đây để khôi phục"></textarea>
+      <div class="row" style="align-items:center"><button class="btn" id="bk-load" type="button">Khôi phục từ mã</button><span id="bk-msg" aria-live="polite"></span></div>
+    </section>
+    <p class="kbd-hint">Bàn phím: Enter phục vụ · 1 2 3 phục vụ phiếu đó · S dán nắp · X đổ ly · P hoặc Esc tạm dừng · Space khi chuẩn bị</p>
+    <div class="row"><button class="btn big" id="pm-resume" type="button">Tiếp tục</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="end" hidden>
+  <div class="receipt" id="receipt"></div>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

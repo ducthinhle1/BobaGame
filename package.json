@@ -1,0 +1,18 @@
+{
+  "name": "meo-tran-chau",
+  "version": "0.9.0",
+  "description": "Mèo Trân Châu — game tiệm trà sữa mèo pixel art chạy trên trình duyệt",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "artifact": "vite build && node scripts/make-artifact.mjs"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "vite": "^5.4.21",
+    "vite-plugin-singlefile": "^2.3.3"
+  },
+  "private": true,
+  "type": "module"
+}

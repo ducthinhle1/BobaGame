@@ -1,0 +1,7 @@
+# Netlify builds the game from source on every push (or drag-and-drop the dist/ folder).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
