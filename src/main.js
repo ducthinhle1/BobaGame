@@ -658,24 +658,23 @@ function speech(c){
 }
 let counterKey='';
 function renderCounter(){
-  const live=ticketRefs.filter(Boolean),q=$('#queue'),b=$('#bubble');if(!q||!b)return;
-  const key=live.map(r=>r.c.id).join(',')+'|'+S.focus+'|'+live.map(r=>r.c.bagged).join(',')+'|'+(S.naJob?1:0);
+  const live=ticketRefs.filter(Boolean),b=$('#bubble');if(!b)return;
+  const key=live.map(r=>r.c.id).join(',')+'|'+S.focus+'|'+live.map(r=>r.c.bagged).join(',')+'|'+(S.naJob?1:0)+'|'+S.phase;
   if(key===counterKey)return;counterKey=key;
-  q.innerHTML=live.slice().sort((a,b2)=>a.c.no-b2.c.no).map(r=>`<button class="qav${r.c.id===S.focus?' on':''}" type="button" data-cid="${r.c.id}" aria-label="Khách số ${r.c.no}">
-      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" class="qbg"/><circle cx="20" cy="20" r="17" class="qring" pathLength="100"/></svg>
-      <img src="${portraitURL(r.c)}" alt=""><b>${r.c.no}</b></button>`).join('');
   const r=live.find(x=>x.c.id===S.focus)||live[0];
   if(!r){b.innerHTML=`<div class="bub-empty">${S.phase==='open'?'Đang chờ khách ghé tiệm…':'Tiệm chưa mở cửa.'}</div>`;return}
+  const chips=live.slice().sort((a,b2)=>a.c.no-b2.c.no).map(x=>`<button class="qav${x===r?' on':''}" type="button" data-cid="${x.c.id}" aria-label="Chọn khách số ${x.c.no}">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" class="qbg"/><circle cx="20" cy="20" r="17" class="qring" pathLength="100"/></svg>
+      <img src="${portraitURL(x.c)}" alt=""><b>${x.c.no}</b></button>`).join('');
   const c=r.c,T=TYPES[c.type],o=c.order,q2=o.qty||1,label=c.friend?REGULARS.find(x=>x.id===c.friend).name+' '+'♥'.repeat(friendOf(c.friend).hearts):T.label;
-  b.innerHTML=`<div class="bub-pic"><img src="${portraitURL(c)}" alt=""><b>#${c.no}</b></div>
-    <div class="bub-box" data-type="${c.type}">
-      <div class="bub-meta"><span class="t-type ${c.friend?'friend':c.type}">${label}</span><span class="bub-tags"></span><span class="bub-price">${Math.round(orderPrice(o)*T.pay*q2)}k</span></div>
+  b.innerHTML=`<div class="bub-box" data-type="${c.type}">
+      <div class="bub-meta"><span class="queue" id="queue">${chips}</span><span class="t-type ${c.friend?'friend':c.type}">${label}</span><span class="bub-price">${Math.round(orderPrice(o)*T.pay*q2)}k</span></div>
       <p class="bub-say">${speech(c)}</p>
       <div class="bub-foot">${q2>1?`<span class="bub-bag">Túi ${c.bagged}/${q2}</span>`:''}<img class="mood" alt="" width="18" height="18"><div class="pat"><i></i></div><span class="t-sec"></span>${staffOn('na')?'<button class="ask" type="button">Nhờ Na</button>':''}</div>
     </div>`;
   const ask=b.querySelector('.ask');if(ask)ask.addEventListener('click',()=>{audio();askNa(ticketRefs.indexOf(r))});
 }
-$('#queue').addEventListener('click',e=>{const a=e.target.closest('.qav');if(!a)return;audio();S.focus=+a.dataset.cid;S.focusManual=true;sfx.click();renderTickets()});
+$('#bubble').addEventListener('click',e=>{const a=e.target.closest('.qav');if(!a)return;audio();S.focus=+a.dataset.cid;S.focusManual=true;sfx.click();renderTickets()});
 function tickCounter(){
   if(!document.body.classList.contains('bar-new'))return;
   const live=ticketRefs.filter(Boolean);
@@ -688,7 +687,6 @@ function tickCounter(){
   const m=moodOf(f),mi=b.querySelector('.mood');if(mi.dataset.m!==m){mi.dataset.m=m;mi.src=faceURL(m)}
   const ok={tea:cup.tea===o.tea,sugar:cup.sugar===o.sugar,ice:cup.ice===o.ice,tops:cup.tops.length===o.tops.length&&o.tops.every(t=>cup.tops.includes(t))&&(cup.tea!==null||cup.tops.length>0)};
   b.querySelectorAll('[data-f]').forEach(el=>el.classList.toggle('ok',ok[el.dataset.f]));
-  const tags=(r.tagKey||'');const tk=b.querySelector('.bub-tags');const html=(tags.includes('f')?'<span class="tag first">Đến trước</span>':'')+(tags.includes('u')?'<span class="tag hot">Gấp!</span>':'');if(tk.innerHTML!==html)tk.innerHTML=html;
   if(r.ask===undefined){}const ask=b.querySelector('.ask');if(ask){const lab=S.naJob?'Na đang rót…':S.naCd>0?`Na nghỉ ${Math.ceil(S.naCd)}s`:'Nhờ Na';if(ask.textContent!==lab)ask.textContent=lab;ask.disabled=!!S.naJob||S.naCd>0}
 }
 function syncFocus(){

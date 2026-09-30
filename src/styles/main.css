@@ -418,32 +418,28 @@
   }
   @media (prefers-reduced-motion:reduce){.float{animation:none;opacity:0}.ticket.new,.scene.shake,img.mood.furious{animation:none}}
 
-/* ===================== New bar layout (default): everything on one screen, like a real counter ===================== */
-.queue{display:none}
+/* ===================== New bar layout (default) =====================
+   Top to bottom in the order you work: who's ordering → the tip line → make the drink → serve.
+   Nothing floats over anything else; the controls sit at the bottom, near the thumb. */
 .bubble{display:none}
 body.bar-new .tickets{display:none}
 body.bar-new .focuschip{display:none!important}
-body.bar-new .queue{display:flex;position:absolute;top:6px;left:6px;gap:6px;z-index:2}
-body.bar-new .bubble{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:start}
-.qav{position:relative;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#FFF8F2;cursor:pointer;box-shadow:0 2px 6px rgba(90,40,50,.18)}
-.qav svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
-.qav .qbg{fill:none;stroke:rgba(255,255,255,.7);stroke-width:3}
-.qav .qring{fill:none;stroke:#2F9A6C;stroke-width:3;stroke-dasharray:100;stroke-linecap:round}
-.qav img{position:absolute;inset:6px;width:28px;height:28px;image-rendering:pixelated;border-radius:50%;background:#FFE9E0}
-.qav b{position:absolute;right:-4px;bottom:-3px;min-width:16px;height:16px;padding:0 3px;border-radius:8px;background:#fff;color:var(--ink);font-size:10px;line-height:16px;box-shadow:0 0 0 1px var(--line2)}
-.qav.on{box-shadow:0 0 0 3px var(--gold),0 2px 6px rgba(90,40,50,.2)}
-.qav.on b{background:var(--gold);color:#fff}
-.qav.hot{animation:hotpulse 1s ease-in-out infinite}
-.bub-pic{position:relative;width:52px;height:52px;border-radius:14px;background:linear-gradient(#FFE9E0,#FFF6EF);border:1px solid var(--line);display:grid;place-items:center}
-.bub-pic img{width:44px;height:44px;image-rendering:pixelated}
-.bub-pic b{position:absolute;left:-4px;top:-6px;background:var(--gold);color:#fff;font-size:11px;border-radius:8px;padding:0 5px;line-height:17px}
-.bub-box{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px 8px;box-shadow:var(--shadow);display:grid;gap:4px;min-width:0}
-.bub-box::before{content:"";position:absolute;left:-7px;top:18px;width:12px;height:12px;background:var(--surface);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+body.bar-new .bubble{display:block}
+.bub-box{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;box-shadow:var(--shadow);display:grid;gap:4px;min-width:0}
 .bub-box[data-type="online"]{border-color:rgba(63,131,196,.45)}.bub-box[data-type="picky"],.bub-box[data-type="reviewer"]{border-color:rgba(217,67,92,.45)}
-.bub-meta{display:flex;align-items:center;gap:6px;min-width:0}
-.bub-meta .t-type{white-space:nowrap}
-.bub-tags{display:flex;gap:4px}
-.bub-price{margin-left:auto;font-family:var(--serif);font-weight:600;font-size:18px;color:var(--gold);line-height:1}
+.bub-meta{display:flex;align-items:center;gap:8px;min-width:0}
+.bub-meta .t-type{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.bub-price{margin-left:auto;font-family:var(--serif);font-weight:600;font-size:19px;color:var(--gold);line-height:1}
+.queue{display:flex;gap:6px;flex:none}
+.qav{position:relative;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:#FFF8F2;cursor:pointer;flex:none}
+.qav svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.qav .qbg{fill:none;stroke:var(--line);stroke-width:3.5}
+.qav .qring{fill:none;stroke:#2F9A6C;stroke-width:3.5;stroke-dasharray:100;stroke-linecap:round}
+.qav img{position:absolute;inset:5px;width:22px;height:22px;image-rendering:pixelated;border-radius:50%;background:#FFE9E0}
+.qav b{position:absolute;right:-5px;top:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#fff;color:var(--muted);font-size:9.5px;line-height:15px;box-shadow:0 0 0 1px var(--line2)}
+.qav:not(.on){opacity:.6}
+.qav.on b{background:var(--gold);color:#fff;box-shadow:none}
+.qav.hot{opacity:1;animation:hotpulse 1s ease-in-out infinite}
 .bub-say{margin:0;font-size:14.5px;line-height:1.4;color:var(--ink)}
 .bub-say b{font-weight:600;border-bottom:2px solid transparent;transition:color .15s}
 .bub-say b.tea{color:var(--gold)}
@@ -453,97 +449,82 @@ body.bar-new .bubble{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8
 .bub-foot .mood{width:18px;height:18px;image-rendering:pixelated}
 .bub-foot .ask{margin:0;padding:3px 10px;font-size:11.5px}
 .bub-bag{font-size:11.5px;font-weight:700;color:#3F83C4;background:#E5F0FA;border-radius:999px;padding:1px 8px}
-.bub-empty{grid-column:1/-1;color:var(--faint);font-size:13.5px;padding:10px 4px;text-align:center;border:1px dashed var(--line2);border-radius:14px}
+.bub-empty{color:var(--faint);font-size:13.5px;padding:12px 4px;text-align:center;border:1px dashed var(--line2);border-radius:14px}
 
-/* the bar itself: tea shelf on top, the cup tray with sugar and ice on the left, topping bins on the right */
+/* the station: cup on the left, the four steps on the right, in making order */
 body.bar-new .station .controls{display:contents}
-body.bar-new .station{grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);grid-template-rows:auto auto auto auto minmax(0,1fr) auto;
-  grid-template-areas:"tea tea" "cup tops" "ice tops" "sugar sugar" ". ." "act act";gap:8px 12px;align-content:start;overflow:auto;
-  background:linear-gradient(#FFFFFF 0,#FFFFFF 96px,#FBF1EA 96px)}
-body.bar-new .g-tea>.lab,body.bar-new .g-sugar>.lab,body.bar-new .g-ice>.lab{display:none}
+body.bar-new .station{display:grid;grid-template-columns:84px minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr) auto auto auto auto auto;
+  grid-template-areas:"hint hint" "cup tea" "cup sugar" "cup ice" "cup tops" "act act";gap:8px 10px;overflow:hidden}
+body.bar-new .group>.lab{display:none}
 body.bar-new .g-tea{grid-area:tea}
 body.bar-new .g-sugar{grid-area:sugar}
 body.bar-new .g-ice{grid-area:ice}
-body.bar-new .g-top{grid-area:tops;align-self:start}
-body.bar-new .cupcol{grid-area:cup;grid-row:auto;grid-column:auto;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 8px;justify-items:start;
-  background:#FFF;border:1px solid var(--line);border-radius:14px;padding:6px 8px}
-body.bar-new .cupsum{text-align:left;min-height:0;font-size:11.5px;grid-column:2}
-body.bar-new .gear{grid-column:2;grid-template-columns:1fr 1fr}
-body.bar-new #cup{grid-row:1/3;width:60px;height:84px}
-body.bar-new .actionbar{grid-area:act}
-body.bar-new .hint{position:absolute;left:12px;right:12px;bottom:66px;z-index:3;margin:0;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.97);
-  border:1px solid var(--line2);box-shadow:0 6px 18px rgba(90,40,50,.15);pointer-events:none;font-size:12.5px}
-body.bar-new .hint:empty{display:none}
-/* tea shelf: dispensers in one row */
-body.bar-new .g-tea .opts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-body.bar-new .g-tea .tile{width:auto;padding:6px 2px 5px;border-radius:14px 14px 8px 8px;background:linear-gradient(#FFFFFF,#FFF3EA);border-color:var(--line2);box-shadow:inset 0 -3px 0 rgba(160,110,90,.12)}
-body.bar-new .g-tea .tile img{width:40px;height:40px}
-/* topping bins: a steel tray of wells */
-body.bar-new .g-top .opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:#E9DCD4;border-radius:14px;padding:6px}
-body.bar-new .g-top .tile{width:auto;background:#FFFFFF;border-color:#D9C4B8;border-radius:10px;box-shadow:inset 0 2px 4px rgba(120,80,60,.12);padding:6px 2px 5px}
-body.bar-new .g-top .tile img{width:36px;height:36px}
+body.bar-new .g-top{grid-area:tops}
+body.bar-new .actionbar{grid-area:act;margin-top:2px}
+/* the tip line lives in its own row (no more floating over buttons) */
+body.bar-new .hint{grid-area:hint;position:static;align-self:end;margin:0;padding:0 2px;background:none;border:0;box-shadow:none;
+  font-size:12.5px;line-height:1.35;color:var(--muted);min-height:1.35em;pointer-events:none}
+body.bar-new .hint:empty{display:block}
+/* the cup column: just the cup, what's in it, and a warning only when supplies run low */
+body.bar-new .cupcol{grid-area:cup;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 4px;
+  background:linear-gradient(#FFFFFF,#FFF4EC);border:1px solid var(--line);border-radius:16px;align-self:stretch;min-height:0}
+body.bar-new #cup{width:64px;height:90px}
+body.bar-new .cupsum{font-size:11px;text-align:center;line-height:1.3;min-height:0}
+body.bar-new .gear{display:flex;flex-wrap:wrap;justify-content:center;gap:2px}
+body.bar-new .gear>span:not(.low){display:none}
+/* every row fills the width evenly */
+body.bar-new .station .opts{display:flex;gap:6px}
+body.bar-new .station .opts>.tile{flex:1 1 0;min-width:0;width:auto;max-width:none}
+body.bar-new .g-tea .tile{padding:5px 2px 4px}
+body.bar-new .g-tea .tile img{width:34px;height:34px}
+body.bar-new .g-top .tile{padding:5px 2px 4px}
+body.bar-new .g-top .tile img{width:30px;height:30px}
+body.bar-new .station .tile span{font-size:11px}
 /* sugar: one segmented slider */
-body.bar-new .g-sugar .opts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border:1px solid var(--line2);border-radius:999px;overflow:hidden;
-  background:linear-gradient(90deg,#FFFFFF,#FFE7B8)}
-body.bar-new .g-sugar .tile{width:auto;border:0;border-radius:0;background:transparent;padding:7px 0;box-shadow:none}
+body.bar-new .g-sugar .opts{gap:0;border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:linear-gradient(90deg,#FFFFFF,#FFE7B8)}
+body.bar-new .g-sugar .tile{border:0;border-radius:0;background:transparent;padding:9px 0;box-shadow:none}
 body.bar-new .g-sugar .tile img{display:none}
-body.bar-new .g-sugar .tile span{font-size:11.5px;font-weight:600}
+body.bar-new .g-sugar .tile span{font-size:12.5px;font-weight:600}
 body.bar-new .g-sugar .tile[aria-pressed="true"]{background:var(--gold)}
 body.bar-new .g-sugar .tile[aria-pressed="true"] span{color:#fff}
 body.bar-new .g-sugar .tile+.tile{border-left:1px solid rgba(232,205,189,.8)}
-/* ice: three small buttons */
-body.bar-new .g-ice .opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-body.bar-new .g-ice .tile{width:auto;flex-direction:row;justify-content:center;gap:4px;padding:5px 2px}
-body.bar-new .g-ice .tile img{width:22px;height:22px}
-body.bar-new .g-ice .tile span{font-size:11px}
-body.bar-new .group{gap:4px}
-@media (max-width:640px) and (orientation:portrait){
-  body.bar-new .station{padding:8px 10px 0 10px;gap:6px 8px;grid-template-columns:minmax(0,.95fr) minmax(0,1.2fr);background:linear-gradient(#FFFFFF 0,#FFFFFF 78px,#FBF1EA 78px)}
-  body.bar-new .actionbar{margin:0 0 8px 0}
-  body.bar-new .g-tea .tile img{width:34px;height:34px}
-  body.bar-new .g-tea .tile span{font-size:10px}
-  body.bar-new .g-top .tile img{width:30px;height:30px}
-  body.bar-new .g-top .tile span{font-size:10px}
-  body.bar-new #cup{width:48px;height:67px}
-  body.bar-new .cupsum{display:block;font-size:10.5px}
-  body.bar-new .gear{grid-template-columns:1fr 1fr;font-size:10px}
-  body.bar-new .hint{left:10px;right:10px;bottom:62px}
-  body.bar-new .bubble{grid-template-columns:44px minmax(0,1fr);gap:6px}
-  body.bar-new .bub-pic{width:44px;height:44px}.bub-pic img{width:38px;height:38px}
-  body.bar-new .bub-say{font-size:13px;line-height:1.35}
-  body.bar-new .bub-box{padding:6px 10px}
-  .qav{width:34px;height:34px}.qav img{inset:5px;width:24px;height:24px}
-}
-
-body.bar-new .g-sugar .tile span{font-size:12.5px}
-body.bar-new .g-sugar .tile{padding:8px 0}
-body.bar-new .g-ice .tile{flex-direction:column;gap:1px;padding:4px 2px}
-body.bar-new .g-ice .tile span{font-size:10.5px}
+/* ice: three buttons with the icon beside the word */
+body.bar-new .g-ice .tile{flex-direction:row;justify-content:center;gap:4px;padding:6px 2px}
 body.bar-new .g-ice .tile img{width:20px;height:20px}
-body.bar-new .g-top .opts{align-content:start}
+body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top right}
 @media (min-width:1000px){
-  body.bar-new .g-tea .tile img{width:48px;height:48px}
-  body.bar-new .g-top .tile img{width:44px;height:44px}
-  body.bar-new #cup{width:72px;height:101px}
-  body.bar-new .station{background:linear-gradient(#FFFFFF 0,#FFFFFF 112px,#FBF1EA 112px)}
+  body.bar-new .station{grid-template-columns:120px minmax(0,1fr);gap:10px 14px}
+  body.bar-new #cup{width:88px;height:123px}
+  body.bar-new .g-tea .tile img{width:44px;height:44px}
+  body.bar-new .g-top .tile img{width:40px;height:40px}
+  body.bar-new .station .tile span{font-size:12.5px}
 }
-@media (max-height:600px){
-  body.bar-new .g-top>.lab{font-size:9.5px}
-  body.bar-new .g-tea .tile{padding:3px 2px}
-  body.bar-new .g-tea .tile img{width:28px;height:28px}
-  body.bar-new .g-top .tile{padding:3px 2px}
-  body.bar-new .g-top .tile img{width:26px;height:26px}
-  body.bar-new #cup{width:40px;height:56px}
-  body.bar-new .cupcol{padding:4px 6px}
-  body.bar-new .bub-say{font-size:12.5px}
-  body.bar-new .bub-foot .mood{display:none}
-  body.bar-new .g-sugar .tile{padding:5px 0}
-  body.bar-new .station{background:linear-gradient(#FFFFFF 0,#FFFFFF 62px,#FBF1EA 62px)}
+@media (max-width:640px) and (orientation:portrait){
+  body.bar-new .station{padding:6px 10px 0;gap:6px 8px;grid-template-columns:74px minmax(0,1fr)}
+  body.bar-new .actionbar{margin:0 0 8px}
+  body.bar-new #cup{width:54px;height:76px}
+  body.bar-new .bub-say{font-size:13.5px;line-height:1.35}
+  body.bar-new .bub-box{padding:7px 10px}
+  body.bar-new .station .tile span{font-size:10.5px}
 }
 @media (max-height:600px){
   body.bar-new .station{gap:5px 8px}
-  body.bar-new .g-ice .tile{padding:2px}
+  body.bar-new .g-tea .tile,body.bar-new .g-top .tile{padding:3px 2px}
+  body.bar-new .g-tea .tile img{width:26px;height:26px}
+  body.bar-new .g-top .tile img{width:24px;height:24px}
+  body.bar-new .g-sugar .tile{padding:6px 0}
+  body.bar-new .g-ice .tile{padding:3px 2px}
   body.bar-new .g-ice .tile img{width:16px;height:16px}
-  body.bar-new .actionbar{margin-bottom:6px}
+  body.bar-new #cup{width:44px;height:62px}
+  body.bar-new .bub-say{font-size:12.5px}
+  body.bar-new .bub-foot .mood{display:none}
   body.bar-new .bub-box{padding:5px 9px;gap:2px}
+  body.bar-new .actionbar{margin-bottom:6px}
+  .qav{width:28px;height:28px}.qav img{inset:4px;width:20px;height:20px}
+}
+/* side-by-side layouts (tablet, desktop, phone on its side): the station is tall, so centre the bar instead of leaving a blank top */
+@media (min-width:700px),(orientation:landscape){
+  body.bar-new .station{grid-template-rows:auto auto auto auto auto auto;align-content:center}
+  body.bar-new .hint{min-height:2.7em}
 }
