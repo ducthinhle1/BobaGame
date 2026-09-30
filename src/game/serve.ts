@@ -15,10 +15,11 @@ export function serve(slot){
   if(S.phase!=='open')return;
   const c=S.slots[slot];if(!c||c.state!=='wait')return;
   const o=c.order,T=TYPES[c.type],qty=o.qty||1;
-  if(S.bagJob)return;
+  if(c.bagT>0)return;
   if(qty>1&&c.bagged>=qty){bagUp(slot);return}
-  if(!cup.tea){hint(qty>1?`Đơn này cần ${qty} ly giống nhau: pha từng ly, dán nắp rồi cho vào túi.`:'Hãy rót trà trước đã.');sfx.nope();return}
-  if(!cup.sealed){if(sealNeeded()){hint('Dán nắp ly trước đã (nút Dán nắp hoặc phím S).');sfx.nope();return}if(!useGear('film'))return;cup.sealed=true}
+  if(!cup.tea){hint(qty>1?`Đơn này cần ${qty} ly giống nhau: pha từng ly rồi cho vào túi.`:'Hãy rót trà trước đã.');sfx.nope();return}
+  // sealing is part of serving: one tap seals (uses a film) and hands the cup over
+  if(!cup.sealed){if(!useGear('film'))return;cup.sealed=true;if(sealNeeded())beep(140,.06,'square',.04)}
   if(!useGear('straw'))return;
   const err=countErrors(cup,o),verdict=judge(err,T.strict);
   const price=Math.round(orderPrice(o)*T.pay);
@@ -29,7 +30,8 @@ export function serve(slot){
     if(verdict!=='wrong'){
       c.bagged++;S.focus=c.id;S.focusManual=true;if(c.bagged<qty)S.repeat={cid:c.id,tea:cup.tea,sugar:cup.sugar,ice:cup.ice,tops:[...cup.tops]};if(verdict==='perfect'){c.perfectCups++;c.qmSum+=qmc;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak)}else S.streak=0;
       floatText(slot,`${c.bagged}/${qty} ly`,'good');sfx.ok();beep(420,.12,'triangle',.04,260,.08);
-      hint(c.bagged<qty?`Đã cho vào túi ${c.bagged}/${qty}. Bấm “Pha y chang” để rót ly tiếp theo.`:'Đủ ly rồi! Bấm “Đóng túi” để giao.');
+      if(c.bagged<qty)hint(`Đã cho vào túi ${c.bagged}/${qty}. Bấm “Pha y chang” để rót ly tiếp theo.`);
+      else bagUp(slot); // last cup in: the bag closes and goes out by itself
     }else{
       S.streak=0;c.pat=Math.max(1,c.pat-c.maxPat*.2);floatText(slot,'Sai món','bad');sfx.fail();shake();
       hint(T.strict?'Khách khó tính muốn đúng từng chi tiết. Ly này phải bỏ.':`Ly này sai ${err} chỗ nên phải bỏ. Pha lại ly khác nhé.`);
@@ -61,9 +63,10 @@ export function serve(slot){
   setCup(emptyCup());cupChanged();updateHud();checkQuests();
 }
 export function bagUp(slot){
-  const c=S.slots[slot];if(!c||S.bagJob)return;
+  const c=S.slots[slot];if(!c||c.bagT>0)return;
   if(!useGear('bag'))return;
-  S.bagJob={slot,t:.8};beep(300,.3,'triangle',.04,200);beep(500,.08,'square',.025,null,.5);hint('Đang đóng túi…');renderTickets();
+  // closing a bag takes a moment but doesn't block the counter: keep making the next drink meanwhile
+  c.bagT=.45;beep(300,.2,'triangle',.04,200);beep(500,.08,'square',.025,null,.3);hint('Đủ ly rồi, đang đóng túi giao cho khách…');renderTickets();
 }
 export function finishBag(slot){
   const c=S.slots[slot];if(!c||c.state!=='wait')return;

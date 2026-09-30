@@ -50,5 +50,7 @@ export interface Customer {
   friend: string | null; no: number; id: number; slot: number; type: TypeId; look: Look; order: Order;
   x: number; state: CustomerState; pat: number; maxPat: number; result: 'love' | 'ok' | 'angry' | null;
   bubbleT: number; bagged: number; perfectCups: number; qmSum: number;
+  /** seconds left while the bag is being closed */
+  bagT?: number;
   carry?: { color?: string; pearls?: boolean; foam?: boolean; bag?: boolean };
 }

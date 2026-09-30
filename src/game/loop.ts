@@ -1,16 +1,16 @@
 import {PEARL_BATCH,RUSH,SUPPLY} from '../data';
 import {beep,meow,sfx} from './audio';
 import {drawCup,drawScene,updateCats} from './cats';
-import {DAY_LEN,SLOTS,addBatch,feat,packOf,save,staffOn,stockN,stockName,takeServing,teaBatch,useGear} from './core';
+import {DAY_LEN,SLOTS,addBatch,feat,packOf,save,staffOn,stockName,teaBatch} from './core';
 import {ev,leave,spawn} from './customers';
 import {endDay} from './day';
 import {drawLifted,drawParts,drawSign,puff,updateParts} from './fx';
-import {renderTickets,ticketRefs,updateBars,updateHud} from './orders';
+import {naWork,renderTickets,ticketRefs,updateBars,updateHud} from './orders';
 import {drawMini,updateMini} from './prep';
 import {checkQuests} from './quests';
 import {finishBag,floatText,hint,serve,tickHint} from './serve';
 import {S,cup} from './state';
-import {cupChanged,rebrew,syncBadges,syncGear} from './station';
+import {cupChanged,hoaWork,rebrew,syncBadges,syncGear} from './station';
 
 /* ---------- loop ---------- */
 export let last=performance.now(),spawnWait=0;
@@ -31,13 +31,11 @@ export function update(dt){
   }
   if(Object.keys(S.brewing).length||Object.keys(S.delivering).length||S.time<.05)syncBadges();
   // Chị Hoa keeps what you've brewed today topped up
-  if(staffOn('hoa')){S.hoaT-=dt;if(S.hoaT<=0){S.hoaT=.5;for(const id in S.brewed)if(!S.brewing[id]&&stockN(id)<=2&&(save.pantry[id]||0)>0){rebrew(id,'hoa');break}}}
+  if(staffOn('hoa')){S.hoaT-=dt;if(S.hoaT<=0){S.hoaT=.4;hoaWork()}}
   if(S.sealT>0){S.sealT-=dt;if(S.sealT<=0){S.sealT=0;cup.sealed=true;cupChanged();beep(160,.07,'square',.05);beep(110,.12,'square',.05,null,.06)}}
-  if(S.bagJob){S.bagJob.t-=dt;if(S.bagJob.t<=0){const sl=S.bagJob.slot;S.bagJob=null;finishBag(sl);renderTickets()}}
+  S.slots.forEach((c,i)=>{if(c&&c.bagT>0){c.bagT-=dt;if(c.bagT<=0){c.bagT=0;finishBag(i);renderTickets()}}});
   // Bé Na pours tea, sugar and ice for the ticket you asked about
-  if(S.naCd>0)S.naCd=Math.max(0,S.naCd-dt);
-  if(S.naJob){S.naJob.t-=dt;if(S.naJob.t<=0){const o=S.naJob.order;S.naJob=null;S.naCd=15;
-    if(!cup.tea&&cup.sugar===null&&cup.ice===null&&!cup.tops.length&&stockN(o.tea)>0&&useGear('cup')){cup.teaQ=takeServing(o.tea);cup.level=0;cup.tea=o.tea;cup.sugar=o.sugar;cup.ice=o.ice;sfx.pour();cupChanged();hint('Na rót xong! Thêm topping rồi phục vụ nhé.')}}}
+  if(staffOn('na'))naWork(dt);
   // Anh Tú carries out any cup that matches a ticket
   if(S.autoServe){S.autoServe.t-=dt;if(S.autoServe.t<=0){const i=S.autoServe.slot;S.autoServe=null;const r=ticketRefs[i];if(r&&r.ready)serve(i)}}
   // rush hour: customers pour in for 30 seconds mid-shift

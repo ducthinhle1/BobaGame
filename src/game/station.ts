@@ -1,6 +1,6 @@
 import {DELIVERY,GEAR,GEAR_NAME,ICES,QUAL,SUGARS,SUPPLY,TEAS,TOPS} from '../data';
 import {audio,beep,sfx} from './audio';
-import {$,g,has,maxTops,nextQ,save,sealNeeded,stockN,stockName,takeServing,tea,top,unlocked,useGear} from './core';
+import {$,g,has,maxTops,nextQ,save,stockN,stockName,takeServing,tea,top,unlocked,useGear} from './core';
 import {parts} from './fx';
 import {iconURL} from './icons';
 import {markTickets,updateHud} from './orders';
@@ -34,7 +34,7 @@ export function syncControls(){
     b.classList.toggle('locked',set&&!on);
   });
   $('#dump').textContent='Đổ ly';
-  const sb=$<HTMLButtonElement>('#seal');sb.hidden=!sealNeeded();sb.disabled=!cup.tea||cup.sealed||S.sealT>0;sb.textContent=cup.sealed?'Đã dán nắp':S.sealT>0?'Đang dán…':'Dán nắp';sb.classList.toggle('done',cup.sealed);
+  const sb=$<HTMLButtonElement>('#seal');sb.hidden=true;sb.disabled=!cup.tea||cup.sealed||S.sealT>0;sb.textContent=cup.sealed?'Đã dán nắp':S.sealT>0?'Đang dán…':'Dán nắp';sb.classList.toggle('done',cup.sealed);
   if(cup.sealed)document.querySelectorAll<HTMLElement>('.opts .tile').forEach(t=>{if(t.getAttribute('aria-pressed')!=='true')t.classList.add('locked')});
   syncBadges();
 }
@@ -63,13 +63,29 @@ export function syncBadges(){
     bd.title=n?`Còn ${n} · kế tiếp: ${QUAL[q].label}`:'';
   });
 }
+/** Chị Hoa looks at what the waiting customers ordered and brews whatever will run short first,
+ *  keeping a small buffer of every tea you brewed today. Up to two pots at once. When the pantry is out,
+ *  she orders a rush delivery (at most every 20 s per item, and only if you can pay for it). */
+export function hoaWork(){
+  if(Object.keys(S.brewing).length>=2)return;
+  const need:Record<string,number>={};
+  S.slots.forEach(c=>{if(!c||c.state==='leave')return;const left=(c.order.qty||1)-c.bagged;
+    need[c.order.tea]=(need[c.order.tea]||0)+left;if(c.order.tops.includes('pearl'))need.pearl=(need.pearl||0)+left});
+  let best=null,gap=0;
+  for(const id in S.stock){if(S.brewing[id])continue;const g=(need[id]||0)+(S.brewed[id]?3:0)-stockN(id);if(g>gap){gap=g;best=id}}
+  if(!best)return;
+  if((save.pantry[best]||0)>0){rebrew(best,'hoa');return}
+  if(S.delivering[best]||S.time-(S.hoaOrdered[best]??-99)<20)return;
+  S.hoaOrdered[best]=S.time;orderDelivery(best);
+  if(S.delivering[best])hint(`Kho hết ${stockName(best)}. Chị Hoa đã đặt giao gấp.`);
+}
 export function rebrew(id,byHoa?){
   if(S.brewing[id]){if(!byHoa){hint(`${stockName(id)} sẽ xong sau ${Math.ceil(S.brewing[id])} giây.`);sfx.nope()}return}
   if((save.pantry[id]||0)<=0){if(!byHoa)orderDelivery(id);return}
   S.brewed[id]=1;
   const secs=has('kettle')?3:7;
   save.pantry[id]--;S.brewing[id]=secs;
-  hint(byHoa==='hoa'?`Chị Hoa đang pha thêm ${stockName(id)} (${secs} giây).`:byHoa?`Đang pha ${stockName(id)} vừa giao tới (${secs} giây).`:`Hết ${stockName(id)}. Đang pha gấp từ kho: ${secs} giây.`);sfx.pour();syncBadges();
+  hint(byHoa==='hoa'?`Chị Hoa pha thêm ${stockName(id)}, ${secs} giây nữa có.`:byHoa?`Đang pha ${stockName(id)} vừa giao tới (${secs} giây).`:`Hết ${stockName(id)}. Đang pha gấp từ kho: ${secs} giây.`);sfx.pour();syncBadges();
 }
 export const LOCKED='Đã cho vào ly rồi. Đổ ly để làm lại.';
 export function canAct(){
@@ -110,7 +126,7 @@ export function sealCup(){
   if(!cup.tea){hint('Chưa có trà để dán nắp.');sfx.nope();return}
   if(cup.sealed)return;
   if(!useGear('film'))return;
-  S.sealT=.6;beep(90,.55,'sawtooth',.025,150);syncControls();
+  S.sealT=.25;beep(90,.25,'sawtooth',.025,150);syncControls();
 }
 $('#seal').addEventListener('click',sealCup);
 // multi-cup orders: one tap pours the next cup with the same recipe (still uses stock; you still seal and bag it)
@@ -131,7 +147,7 @@ export async function pourAgain(){
     tap(k,v);await new Promise(res=>setTimeout(res,110));
   }
   againBusy=false;syncAgain();
-  if(cup.tea)hint('Đã rót ly giống ly trước. Dán nắp rồi cho vào túi nhé.');
+  if(cup.tea)hint('Đã rót ly giống ly trước. Bấm nút lớn để cho vào túi.');
 }
 $('#again').addEventListener('click',pourAgain);
 export function cupChanged(){

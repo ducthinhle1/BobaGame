@@ -175,7 +175,7 @@ export function drawCup(){
   // rim + gloss
   px(cg,6,11,29,1,'#FFFFFF');px(cg,5,10,31,1,'#D9C7D6');
   // sealing machine press, then the sealed film with a paw print
-  if(S&&S.sealT>0){const q=1-S.sealT/.6,y=Math.round(q*7);px(cg,18,0,4,y+2,'#8C86A4');px(cg,4,y+2,33,3,METAL);px(cg,4,y+2,33,1,METAL_HI)}
+  if(S&&S.sealT>0){const q=1-S.sealT/.25,y=Math.round(q*7);px(cg,18,0,4,y+2,'#8C86A4');px(cg,4,y+2,33,3,METAL);px(cg,4,y+2,33,1,METAL_HI)}
   if(cup.sealed){px(cg,6,9,29,3,'#FFF1F5');px(cg,6,11,29,1,'#F2B8C8');px(cg,19,9,3,2,'#F2708F');px(cg,18,8,1,1,'#F2708F');px(cg,20,8,1,1,'#F2708F');px(cg,22,8,1,1,'#F2708F')}
   // cat ears on the lid and a little cat face once there's tea inside
   const ear=(cx,dir)=>{for(let i=0;i<5;i++){const w=Math.max(1,5-i);px(cg,cx-(dir<0?0:w-1),9-i,w,1,'#B9A2B8');if(w>2)px(cg,cx-(dir<0?-1:w-2),9-i,w-2,1,i<3?'#FBD3DE':'#FFF6F8')}};

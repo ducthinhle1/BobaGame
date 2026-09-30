@@ -61,7 +61,7 @@ export function spawn(force?){
   if(type==='reviewer'){order.qty=1;look.shades=true}
   const pat2=pat*1.3+(order.qty-1)*12;
   const c:Customer={friend,no:++S.orderNo,id:S.nextId++,slot,type,look,order,x:W+12,state:'walk',pat:pat2,maxPat:pat2,result:null,bubbleT:0,bagged:0,perfectCups:0,qmSum:0};
-  if(type==='online'&&!S.onlineShown){S.onlineShown=true;setTimeout(()=>{if(S.phase==='open')hint(`Đơn online! Shipper cần ${order.qty} ly: pha từng ly, dán nắp, cho vào túi, rồi đóng túi để giao.`)},900)}
+  if(type==='online'&&!S.onlineShown){S.onlineShown=true;setTimeout(()=>{if(S.phase==='open')hint(`Đơn online! Shipper cần ${order.qty} ly: pha ly đầu, cho vào túi, rồi “Pha y chang” cho đủ. Đủ ly là túi tự đóng.`)},900)}
   S.slots[slot]=c;S.customers.push(c);renderTickets();return true;
 }
 export function leave(c,result){

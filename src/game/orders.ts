@@ -3,19 +3,19 @@ import {ICES,REGULARS,TYPES} from '../data';
 import {matchParts} from '../logic/cup';
 import {goalFor,moodOf} from '../logic/economy';
 import {audio,sfx} from './audio';
-import {$,DAY_LEN,OUT,levelOf,orderPrice,save,sealNeeded,staffOn,stockN,tea,top} from './core';
+import {$,DAY_LEN,OUT,levelOf,orderPrice,save,sealNeeded,staffOn,stockN,takeServing,tea,top,useGear} from './core';
 import {friendOf} from './customers';
 import {MOODS,blit,faceURL,inEll,px} from './draw';
 import {parts} from './fx';
 import {hint,serve} from './serve';
 import {S,cup} from './state';
-import {canAct,rebrew,syncAgain} from './station';
+import {cupChanged,syncAgain,syncBadges} from './station';
 
 /* ---------- tickets ---------- */
 /** the hidden order tickets, one per counter slot (null when empty); the counter UI reads its state from here */
-export interface TicketRef{c:Customer;el:HTMLElement;bar:HTMLElement;fill:HTMLElement;face:HTMLImageElement;mood:string|null;ask:HTMLButtonElement|null;tags:HTMLElement;sec:HTMLElement;tagKey:string;ready?:boolean}
+export interface TicketRef{c:Customer;el:HTMLElement;bar:HTMLElement;fill:HTMLElement;face:HTMLImageElement;mood:string|null;ask:HTMLElement|null;tags:HTMLElement;sec:HTMLElement;tagKey:string;ready?:boolean}
 export let ticketRefs:(TicketRef|null)[]=[];export const seenTickets=new Set();
-export function serveLabel(c){const q=c.order.qty||1;if(q===1)return'Phục vụ';if(S.bagJob&&S.slots[S.bagJob.slot]===c)return'Đang đóng túi…';return c.bagged>=q?'Đóng túi & giao':`Cho vào túi ${c.bagged}/${q}`}
+export function serveLabel(c){const q=c.order.qty||1;if(q===1)return'Phục vụ';if(c.bagT>0)return'Đang đóng túi…';return c.bagged>=q?'Đóng túi & giao':`Cho vào túi ${c.bagged}/${q}`}
 /* ---------- new bar: waiting-customer avatars and the order speech bubble ---------- */
 export const picCache=new Map();
 export function portraitURL(c){
@@ -63,9 +63,8 @@ export function renderCounter(){
   b.innerHTML=`<div class="bub-box" data-type="${c.type}">
       <div class="bub-meta"><span class="queue" id="queue">${chips}</span><span class="t-type ${c.friend?'friend':c.type}">${label}</span><span class="bub-price">${Math.round(orderPrice(o)*T.pay*q2)}k</span></div>
       <p class="bub-say">${speech(c)}</p>
-      <div class="bub-foot">${q2>1?`<span class="bub-bag">Túi ${c.bagged}/${q2}</span>`:''}<img class="mood" alt="" width="18" height="18"><div class="pat"><i></i></div><span class="t-sec"></span>${staffOn('na')?'<button class="ask" type="button">Nhờ Na</button>':''}</div>
+      <div class="bub-foot">${q2>1?`<span class="bub-bag">Túi ${c.bagged}/${q2}</span>`:''}<img class="mood" alt="" width="18" height="18"><div class="pat"><i></i></div><span class="t-sec"></span>${staffOn('na')?'<span class="ask na"></span>':''}</div>
     </div>`;
-  const ask=b.querySelector<HTMLElement>('.ask');if(ask)ask.addEventListener('click',()=>{audio();askNa(ticketRefs.indexOf(r))});
 }
 $('#bubble').addEventListener('click',e=>{const a=(e.target as HTMLElement).closest<HTMLElement>('.qav');if(!a)return;audio();S.focus=+a.dataset.cid;S.focusManual=true;sfx.click();renderTickets()});
 export function tickCounter(){
@@ -80,7 +79,7 @@ export function tickCounter(){
   const m=moodOf(f),mi=b.querySelector<HTMLImageElement>('.mood');if(mi.dataset.m!==m){mi.dataset.m=m;mi.src=faceURL(m)}
   const ok=matchParts(cup,o);
   b.querySelectorAll<HTMLElement>('[data-f]').forEach(el=>el.classList.toggle('ok',ok[el.dataset.f]));
-  const ask=b.querySelector<HTMLButtonElement>('.ask');if(ask){const lab=S.naJob?'Na đang rót…':S.naCd>0?`Na nghỉ ${Math.ceil(S.naCd)}s`:'Nhờ Na';if(ask.textContent!==lab)ask.textContent=lab;ask.disabled=!!S.naJob||S.naCd>0}
+  const ask=b.querySelector<HTMLElement>('.ask');if(ask){const lab=naLabel();if(ask.textContent!==lab)ask.textContent=lab;ask.classList.toggle('busy',!!S.naJob)}
 }
 export function syncFocus(){
   const el=$('#focus');if(!el)return;
@@ -103,8 +102,10 @@ export function syncServeBtn(){
   const i=S.phase==='open'||S.phase==='paused'?targetSlot():-1,r=i>=0?ticketRefs[i]:null;
   let lab='Chờ khách',state='';
   if(r){const c=r.c,q=c.order.qty||1,full=q>1&&c.bagged>=q;
-    lab=(S.bagJob&&S.slots[S.bagJob.slot]===c)?'Đang đóng túi…':full?`Đóng túi & giao #${c.no}`:q>1?`Cho vào túi #${c.no} · ${c.bagged}/${q}`:`Phục vụ #${c.no}`;
-    state=full?'bag':r.ready&&(cup.sealed||!sealNeeded())?'ready':''}
+    const seal=sealNeeded()&&!!cup.tea&&!cup.sealed?'Dán nắp & ':'';
+    lab=c.bagT>0?'Đang đóng túi…':full?`Đóng túi & giao #${c.no}`:q>1?`${seal}cho vào túi #${c.no} · ${c.bagged}/${q}`:`${seal}phục vụ #${c.no}`;
+    lab=lab[0].toUpperCase()+lab.slice(1);
+    state=full?'bag':r.ready?'ready':''}
   if($('#serveLab').textContent!==lab)$('#serveLab').textContent=lab;
   b.className='serveBig'+(state?' '+state:'');b.disabled=!r;
 }
@@ -128,10 +129,9 @@ export function renderTickets(){
       <div class="t-line" data-f="tops">${o.tops.length?o.tops.map(x=>'+ '+top(x).name).join('<br>'):'Không topping'}</div>
       <div class="t-tags"></div>
       <div class="moodrow"><img class="mood" alt="" width="24" height="24"><div class="pat"><i></i></div><span class="t-sec"></span></div>
-      ${staffOn('na')?'<button class="ask" type="button">Nhờ Na</button>':''}`;
+      ${staffOn('na')?'<span class="ask na"></span>':''}`;
     el.addEventListener('click',e=>{if((e.target as HTMLElement).closest<HTMLElement>('button'))return;S.focus=c.id;S.focusManual=true;sfx.click();renderTickets()});
-    const ask=el.querySelector<HTMLElement>('.ask');if(ask)ask.addEventListener('click',()=>{audio();askNa(i)});
-    box.appendChild(el);ticketRefs.push({c,bar:el.querySelector<HTMLElement>('.pat'),fill:el.querySelector<HTMLElement>('.pat i'),face:el.querySelector<HTMLImageElement>('.mood'),mood:null,ask:el.querySelector<HTMLButtonElement>('.ask'),tags:el.querySelector<HTMLElement>('.t-tags'),sec:el.querySelector<HTMLElement>('.t-sec'),tagKey:'',el});
+    box.appendChild(el);ticketRefs.push({c,bar:el.querySelector<HTMLElement>('.pat'),fill:el.querySelector<HTMLElement>('.pat i'),face:el.querySelector<HTMLImageElement>('.mood'),mood:null,ask:el.querySelector<HTMLElement>('.ask'),tags:el.querySelector<HTMLElement>('.t-tags'),sec:el.querySelector<HTMLElement>('.t-sec'),tagKey:'',el});
   }
   markTickets();syncFocus();syncServeBtn();renderCounter();syncAgain();
 }
@@ -141,7 +141,7 @@ export function markTickets(){
     r.el.querySelectorAll<HTMLElement>('[data-f]').forEach(l=>l.classList.toggle('ok',ok[l.dataset.f]));
     r.ready=!!cup.tea&&ok.tea&&ok.sugar&&ok.ice&&ok.tops;r.el.classList.toggle('ready',r.ready);
     r.el.classList.toggle('bagfull',(r.c.order.qty||1)>1&&r.c.bagged>=r.c.order.qty);
-    if(r.ready&&(cup.sealed||!sealNeeded())&&staffOn('tu')&&!S.autoServe)S.autoServe={slot:ticketRefs.indexOf(r),t:.6};
+    if(r.ready&&staffOn('tu')&&!S.autoServe)S.autoServe={slot:ticketRefs.indexOf(r),t:.35};
   });
   coach();syncServeBtn();
 }
@@ -151,16 +151,22 @@ export function coach(){
   if(!S||S.phase!=='open'||save.day>1||S.served+S.missed>=2)return;
   const live=ticketRefs.filter(Boolean);
   let m='';
-  if(live.some(r=>r.ready))m=cup.sealed||!sealNeeded()?'Khớp hết rồi! Bấm nút Phục vụ to bên dưới.':'Khớp rồi! Bấm Dán nắp, rồi Phục vụ.';
+  if(live.some(r=>r.ready))m='Khớp hết rồi! Bấm nút Phục vụ to bên dưới.';
   else if($('#again')&&!$('#again').hidden)m='Bấm “Pha y chang” để rót ly tiếp theo.';
   else if(live.length)m=cup.tea?'Giờ thêm đường, đá và topping theo order.':'Chọn trà theo order trước. Phần khớp sẽ hóa xanh.';
   if(m&&m!==coachMsg){coachMsg=m;hint(m,true)}
 }
-export function askNa(i){
-  if(!canAct())return;const r=ticketRefs[i];if(!r||S.naCd>0||S.naJob)return;
-  if(cup.tea||cup.sugar!==null||cup.ice!==null||cup.tops.length){hint('Ly đang có đồ rồi. Phục vụ hoặc đổ ly trước khi nhờ Na.');sfx.nope();return}
-  const o=r.c.order;if(stockN(o.tea)<=0){rebrew(o.tea);return}
-  S.naJob={order:{...o},t:1.2};hint('Na đang rót trà, đường và đá…');sfx.click();
+/** Bé Na: whenever the cup is empty she pours tea, sugar and ice for the order you're looking at (1 s).
+ *  Touch the cup yourself or pick another customer and she simply starts over; no cooldown. */
+export function naLabel(){return S.naJob?'Na đang rót…':cup.tea||cup.tops.length||cup.sugar!==null||cup.ice!==null?'Na chờ ly trống':'Na sẵn sàng'}
+export function naWork(dt:number){
+  const empty=!cup.tea&&cup.sugar===null&&cup.ice===null&&!cup.tops.length;
+  const r=ticketRefs.find(x=>x&&x.c.id===S.focus),o=r&&r.c.order;
+  if(!empty||!r||S.phase!=='open'||S.washT>0||r.c.bagT>0||stockN(o.tea)<=0||(save.pantry.cup||0)<=0){S.naJob=null;return}
+  if(!S.naJob||S.naJob.cid!==r.c.id){S.naJob={cid:r.c.id,t:1};return}
+  S.naJob.t-=dt;if(S.naJob.t>0)return;
+  S.naJob=null;if(!useGear('cup'))return;
+  cup.teaQ=takeServing(o.tea);cup.level=0;cup.tea=o.tea;cup.sugar=o.sugar;cup.ice=o.ice;sfx.pour();cupChanged();syncBadges();
 }
 export function updateBars(){
   syncServeBtn();renderCounter();tickCounter();
@@ -176,7 +182,7 @@ export function updateBars(){
   live.forEach(r=>{const key=(r===first?'f':'')+(r===urgent?'u':'');if(key!==r.tagKey){r.tagKey=key;r.tags.innerHTML=(r===first?'<span class="tag first">Đến trước</span>':'')+(r===urgent?'<span class="tag hot">Gấp!</span>':'');r.el.classList.toggle('urgent',r===urgent)}
     const sec=Math.ceil(r.c.pat)+'s';if(r.sec.textContent!==sec)r.sec.textContent=sec});
   ticketRefs.forEach(r=>{if(!r)return;
-    if(r.ask){const lab=S.naJob?'Na đang rót…':S.naCd>0?`Na nghỉ ${Math.ceil(S.naCd)}s`:'Nhờ Na';if(r.ask.textContent!==lab)r.ask.textContent=lab;r.ask.disabled=!!S.naJob||S.naCd>0}const f=Math.max(0,r.c.pat/r.c.maxPat);
+    if(r.ask){const lab=naLabel();if(r.ask.textContent!==lab)r.ask.textContent=lab}const f=Math.max(0,r.c.pat/r.c.maxPat);
     r.fill.style.width=(f*100)+'%';
     const m=moodOf(f);if(m!==r.mood){r.mood=m;r.face.src=faceURL(m);r.face.className='mood '+m;r.face.alt=MOODS[m];r.face.title=MOODS[m]}r.bar.classList.toggle('warn',f<.5&&f>=.25);r.bar.classList.toggle('bad',f<.25)});
 }

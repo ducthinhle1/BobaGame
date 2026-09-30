@@ -73,9 +73,9 @@ export const UPGRADES:ShopItem[]=[
 ];
 
 export const STAFF:StaffInfo[]=[
-  {id:'hoa',name:'Chị Hoa · pha chế',lv:2,price:500,wage:70,desc:'Tự pha thêm trà và nấu trân châu khi sắp hết, dùng nguyên liệu trong kho.'},
-  {id:'tu',name:'Anh Tú · chạy bàn',lv:3,price:730,wage:90,desc:'Ly nào khớp phiếu là Tú mang ra ngay. Trò chuyện giúp khách chờ lâu hơn 15%.'},
-  {id:'na',name:'Bé Na · phụ quầy',lv:4,price:900,wage:110,desc:'Bấm “Nhờ Na” trên phiếu: Na rót sẵn trà, đường và đá. Nghỉ 15 giây giữa mỗi lần.'},
+  {id:'hoa',name:'Chị Hoa · pha chế',lv:2,price:500,wage:70,desc:'Để ý các order đang chờ: pha trà, nấu trân châu trước khi hết (2 nồi cùng lúc). Kho cạn thì tự đặt giao gấp.'},
+  {id:'tu',name:'Anh Tú · chạy bàn',lv:3,price:730,wage:90,desc:'Ly nào khớp order là Tú dán nắp và mang ra ngay. Trò chuyện giúp khách chờ lâu hơn 15%.'},
+  {id:'na',name:'Bé Na · phụ quầy',lv:4,price:900,wage:110,desc:'Ly trống là Na tự rót trà, đường và đá cho order đang chọn (1 giây). Bạn chỉ cần thêm topping.'},
 ];
 
 export const DELIVERY=15,RUSH:[number,number]=[55,85];
@@ -83,8 +83,8 @@ export const DELIVERY=15,RUSH:[number,number]=[55,85];
 export const FEATURES:Record<string,number>={seal:2,rush:2,minis:2,multi:3,online:3};
 
 export const NEWS:Record<number,[string,string][]>={
-  2:[['Dán nắp ly','Từ hôm nay pha xong phải bấm Dán nắp (phím S) rồi mới phục vụ được.'],['Giờ cao điểm','Giữa ca có 30 giây khách đến đông gấp đôi.'],['Trân châu 2 bước','Từ hôm nay trân châu phải nhào bột và vo viên rồi mới nấu.']],
-  3:[['Khách mua nhiều ly','Phiếu có nhãn ×2: pha từng ly, cho vào túi, đủ ly thì bấm Đóng túi & giao.'],['Đơn online','Shipper MèoShip đặt 2 đến 3 ly, trả nhiều hơn 30% nhưng phải đóng túi.']],
+  2:[['Dán nắp ly','Từ hôm nay mỗi ly đều được dán nắp khi phục vụ, tốn 1 màng dán. Nhớ mua đủ màng ở chợ.'],['Giờ cao điểm','Giữa ca có 30 giây khách đến đông gấp đôi.'],['Trân châu 2 bước','Từ hôm nay trân châu phải nhào bột và vo viên rồi mới nấu.']],
+  3:[['Khách mua nhiều ly','Có khách gọi 2 ly: pha ly đầu, cho vào túi, rồi bấm “Pha y chang”. Đủ ly thì túi tự đóng và giao.'],['Đơn online','Shipper MèoShip đặt 2 đến 3 ly, trả nhiều hơn 30% nhưng phải đóng túi.']],
 };
 
 export const MINI_INFO:Record<string,{label:string;text:(name:string)=>string}>={

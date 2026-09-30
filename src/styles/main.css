@@ -571,3 +571,5 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
 .actionbar:has(#again:not([hidden])) #seal,.actionbar:has(#again:not([hidden])) .serveBig{display:none}
 .actionbar .btn.again{flex:1;min-height:48px;font-size:15px;font-weight:600;border-radius:14px}
 .prow em.brew{font-style:normal;color:var(--faint);font-size:.85em}
+.ask.na{font-size:11px;font-weight:600;color:var(--jade);background:rgba(47,154,108,.1);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.ask.na.busy{color:#fff;background:var(--jade)}
