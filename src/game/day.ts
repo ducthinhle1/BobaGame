@@ -1,5 +1,6 @@
 import {EVENTS,GEAR_NAME,ICES,LEVELS,NEWS,PEARL_BATCH,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
 import {goalFor} from '../logic/economy';
+import {track} from './analytics';
 import {audio,meow,sfx} from './audio';
 import {$,DAY_LEN,NEW_SAVE,g,has,isTub,levelOf,lvProgress,packOf,persist,save,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
 import {canMake,ev,rollEvent,season} from './customers';
@@ -126,9 +127,9 @@ $('#market').addEventListener('click',e=>{
   if(save.wallet<it.price){mmsg('Chưa đủ tiền tiết kiệm.');sfx.nope();return}
   save.wallet-=it.price;
   if(kind==='supply'){save.pantry[id]=(save.pantry[id]||0)+packOf(it);sfx.click();mmsg(`Đã mua ${it.name}.`)}
-  else if(kind==='recipe'){save.owned.push(id);save.pantry[id]=(save.pantry[id]||0)+(isTub(id)?TUB:1);sfx.win();mmsg(`${it.name} đã có trong menu.`)}
-  else if(kind==='staff'){save.staff=save.staff||{};save.staff[id]={hired:true,on:true};sfx.win();meow(1.2,.04,.3);mmsg(`${it.name.split(' · ')[0]} đã vào làm ở tiệm!`)}
-  else{save.upgrades.push(id);sfx.win();mmsg(`Đã lắp ${it.name}.`)}
+  else if(kind==='recipe'){track('unlock',{item:id,day:save.day});save.owned.push(id);save.pantry[id]=(save.pantry[id]||0)+(isTub(id)?TUB:1);sfx.win();mmsg(`${it.name} đã có trong menu.`)}
+  else if(kind==='staff'){track('hire',{staff:id,day:save.day});save.staff=save.staff||{};save.staff[id]={hired:true,on:true};sfx.win();meow(1.2,.04,.3);mmsg(`${it.name.split(' · ')[0]} đã vào làm ở tiệm!`)}
+  else{track('upgrade',{item:id,day:save.day});save.upgrades.push(id);sfx.win();mmsg(`Đã lắp ${it.name}.`)}
   persist();renderMarket();
 });
 $('#mgo').addEventListener('click',()=>{
@@ -148,6 +149,7 @@ export function endDay(){
   const wage=STAFF.filter(x=>staffOn(x.id)).reduce((a,x)=>a+x.wage,0);
   save.history=(save.history||[]).concat([{d:S.day,earned:S.cash,tips:S.tips,quest:qCash,wage,net:S.cash+qCash-wage,served:S.served,perfect:S.perfect}]).slice(-60);
   const prevDay=save.history[save.history.length-2];
+  track('day_end',{day:S.day,served:S.served,perfect:S.perfect,missed:S.missed,stars,goal_met:S.cash>=goal,staff:STAFF.filter(x=>staffOn(x.id)).length});
   save.wallet+=S.cash+qCash-wage;save.day=S.day+1;persist();
   const lvAfter=levelOf(save.xp),gained=save.xp-S.xp0;
   let teaser='';
@@ -189,10 +191,10 @@ export function renderStart(){
   const b=$('#startbtns');b.innerHTML='';
   const mk=(label,fn,big)=>{const x=document.createElement('button');x.type='button';x.className='btn'+(big?' big':'');x.textContent=label;x.addEventListener('click',()=>fn(x));b.appendChild(x);return x};
   const fresh=save.day===1&&save.xp===0;
-  const first=mk(fresh?'Mở tiệm':`Chơi tiếp: ngày ${save.day}`,()=>openMarket(),true);
+  const first=mk(fresh?'Mở tiệm':`Chơi tiếp: ngày ${save.day}`,()=>{track(fresh?'new_game':'continue',{day:save.day,screen:innerWidth>innerHeight?'landscape':'portrait'});openMarket()},true);
   if(!fresh)mk('Chơi lại từ đầu',x=>{
     if(!wipeArmed){wipeArmed=true;x.textContent='Bấm lần nữa để xóa dữ liệu';return}
-    setSave(NEW_SAVE());persist();wipeArmed=false;openMarket();
+    track('restart',{from_day:save.day});setSave(NEW_SAVE());persist();wipeArmed=false;openMarket();
   },false);
   first.focus();
 }

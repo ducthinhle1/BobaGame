@@ -1,3 +1,4 @@
+import {startAnalytics} from './analytics';
 import {audio,music,musicLevel,muted,setMuted,sfx,stopMusic} from './audio';
 import {catAt,petCat} from './cats';
 import {$,H,NEW_SAVE,SLOTS,W,persist,save,scene,setSave} from './core';
@@ -59,6 +60,7 @@ export function syncSettingsUI(){
   $<HTMLInputElement>('#set-shake').checked=settings.shake;$<HTMLInputElement>('#set-vi').checked=settings.vi;
   document.body.classList.toggle('no-vi',!settings.vi);
   $<HTMLInputElement>('#set-classic').checked=settings.layout==='classic';
+  $<HTMLInputElement>('#set-analytics').checked=settings.analytics!==false;
   document.body.classList.toggle('bar-new',settings.layout!=='classic');
 }
 $('#set-classic').addEventListener('change',e=>{settings.layout=(e.target as HTMLInputElement).checked?'classic':'new';saveSettings();syncSettingsUI();if(S)renderTickets()});
@@ -66,6 +68,7 @@ $('#set-music').addEventListener('input',e=>{settings.music=+(e.target as HTMLIn
 $('#set-sfx').addEventListener('input',e=>{settings.sfx=+(e.target as HTMLInputElement).value;$('#out-sfx').textContent=settings.sfx+'%';saveSettings()});
 $('#set-sfx').addEventListener('change',()=>{audio();sfx.ok()});
 $('#set-shake').addEventListener('change',e=>{settings.shake=(e.target as HTMLInputElement).checked;saveSettings();if(settings.shake)shake()});
+$('#set-analytics').addEventListener('change',e=>{settings.analytics=(e.target as HTMLInputElement).checked;saveSettings();syncSettingsUI();startAnalytics()});
 $('#set-vi').addEventListener('change',e=>{settings.vi=(e.target as HTMLInputElement).checked;saveSettings();syncSettingsUI()});
 $('#pm-resume').addEventListener('click',closeMenu);
 $('#settings').addEventListener('click',()=>{audio();$('#pausemenu').hidden?openMenu():closeMenu()});

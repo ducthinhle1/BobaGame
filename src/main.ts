@@ -21,6 +21,8 @@ import {save} from './game/core';
 import {renderStart} from './game/day';
 import {loop} from './game/loop';
 
+import {startAnalytics} from './game/analytics';
+startAnalytics();
 newDay(save.day);
 renderStart();
 requestAnimationFrame(loop);

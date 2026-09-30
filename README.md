@@ -65,6 +65,20 @@ Chỉnh cân bằng game (giá, lương, XP, mục tiêu) trong `src/data.ts` v�
 Dữ liệu người chơi lưu trong `localStorage` (khóa `tcs-save3`), cài đặt trong `tcs-settings`.
 Người chơi có thể sao lưu/khôi phục bằng mã trong menu Tạm dừng.
 
+## Số liệu chơi ẩn danh
+
+`src/game/analytics.ts` gửi số liệu lên [Umami Cloud](https://umami.is): không cookie, không lưu IP, không tên hay mã người chơi.
+Chỉ chạy trên site `*.netlify.app` (chạy trên máy hay bản artifact thì không gửi), và người chơi tắt được trong Cài đặt.
+
+| Sự kiện | Dữ liệu kèm theo |
+|---|---|
+| `new_game`, `continue`, `restart` | ngày đang chơi, màn hình dọc/ngang |
+| `day_end` | ngày, số ly, ly hoàn hảo, khách bỏ về, số sao, đạt mục tiêu chưa, số nhân viên |
+| `play_time` | số giây chơi (chỉ tính lúc game đang hiện trên màn hình), gửi khi rời tab/app |
+| `hire`, `unlock`, `upgrade` | nhân viên / món / nâng cấp nào, vào ngày mấy |
+
+Lượt truy cập, loại thiết bị, trình duyệt, quốc gia do Umami tự đếm.
+
 ## Lộ trình
 
 - [x] Mở tính năng dần theo ngày cho người mới
