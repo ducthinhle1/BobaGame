@@ -355,7 +355,7 @@ function serve(slot){
   if(qty>1){
     const qmc=QUAL[cup.teaQ||'good'].mul*(cup.tops.includes('pearl')?QUAL[cup.pearlQ||'good'].mul:1);
     if(err===0||(err===1&&!T.strict)){
-      c.bagged++;if(c.bagged<qty)S.repeat={cid:c.id,tea:cup.tea,sugar:cup.sugar,ice:cup.ice,tops:[...cup.tops]};if(err===0){c.perfectCups++;c.qmSum+=qmc;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak)}else S.streak=0;
+      c.bagged++;S.focus=c.id;S.focusManual=true;if(c.bagged<qty)S.repeat={cid:c.id,tea:cup.tea,sugar:cup.sugar,ice:cup.ice,tops:[...cup.tops]};if(err===0){c.perfectCups++;c.qmSum+=qmc;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak)}else S.streak=0;
       floatText(slot,`${c.bagged}/${qty} ly`,'good');sfx.ok();beep(420,.12,'triangle',.04,260,.08);
       hint(c.bagged<qty?`Đã cho vào túi ${c.bagged}/${qty}. Bấm “Pha y chang” để rót ly tiếp theo.`:'Đủ ly rồi! Bấm “Đóng túi” để giao.');
     }else{
@@ -722,7 +722,7 @@ function syncFocus(){
 function targetSlot(){
   const live=ticketRefs.map((r,i)=>r?{r,i}:null).filter(Boolean);if(!live.length)return -1;
   const full=x=>(x.r.c.order.qty||1)>1&&x.r.c.bagged>=x.r.c.order.qty,foc=live.find(x=>x.r.c.id===S.focus);
-  if(cup.tea){const ready=live.filter(x=>x.r.ready&&!full(x));if(foc&&ready.includes(foc))return foc.i;if(ready.length)return ready.sort((a,b)=>a.r.c.pat-b.r.c.pat)[0].i}
+  if(cup.tea){const ready=live.filter(x=>x.r.ready&&!full(x));if(foc&&ready.includes(foc))return foc.i;if(ready.length){const part=ready.find(x=>x.r.c.bagged>0);if(part)return part.i;return ready.sort((a,b)=>a.r.c.pat-b.r.c.pat)[0].i}}
   if(foc)return foc.i;
   return live[0].i;
 }
@@ -799,7 +799,8 @@ function updateBars(){
   const urgent=live.filter(r=>r.c.pat/r.c.maxPat<.45).sort((a,b)=>a.c.pat-b.c.pat)[0]||null;
   if(S&&S.phase==='open'){
     const cur=live.find(r=>r.c.id===S.focus);
-    if(!cur||(!S.focusManual&&!cup.tea)){const pickR=urgent||first||live[0];const nf=pickR?pickR.c.id:null;if(nf!==S.focus){S.focus=nf;S.focusManual=false;live.forEach(r=>r.el.classList.toggle('focus',r.c.id===nf));syncFocus()}}
+    const partial=r=>(r.c.order.qty||1)>1&&r.c.bagged>0;
+    if(!cur||(!S.focusManual&&!cup.tea&&!partial(cur))){const pickR=live.find(partial)||urgent||first||live[0];const nf=pickR?pickR.c.id:null;if(nf!==S.focus){S.focus=nf;S.focusManual=false;live.forEach(r=>r.el.classList.toggle('focus',r.c.id===nf));syncFocus()}}
   }
   live.forEach(r=>{const key=(r===first?'f':'')+(r===urgent?'u':'');if(key!==r.tagKey){r.tagKey=key;r.tags.innerHTML=(r===first?'<span class="tag first">Đến trước</span>':'')+(r===urgent?'<span class="tag hot">Gấp!</span>':'');r.el.classList.toggle('urgent',r===urgent)}
     const sec=Math.ceil(r.c.pat)+'s';if(r.sec.textContent!==sec)r.sec.textContent=sec});
