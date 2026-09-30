@@ -528,3 +528,40 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
   body.bar-new .station{grid-template-rows:auto auto auto auto auto auto;align-content:center}
   body.bar-new .hint{min-height:2.7em}
 }
+/* ===================== Phones on their side =====================
+   Left: a slim status line, the full street scene (sized from the screen height so it's never squashed), the order bubble.
+   Right: the whole bar, top to bottom, with the serve button always visible. */
+@media (orientation:landscape) and (max-height:500px){
+  body.in-shift .wrap{--left:min(50vw, calc((100dvh - 150px) * 2.3));
+    grid-template-columns:var(--left) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);column-gap:12px;row-gap:6px;padding-block:6px 0;max-width:none}
+  body.in-shift .hud{grid-column:1;grid-row:1;padding:0 0 4px;gap:6px;flex-wrap:nowrap;border-bottom:0}
+  body.in-shift .brand{display:none}
+  body.in-shift .stats{flex:1;flex-wrap:nowrap;justify-content:space-between;gap:4px 8px;order:0;width:auto}
+  body.in-shift .stat{min-width:0}
+  body.in-shift .stat small,body.in-shift .stat>span:first-child{font-size:8.5px;letter-spacing:.08em}
+  body.in-shift .stat b{font-size:14px}
+  body.in-shift .stat.lv,body.in-shift .stat:has(.goal){display:none}
+  body.in-shift #settings,body.in-shift #music,body.in-shift #mute{display:none}
+  body.in-shift .hudbtns .btn{padding:4px 10px;font-size:12px;min-height:0}
+  body.in-shift .floor{grid-column:1;grid-row:2;overflow:hidden;gap:6px;padding-bottom:6px}
+  body.in-shift .scene{aspect-ratio:10/4.35}
+  body.in-shift #scene{position:absolute;left:0;bottom:0}
+  body.in-shift.bar-new .bub-say{font-size:12.5px;line-height:1.3}
+  body.in-shift.bar-new .bub-box{padding:5px 9px;gap:2px}
+  body.in-shift.bar-new .bub-foot .mood{display:none}
+  body.in-shift .qav{width:26px;height:26px}body.in-shift .qav img{inset:4px;width:18px;height:18px}
+  body.in-shift .station{grid-column:2;grid-row:1/-1;border-radius:14px 14px 0 0;padding:6px 10px 0}
+  body.in-shift.bar-new .station{grid-template-columns:70px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto auto auto auto;align-content:stretch;gap:5px 8px}
+  body.in-shift.bar-new .hint{min-height:0;font-size:11.5px;line-height:1.3;overflow:hidden}
+  body.in-shift.bar-new #cup{width:46px;height:64px}
+  body.in-shift.bar-new .g-tea .tile,body.in-shift.bar-new .g-top .tile{padding:3px 2px}
+  body.in-shift.bar-new .g-tea .tile img{width:26px;height:26px}
+  body.in-shift.bar-new .g-top .tile img{width:24px;height:24px}
+  body.in-shift.bar-new .station .tile span{font-size:10.5px}
+  body.in-shift.bar-new .g-sugar .tile{padding:5px 0}
+  body.in-shift.bar-new .g-ice .tile{padding:3px 2px}
+  body.in-shift.bar-new .g-ice .tile img{width:16px;height:16px}
+  body.in-shift .actionbar{margin:0 0 6px}
+  body.in-shift .serveBig{min-height:40px;padding-block:6px}
+  body.in-shift .actionbar .btn{min-height:40px;padding-block:4px}
+}
