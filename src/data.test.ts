@@ -25,6 +25,10 @@ describe('data', () => {
       expect([0, 1, 2]).toContain(r.fav.ice);
     }
   });
+  it('every tea has a fixed brewing mini game; matcha is whisked', () => {
+    for (const t of TEAS) expect(['steep', 'heat', 'whisk']).toContain(t.brew);
+    expect(TEAS.find(t => t.id === 'matcha')!.brew).toBe('whisk');
+  });
   it('levels start at 0 and go up', () => {
     expect(LEVELS[0]).toBe(0);
     LEVELS.slice(1).forEach((x, i) => expect(x).toBeGreaterThan(LEVELS[i]));

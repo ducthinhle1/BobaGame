@@ -13,6 +13,7 @@ import {buildControls} from './station';
 /* ---------- prep: brewing and pearl cooking ---------- */
 export let mini=null;
 export const mg=$<HTMLCanvasElement>('#mcv').getContext('2d');
+const BREW_NAME={steep:'ủ túi trà',heat:'đun nước',whisk:'đánh bọt'};
 export function renderPrep(){
   $('#prepday').textContent=`Trước giờ mở cửa · Ngày ${S.day}`;
   const row=(kind,id,name,unit,verb)=>{
@@ -21,21 +22,20 @@ export function renderPrep(){
     return `<div class="prow"><img src="${iconURL(kind,id)}" alt=""><div>${name}<small>${detail}</small></div><button class="btn" type="button" data-prep="${id}"${mini||!packs?' disabled':''}>${verb} · còn ${packs}</button></div>`;
   };
   $('#p-tealab').textContent=`Quầy trà · ${teaBatch()} ly mỗi mẻ`;
-  $('#p-teas').innerHTML=unlocked(TEAS).map(t=>row('tea',t.id,t.name,'ly nào','Pha')).join('');
+  $('#p-teas').innerHTML=unlocked(TEAS).map(t=>row('tea',t.id,`${t.name} <em class="brew">· ${BREW_NAME[t.brew]}</em>`,'ly nào','Pha')).join('');
   $('#p-pearl').innerHTML=row('top','pearl','Trân châu','muỗng nào','Nấu');
   $('#pspent').textContent='Số trên nút là nguyên liệu còn trong kho.';
   $<HTMLButtonElement>('#popen').disabled=!!mini;
 }
 $('#prep').addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLElement>('[data-prep]');if(b)startMini(b.dataset.prep)});
-export let miniCount=0;
 
 export function startMini(id){
   if(mini)return;audio();
   const isTea=id!=='pearl';
   if((save.pantry[id]||0)<=0)return;
-  save.pantry[id]--;S.brewed[id]=1;miniCount++;
+  save.pantry[id]--;S.brewed[id]=1;
   const hard=Math.min(4,S.day-1);
-  const kind=isTea?(id==='matcha'?'whisk':!feat('minis')?'steep':miniCount%3===0?'whisk':miniCount%2?'steep':'heat'):(feat('minis')?'knead':'stir');
+  const kind=isTea?tea(id).brew:(feat('minis')?'knead':'stir');
   if(kind==='steep')mini={v:0,speed:100/Math.max(2.6,4.2-hard*.4),center:48+Math.random()*28,w:Math.max(9,16-hard*2)};
   else if(kind==='heat')mini={temp:40,holding:false,inZone:0,need:2.4,t:0,dur:7.5,lo:81,hi:Math.max(89,94-hard),maxT:40};
   else if(kind==='whisk')mini={froth:0,t:0,dur:6.5,lastX:null,dir:0,run:0,wx:32};

@@ -2,12 +2,14 @@
 // Tune the game here; the game logic lives in src/game/ and src/logic/.
 import type {Tea,Topping,QualityInfo,Quality,CustomerType,TypeId,SupplyItem,ShopItem,StaffInfo,GameEvent,Season,Regular} from './types';
 
+// brew: each tea always uses the same prep mini game (steep = lift the tea bag in time,
+// heat = keep the water in the green zone, whisk = whisk up the foam)
 export const TEAS:Tea[]=[
-  {id:'black',name:'Trà sữa Mèo Mun',short:'Mèo Mun',vi:'Trà đen sữa',color:'#C08A5B',price:25},
-  {id:'jasmine',name:'Trà lài Mèo Vàng',short:'Mèo Vàng',vi:'Trà lài sữa',color:'#D6CB7E',price:25},
-  {id:'taro',name:'Khoai môn Mèo Tím',short:'Mèo Tím',vi:'Khoai môn sữa',color:'#B79BD6',price:30},
-  {id:'matcha',name:'Matcha Mắt Mèo',short:'Mắt Mèo',vi:'Matcha sữa',color:'#8FBF6A',price:32,day:2},
-  {id:'thai',name:'Trà Thái Mèo Cam',short:'Mèo Cam',vi:'Trà Thái sữa',color:'#E8894A',price:30,day:3},
+  {id:'black',name:'Trà sữa Mèo Mun',short:'Mèo Mun',vi:'Trà đen sữa',color:'#C08A5B',price:25,brew:'steep'},
+  {id:'jasmine',name:'Trà lài Mèo Vàng',short:'Mèo Vàng',vi:'Trà lài sữa',color:'#D6CB7E',price:25,brew:'heat'},
+  {id:'taro',name:'Khoai môn Mèo Tím',short:'Mèo Tím',vi:'Khoai môn sữa',color:'#B79BD6',price:30,brew:'heat'},
+  {id:'matcha',name:'Matcha Mắt Mèo',short:'Mắt Mèo',vi:'Matcha sữa',color:'#8FBF6A',price:32,brew:'whisk',day:2},
+  {id:'thai',name:'Trà Thái Mèo Cam',short:'Mèo Cam',vi:'Trà Thái sữa',color:'#E8894A',price:30,brew:'steep',day:3},
 ];
 
 export const TOPS:Topping[]=[
@@ -81,7 +83,7 @@ export const DELIVERY=15,RUSH:[number,number]=[55,85];
 export const FEATURES:Record<string,number>={seal:2,rush:2,minis:2,multi:3,online:3};
 
 export const NEWS:Record<number,[string,string][]>={
-  2:[['Dán nắp ly','Từ hôm nay pha xong phải bấm Dán nắp (phím S) rồi mới phục vụ được.'],['Giờ cao điểm','Giữa ca có 30 giây khách đến đông gấp đôi.'],['Mini game mới','Lúc chuẩn bị sẽ có thêm kiểu đun nước và đánh bọt, trân châu phải nhào bột rồi mới nấu.']],
+  2:[['Dán nắp ly','Từ hôm nay pha xong phải bấm Dán nắp (phím S) rồi mới phục vụ được.'],['Giờ cao điểm','Giữa ca có 30 giây khách đến đông gấp đôi.'],['Trân châu 2 bước','Từ hôm nay trân châu phải nhào bột và vo viên rồi mới nấu.']],
   3:[['Khách mua nhiều ly','Phiếu có nhãn ×2: pha từng ly, cho vào túi, đủ ly thì bấm Đóng túi & giao.'],['Đơn online','Shipper MèoShip đặt 2 đến 3 ly, trả nhiều hơn 30% nhưng phải đóng túi.']],
 };
 
