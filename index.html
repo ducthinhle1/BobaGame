@@ -48,7 +48,9 @@
     <canvas id="scene" width="160" height="80" aria-label="Tiệm trà sữa mèo, khách đang chờ ở quầy"></canvas>
     <div class="floats" id="floats"></div>
     <div class="pausedlab" id="pausedlab" hidden>Tạm dừng</div>
+    <div class="queue" id="queue" aria-label="Khách đang chờ"></div>
   </div>
+  <div class="bubble" id="bubble" aria-live="polite"></div>
 
   <div class="tickets" id="tickets"></div>
   </div>
@@ -61,10 +63,10 @@
     </div>
     <div class="controls">
       <p class="focuschip" id="focus" hidden></p>
-      <div class="group"><h3 class="lab">Trà</h3><div class="opts" id="o-tea"></div></div>
-      <div class="group"><h3 class="lab">Đường</h3><div class="opts" id="o-sugar"></div></div>
-      <div class="group"><h3 class="lab">Đá</h3><div class="opts" id="o-ice"></div></div>
-      <div class="group"><h3 class="lab" id="toplab">Topping</h3><div class="opts" id="o-top"></div></div>
+      <div class="group g-tea"><h3 class="lab">Kệ trà</h3><div class="opts" id="o-tea"></div></div>
+      <div class="group g-sugar"><h3 class="lab">Đường</h3><div class="opts" id="o-sugar"></div></div>
+      <div class="group g-ice"><h3 class="lab">Đá</h3><div class="opts" id="o-ice"></div></div>
+      <div class="group g-top"><h3 class="lab" id="toplab">Topping</h3><div class="opts" id="o-top"></div></div>
     </div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <div class="actionbar">
@@ -142,6 +144,7 @@
       <div class="setting"><label for="set-music">Âm lượng nhạc</label><output id="out-music" for="set-music"></output><input type="range" id="set-music" min="0" max="100" step="5"></div>
       <div class="setting"><label for="set-sfx">Âm lượng hiệu ứng</label><output id="out-sfx" for="set-sfx"></output><input type="range" id="set-sfx" min="0" max="100" step="5"></div>
       <div class="setting"><label for="set-shake">Rung màn hình</label><input type="checkbox" class="switch" id="set-shake" role="switch"><small>Rung nhẹ khi khách từ chối ly nước.</small></div>
+      <div class="setting"><label for="set-classic">Dùng quầy kiểu cũ</label><input type="checkbox" class="switch" id="set-classic" role="switch"><small>Phiếu order dạng thẻ và các hàng nguyên liệu như trước.</small></div>
       <div class="setting"><label for="set-vi">Hiện tên gốc của món</label><input type="checkbox" class="switch" id="set-vi" role="switch"><small>Ví dụ “Trà đen sữa” dưới tên Trà sữa Mèo Mun.</small></div>
     </section>
     <section class="settings">
