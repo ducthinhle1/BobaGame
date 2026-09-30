@@ -355,9 +355,9 @@ function serve(slot){
   if(qty>1){
     const qmc=QUAL[cup.teaQ||'good'].mul*(cup.tops.includes('pearl')?QUAL[cup.pearlQ||'good'].mul:1);
     if(err===0||(err===1&&!T.strict)){
-      c.bagged++;if(err===0){c.perfectCups++;c.qmSum+=qmc;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak)}else S.streak=0;
+      c.bagged++;if(c.bagged<qty)S.repeat={cid:c.id,tea:cup.tea,sugar:cup.sugar,ice:cup.ice,tops:[...cup.tops]};if(err===0){c.perfectCups++;c.qmSum+=qmc;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak)}else S.streak=0;
       floatText(slot,`${c.bagged}/${qty} ly`,'good');sfx.ok();beep(420,.12,'triangle',.04,260,.08);
-      hint(c.bagged<qty?`Đã cho vào túi ${c.bagged}/${qty}. Pha tiếp ly nữa nhé.`:'Đủ ly rồi! Bấm “Đóng túi” để giao.');
+      hint(c.bagged<qty?`Đã cho vào túi ${c.bagged}/${qty}. Bấm “Pha y chang” để rót ly tiếp theo.`:'Đủ ly rồi! Bấm “Đóng túi” để giao.');
     }else{
       S.streak=0;c.pat=Math.max(1,c.pat-c.maxPat*.2);floatText(slot,'Sai món','bad');sfx.fail();shake();
       hint(T.strict?'Khách khó tính muốn đúng từng chi tiết. Ly này phải bỏ.':`Ly này sai ${err} chỗ nên phải bỏ. Pha lại ly khác nhé.`);
@@ -609,8 +609,29 @@ function sealCup(){
   S.sealT=.6;beep(90,.55,'sawtooth',.025,150);syncControls();
 }
 $('#seal').addEventListener('click',sealCup);
+// multi-cup orders: one tap pours the next cup with the same recipe (still uses stock; you still seal and bag it)
+let againBusy=false;
+function syncAgain(){
+  const b=$('#again');if(!b||!S)return;const r=S.repeat,c=r&&S.slots.find(x=>x&&x.id===r.cid&&x.state==='wait');
+  if(r&&!c)S.repeat=null;
+  const show=!!c&&!againBusy&&c.bagged<(c.order.qty||1)&&!cup.tea&&!cup.tops.length&&cup.sugar===null&&cup.ice===null;
+  b.hidden=!show;if(show)b.textContent=`Pha y chang #${c.no} · ly ${c.bagged+1}/${c.order.qty}`;
+}
+async function pourAgain(){
+  audio();const r=S.repeat;if(!r||againBusy||!canAct())return;
+  againBusy=true;$('#again').hidden=true;
+  const tap=(k,v)=>{const t=document.querySelector(`.controls .tile[data-kind="${k}"][data-val="${v}"]`);if(t)t.click()};
+  const steps=[['tea',r.tea],['sugar',r.sugar],['ice',r.ice],...r.tops.map(t=>['top',t])];
+  for(const [k,v] of steps){
+    if(k!=='tea'&&!cup.tea)break; // tea ran out (it's re-brewing): stop so the player sees why
+    tap(k,v);await new Promise(res=>setTimeout(res,110));
+  }
+  againBusy=false;syncAgain();
+  if(cup.tea)hint('Đã rót ly giống ly trước. Dán nắp rồi cho vào túi nhé.');
+}
+$('#again').addEventListener('click',pourAgain);
 function cupChanged(){
-  syncControls();
+  syncControls();syncAgain();
   const parts=[];
   if(cup.tea)parts.push(tea(cup.tea).name);
   if(cup.sugar!==null)parts.push(cup.sugar+'% đường');
@@ -740,7 +761,7 @@ function renderTickets(){
     const ask=el.querySelector('.ask');if(ask)ask.addEventListener('click',()=>{audio();askNa(i)});
     box.appendChild(el);ticketRefs.push({c,bar:el.querySelector('.pat'),fill:el.querySelector('.pat i'),face:el.querySelector('.mood'),mood:null,ask:el.querySelector('.ask'),tags:el.querySelector('.t-tags'),sec:el.querySelector('.t-sec'),tagKey:'',el});
   }
-  markTickets();syncFocus();syncServeBtn();renderCounter();
+  markTickets();syncFocus();syncServeBtn();renderCounter();syncAgain();
 }
 function markTickets(){
   ticketRefs.forEach(r=>{if(!r)return;const o=r.c.order;
@@ -760,7 +781,8 @@ function coach(){
   const live=ticketRefs.filter(Boolean);
   let m='';
   if(live.some(r=>r.ready))m=cup.sealed||!sealNeeded()?'Khớp hết rồi! Bấm nút Phục vụ to bên dưới.':'Khớp rồi! Bấm Dán nắp, rồi Phục vụ.';
-  else if(live.length)m=cup.tea?'Giờ thêm đường, đá và topping theo phiếu.':'Chọn trà theo phiếu trước. Dòng khớp sẽ hóa xanh.';
+  else if($('#again')&&!$('#again').hidden)m='Bấm “Pha y chang” để rót ly tiếp theo.';
+  else if(live.length)m=cup.tea?'Giờ thêm đường, đá và topping theo order.':'Chọn trà theo order trước. Phần khớp sẽ hóa xanh.';
   if(m&&m!==coachMsg){coachMsg=m;hint(m,true)}
 }
 function askNa(i){
@@ -1698,6 +1720,7 @@ document.addEventListener('keydown',e=>{
   if(['1','2','3'].includes(e.key)){audio();serve(+e.key-1)}
   else if(e.key==='x'||e.key==='X'||e.key==='Backspace'){e.preventDefault();dump()}
   else if(e.key==='s'||e.key==='S'){sealCup()}
+  else if((e.key==='r'||e.key==='R')&&!$('#again').hidden){pourAgain()}
   else if(e.key==='Enter'||e.key===' '){e.preventDefault();serveTarget()}
 });
 

@@ -565,3 +565,8 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
   body.in-shift .serveBig{min-height:40px;padding-block:6px}
   body.in-shift .actionbar .btn{min-height:40px;padding-block:4px}
 }
+
+/* multi-cup orders: "pour the same again" takes the seal button's place while the cup is empty */
+.btn.again{border-color:rgba(63,131,196,.55);color:#3F83C4;background:#EEF5FC;white-space:nowrap;animation:glow 1.4s ease-in-out infinite}
+.actionbar:has(#again:not([hidden])) #seal,.actionbar:has(#again:not([hidden])) .serveBig{display:none}
+.actionbar .btn.again{flex:1;min-height:48px;font-size:15px;font-weight:600;border-radius:14px}
