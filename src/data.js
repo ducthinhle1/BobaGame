@@ -30,6 +30,7 @@ export const TYPES={
   rush:{label:'Đang vội',patience:22,tip:1.8,pay:1,strict:false},
   picky:{label:'Khó tính',patience:38,tip:2.2,pay:1,strict:true},
   cat:{label:'Mèo VIP',patience:42,tip:3,pay:2,strict:false},
+  reviewer:{label:'Reviewer',patience:45,tip:3,pay:1,strict:true},
   online:{label:'Đơn online',patience:62,tip:1.3,pay:1.3,strict:false},
 };
 
@@ -98,3 +99,29 @@ SUPPLY.push(
   {id:'bag',kind:'gear',gear:true,name:'Túi giấy mặt mèo',desc:'Xấp 20 túi',price:15,pack:20});
 
 export const GEAR=['cup','straw','film','bag'],GEAR_NAME={cup:'ly',straw:'ống hút',film:'màng dán',bag:'túi giấy'};
+
+// ---- daily events: rolled once per in-game day (from day 3), change traffic, patience, tips and prices
+export const EVENTS={
+  normal:{name:'Ngày bình thường',desc:'',spawn:1,pat:1,tip:1,online:1,price:1,w:5},
+  rain:{name:'Trời mưa',desc:'Ít khách ghé hơn nhưng ai tới cũng kiên nhẫn, tip +30% và đơn online nhiều gấp đôi.',spawn:.78,pat:1.2,tip:1.3,online:2,price:1,w:2},
+  holiday:{name:'Ngày lễ',desc:'Phố đông nghẹt: khách nhiều hơn 35%, giá bán +10%, nhưng ai cũng vội hơn.',spawn:1.35,pat:.9,tip:1,online:1,price:1.1,w:1.5},
+  hot:{name:'Nắng nóng',desc:'Trời oi bức: khách nhiều hơn 20%, tip +10% và hầu như ai cũng gọi đá.',spawn:1.2,pat:1,tip:1.1,online:1,price:1,w:1.5,iceHeavy:true},
+  review:{name:'Reviewer ghé tiệm',desc:'Một reviewer nổi tiếng (đeo kính râm) sẽ ghé giữa ca. Pha hoàn hảo cho họ để nhận thưởng lớn.',spawn:1,pat:1,tip:1,online:1,price:1,w:1},
+};
+// ---- seasons follow the real calendar
+export const SEASONS={
+  trungthu:{name:'Mùa Trung Thu',desc:'Tiệm treo đèn lồng, khách vui vẻ nên tip +10%.',tip:1.1},
+  tet:{name:'Tết',desc:'Tiệm chưng hoa mai, khách lì xì nên tip +20%.',tip:1.2},
+};
+
+// ---- regulars: named customers with a favourite drink; perfect drinks raise friendship (0-5 hearts)
+export const REGULARS=[
+  {id:'lan',name:'Cô Lan',fav:{tea:'taro',sugar:50,ice:1,tops:['pearl']},look:{skin:'#F3CDAA',hair:'#2A1E1A',style:'bun',shirt:'#B79BD6'},bio:'Cô giáo tiểu học, ghé sau giờ dạy và kể chuyện học trò cho mèo Bơ nghe.',gift:'Cô Lan tặng tiệm một hộp bánh nướng tự làm.'},
+  {id:'minh',name:'Anh Minh',fav:{tea:'black',sugar:70,ice:2,tops:['pearl']},look:{skin:'#E2AD83',hair:'#2A1E1A',style:'short',shirt:'#6FA8E8',glasses:true},bio:'Lập trình viên. Bảo rằng một ly trà sữa sửa được mọi lỗi code.',gift:'Anh Minh làm giúp tiệm một trang đặt hàng online.'},
+  {id:'hung',name:'Chú Hùng',fav:{tea:'black',sugar:0,ice:0,tops:[]},look:{skin:'#C68863',hair:'#4A2E22',style:'cap',cap:'#5C8F5A',shirt:'#E4D3B0'},bio:'Chạy xe ôm ở đầu hẻm. Luôn gọi không đường, không đá, không topping.',gift:'Chú Hùng giới thiệu cả nhóm xe ôm tới uống.'},
+  {id:'vy',name:'Vy',fav:{tea:'jasmine',sugar:30,ice:1,tops:['grass']},look:{skin:'#F3CDAA',hair:'#7A4A2A',style:'bob',shirt:'#F58DA6'},bio:'Sinh viên mỹ thuật, vẽ tranh mấy bé mèo của tiệm vào sổ ký họa.',gift:'Vy tặng tiệm bức tranh vẽ Bơ, Mochi và Mun.'},
+  {id:'bach',name:'Ông Bạch',fav:{tea:'jasmine',sugar:0,ice:0,tops:[]},look:{skin:'#E2AD83',hair:'#D8D0C8',style:'short',shirt:'#7A8FA8',glasses:true},bio:'Về hưu, ngày nào cũng ngồi vuốt mèo Mochi đúng 15 phút.',gift:'Ông Bạch đan tặng mèo Mochi một chiếc khăn len.'},
+  {id:'mai',name:'Chị Mai',fav:{tea:'matcha',sugar:50,ice:1,tops:['pudding']},look:{skin:'#F3CDAA',hair:'#3B2F5A',style:'long',shirt:'#8FBF6A'},bio:'Nhiếp ảnh gia, đăng ảnh tiệm lên mạng và được cả nghìn lượt thích.',gift:'Bài đăng của chị Mai làm tiệm nổi tiếng hơn.'},
+  {id:'khoa',name:'Khoa',fav:{tea:'thai',sugar:100,ice:2,tops:['pearl']},look:{skin:'#C68863',hair:'#2A1E1A',style:'spiky',shirt:'#E8894A'},bio:'Vận động viên bóng rổ, hảo ngọt và luôn gọi 100% đường.',gift:'Khoa mang cả đội bóng tới ủng hộ.'},
+  {id:'ngoc',name:'Ngọc',fav:{tea:'taro',sugar:70,ice:1,tops:['lychee']},look:{skin:'#F6D5B8',hair:'#9E4A3A',style:'long',shirt:'#F2A541'},bio:'Streamer, hay livestream cảnh pha chế và mèo Mun đi dạo.',gift:'Buổi livestream của Ngọc có hàng nghìn người xem.'},
+];

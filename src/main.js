@@ -1,5 +1,5 @@
 import './styles/main.css';
-import {TEAS,TOPS,SUGARS,QUAL,PEARL_BATCH,ICES,TYPES,LEVELS,TUB,SUPPLY,RECIPES,UPGRADES,STAFF,DELIVERY,RUSH,FEATURES,NEWS,MINI_INFO,GEAR,GEAR_NAME} from './data.js';
+import {EVENTS,SEASONS,REGULARS,TEAS,TOPS,SUGARS,QUAL,PEARL_BATCH,ICES,TYPES,LEVELS,TUB,SUPPLY,RECIPES,UPGRADES,STAFF,DELIVERY,RUSH,FEATURES,NEWS,MINI_INFO,GEAR,GEAR_NAME} from './data.js';
 
 const $=s=>document.querySelector(s);
 const scene=$('#scene'), g=scene.getContext('2d');
@@ -24,7 +24,7 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()
 const unlocked=list=>list.filter(x=>save.owned.includes(x.id));
 const maxTops=()=>has('double')?2:1;
 const goalFor=d=>400+110*(d-1);
-const orderPrice=o=>tea(o.tea).price+o.tops.reduce((s,t)=>s+top(t).price,0);
+const orderPrice=o=>Math.round((tea(o.tea).price+o.tops.reduce((s,t)=>s+top(t).price,0))*ev().price);
 
 const NEW_SAVE=()=>({day:1,wallet:200,xp:0,owned:['black','jasmine','taro','pearl','grass'],upgrades:[],pantry:{black:2,jasmine:1,taro:1,pearl:2,grass:12,cup:40,straw:40,film:40,bag:10},staff:{},history:[]});
 let save=NEW_SAVE();
@@ -272,8 +272,28 @@ function questRows(list){
 }
 
 /* ---------- customers ---------- */
+/* ---------- daily events, seasons and regulars ---------- */
+const season=(()=>{const d=new Date(),m=d.getMonth()+1,day=d.getDate();if((m===9&&day>=12)||(m===10&&day<=12))return'trungthu';if((m===1&&day>=20)||(m===2&&day<=20))return'tet';return null})();
+const ev=()=>EVENTS[save.event&&save.eventDay===save.day?save.event:'normal']||EVENTS.normal;
+const tipBoost=()=>ev().tip*(season?SEASONS[season].tip:1);
+function rollEvent(day){
+  if(day<3)return'normal';
+  const keys=Object.keys(EVENTS).filter(k=>k==='normal'||k!==save.lastEvent);
+  let x=Math.random()*keys.reduce((a,k)=>a+EVENTS[k].w,0);
+  for(const k of keys){x-=EVENTS[k].w;if(x<=0)return k}return'normal';
+}
+const friendOf=id=>{save.friends=save.friends||{};return save.friends[id]||(save.friends[id]={met:false,hearts:0,gift:false})};
+const canMake=o=>save.owned.includes(o.tea)&&o.tops.every(t=>save.owned.includes(t));
+function befriend(c){
+  const r=REGULARS.find(x=>x.id===c.friend),f=friendOf(c.friend);
+  if(!f.met){f.met=true;floatText(c.slot,'Bạn mới!','streak');hint(`Làm quen với ${r.name}! Xem trong Sổ khách quen ở chợ.`)}
+  if(f.hearts<5){f.hearts++;setTimeout(()=>floatText(c.slot,`♥ ${f.hearts}/5`,'good'),350)}
+  if(f.hearts===3&&!f.story){f.story=true;hint(`Bạn đã thân hơn với ${r.name}. Câu chuyện của họ đã mở trong Sổ khách quen.`)}
+  if(f.hearts===5&&!f.gift){f.gift=true;S.cash+=120;save.xp+=30;hint(`${r.gift} +120k và +30 XP!`);sfx.win();updateHud()}
+  persist();
+}
 function pickType(){
-  if(feat('online')&&Math.random()<Math.min(.28,.1+.02*S.day))return 'online';
+  if(feat('online')&&Math.random()<Math.min(.5,Math.min(.28,.1+.02*S.day)*ev().online))return 'online';
   const r=Math.random()*100;
   if(!has('catbed'))return r<68?'regular':r<88?'rush':'picky';
   return r<55?'regular':r<77?'rush':r<92?'picky':'cat';
@@ -290,14 +310,22 @@ function genOrder(type){
   let tops=shuffle(unlocked(TOPS).map(x=>x.id)).slice(0,Math.min(n,maxTops()));
   if(type==='cat'&&!tops.includes('pearl'))tops=['pearl',...tops].slice(0,maxTops());
   const qty=type==='online'?2+(S.day>=3&&Math.random()<.5?1:0):type!=='cat'&&feat('multi')&&Math.random()<.16?2:1;
-  return{tea:t.id,sugar:pick([0,30,50,50,70,70,100]),ice:pick([0,1,1,2,2]),tops,qty};
+  return{tea:t.id,sugar:pick([0,30,50,50,70,70,100]),ice:ev().iceHeavy?pick([1,2,2,2]):pick([0,1,1,2,2]),tops,qty};
 }
-function spawn(){
+function spawn(force){
   const free=[0,1,2].filter(i=>!S.slots[i]);
   if(!free.length)return false;
-  const slot=pick(free),type=pickType(),pat=TYPES[type].patience*Math.max(.62,1-.07*(S.day-1))*(has('lights')?1.2:1)*(staffOn('tu')?1.15:1);
-  const order=genOrder(type),pat2=pat*1.3+(order.qty-1)*12;
-  const c={no:++S.orderNo,id:S.nextId++,slot,type,look:makeLook(type),order,x:W+12,state:'walk',pat:pat2,maxPat:pat2,result:null,bubbleT:0,bagged:0,perfectCups:0,qmSum:0};
+  const slot=pick(free),type=force||pickType(),pat=ev().pat*TYPES[type].patience*Math.max(.62,1-.07*(S.day-1))*(has('lights')?1.2:1)*(staffOn('tu')?1.15:1);
+  let order=genOrder(type),look=makeLook(type),friend=null;
+  // sometimes a regular walks in and orders their favourite
+  if(type==='regular'&&Math.random()<.35){
+    const here=S.customers.map(c=>c.friend);
+    const r=pick(REGULARS.filter(r=>canMake(r.fav)&&!here.includes(r.id)).concat([null]));
+    if(r){friend=r.id;order={...r.fav,tops:[...r.fav.tops],qty:1};look={...r.look,cap:r.look.cap||'#F58DA6'}}
+  }
+  if(type==='reviewer'){order.qty=1;look.shades=true}
+  const pat2=pat*1.3+(order.qty-1)*12;
+  const c={friend,no:++S.orderNo,id:S.nextId++,slot,type,look,order,x:W+12,state:'walk',pat:pat2,maxPat:pat2,result:null,bubbleT:0,bagged:0,perfectCups:0,qmSum:0};
   if(type==='online'&&!S.onlineShown){S.onlineShown=true;setTimeout(()=>{if(S.phase==='open')hint(`Đơn online! Shipper cần ${order.qty} ly: pha từng ly, dán nắp, cho vào túi, rồi đóng túi để giao.`)},900)}
   S.slots[slot]=c;S.customers.push(c);renderTickets();return true;
 }
@@ -340,13 +368,16 @@ function serve(slot){
     S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);
     const combo=S.streak>=3?1.5:1;
     const qm=QUAL[cup.teaQ||'good'].mul*(cup.tops.includes('pearl')?QUAL[cup.pearlQ||'good'].mul:1);
-    const tip=Math.max(1,Math.round((6*T.tip*(c.pat/c.maxPat)*combo+1)*qm*(has('tipjar')?1.25:1)));
+    const close=c.friend&&friendOf(c.friend).hearts>=3?1.5:1;
+    const tip=Math.max(1,Math.round((6*T.tip*(c.pat/c.maxPat)*combo+1)*qm*(has('tipjar')?1.25:1)*tipBoost()*close));
     save.xp+=5;
     S.cash+=price+tip;S.tips+=tip;S.perfect++;S.served++;
     leave(c,'love');c.carry=carry;floatText(slot,`+${price+tip}k`,'good');sfx.win();
     sparkle(c.x,44);coins(c.x,Math.min(7,Math.ceil(tip/3)));
     if([3,5,10,15,20].includes(S.streak))floatText(slot,`Chuỗi ×${S.streak}!`,'streak');
     if(c.type==='cat')meow(1.35,.06,.2);
+    if(c.friend)setTimeout(()=>befriend(c),500);
+    if(c.type==='reviewer'){S.cash+=150;save.xp+=40;setTimeout(()=>{floatText(slot,'Review 5 sao!','streak');hint('Reviewer khen tiệm hết lời! Thưởng +150k và +40 XP.')},700);updateHud()}
     hint((S.streak>=3?`Hoàn hảo! Chuỗi ×${S.streak}, tip +50%.`:c.type==='cat'?'Bé mèo ưng lắm. Trả gấp đôi!':'Ly hoàn hảo!')+(qm>1?' Nguyên liệu ngon, tip nhiều hơn.':qm<1?' Khách thấy vị chưa chuẩn, tip ít.':''));
   }else if(err===1&&!T.strict){
     S.cash+=price;S.served++;S.streak=0;save.xp+=2;
@@ -367,7 +398,7 @@ function finishBag(slot){
   const c=S.slots[slot];if(!c||c.state!=='wait')return;
   const o=c.order,T=TYPES[c.type],qty=o.qty,allPerfect=c.perfectCups===qty;
   const price=Math.round(orderPrice(o)*T.pay*qty),combo=S.streak>=3?1.5:1,qmAvg=c.perfectCups?c.qmSum/c.perfectCups:1;
-  const tip=c.perfectCups?Math.max(1,Math.round((5*T.tip*(c.pat/c.maxPat)*combo+1)*c.perfectCups*qmAvg*(has('tipjar')?1.25:1))):0;
+  const tip=c.perfectCups?Math.max(1,Math.round((5*T.tip*(c.pat/c.maxPat)*combo+1)*c.perfectCups*qmAvg*(has('tipjar')?1.25:1)*tipBoost())):0;
   save.xp+=3*c.perfectCups+2;
   S.cash+=price+tip;S.tips+=tip;S.perfect+=c.perfectCups;S.served+=qty;
   leave(c,allPerfect?'love':'ok');c.carry={bag:true};
@@ -425,6 +456,16 @@ function drawIcon(c,kind,val){
     if(val==='tu'){px(c,3,3,10,2,'#F58DA6');px(c,3,4,10,1,'#D96A86');px(c,11,5,3,1,'#D96A86')}
     if(val==='na'){px(c,4,1,1,2,'#3B2A2D');px(c,5,2,1,1,'#3B2A2D');px(c,11,1,1,2,'#3B2A2D');px(c,10,2,1,1,'#3B2A2D')}
     px(c,6,7,1,1,OUT);px(c,10,7,1,1,OUT);px(c,7,9,3,1,'#C45A77');px(c,5,8,1,1,'#F7A8BC');px(c,11,8,1,1,'#F7A8BC');
+  }else if(kind==='friend'){
+    const L=REGULARS.find(r=>r.id===val).look;
+    blit(c,0,0,16,16,(x,y)=>y>11&&Math.abs(x-8)<=4.5+(y-11)*.5,L.shirt,OUT);
+    if(L.style==='bun')blit(c,0,0,16,16,(x,y)=>inEll(x,y,8,1.8,2.6,2),L.hair,OUT);
+    if(L.style==='long')blit(c,0,0,16,16,(x,y)=>y>4&&y<14&&x>2.5&&x<13.5,L.hair,OUT);
+    blit(c,0,0,16,16,(x,y)=>inEll(x,y,8,7,4.6,4.4),(x,y)=>y<5.2||((L.style==='bob'||L.style==='long')&&(x<4.6||x>11.4)&&y<10)?L.hair:L.skin,OUT);
+    if(L.style==='cap'){px(c,3,3,10,2,L.cap);px(c,10,5,4,1,L.cap)}
+    if(L.style==='spiky')[[5,2],[8,1],[11,2]].forEach(([x,y])=>px(c,x,y,1,1,L.hair));
+    px(c,6,7,1,1,OUT);px(c,10,7,1,1,OUT);px(c,7,9,3,1,'#C45A77');
+    if(L.glasses){px(c,5,6,3,1,OUT);px(c,9,6,3,1,OUT);px(c,5,8,3,1,OUT);px(c,9,8,3,1,OUT);px(c,8,7,1,1,OUT)}
   }else if(kind==='gear'){
     if(val==='cup'){blit(c,0,0,16,16,(x,y)=>y>4&&y<15&&Math.abs(x-8)<=5-(y-4)*.15,'#F6EEF4','#B9A2B8');px(c,3,4,11,1,'#FFFFFF');px(c,3,1,1,3,'#B9A2B8');px(c,4,2,1,2,'#FBD3DE');px(c,12,1,1,3,'#B9A2B8');px(c,11,2,1,2,'#FBD3DE');px(c,6,8,1,1,'#3B2A2D');px(c,9,8,1,1,'#3B2A2D');px(c,7,10,2,1,'#E8788F')}
     else if(val==='straw'){for(let i=0;i<4;i++){px(c,3+i*3,2+i,2,13-i,['#F2708F','#7FC4A6','#F2A541','#8DB6E0'][i]);px(c,3+i*3,2+i,1,13-i,'rgba(255,255,255,.45)')}}
@@ -620,7 +661,7 @@ function renderTickets(){
     const o=c.order,t=tea(o.tea),T=TYPES[c.type];
     el.className='ticket'+(seenTickets.has(c.id)?'':' new');seenTickets.add(c.id);
     el.dataset.type=c.type;if(S.focus===c.id)el.classList.add('focus');
-    el.innerHTML=`<div class="t-head"><span class="t-id"><i class="who" style="background:${c.look.shirt}"></i><b>#${c.no}</b></span><span class="t-type ${c.type}">${T.label}</span><span class="t-price">${Math.round(orderPrice(o)*T.pay*(o.qty||1))}k</span></div>
+    el.innerHTML=`<div class="t-head"><span class="t-id"><i class="who" style="background:${c.look.shirt}"></i><b>#${c.no}</b></span><span class="t-type ${c.friend?'friend':c.type}">${c.friend?REGULARS.find(r=>r.id===c.friend).name+' '+'♥'.repeat(friendOf(c.friend).hearts):T.label}</span><span class="t-price">${Math.round(orderPrice(o)*T.pay*(o.qty||1))}k</span></div>
       <div class="t-line tea" data-f="tea"><i class="sw" style="background:${t.color}"></i><span class="nm">${t.name}</span><span class="nm-s">${t.short}</span>${(o.qty||1)>1?`<b class="qty">×${o.qty}</b>`:''}</div>
       <div class="t-vi">${t.vi}</div>
       <div class="t-line" data-f="sugar">Đường ${o.sugar}%</div>
@@ -778,6 +819,7 @@ function drawPerson(c,t){
   }else if(mood==='happy'){px(g,ox+6,oy+12,1,1,E);px(g,ox+9,oy+12,1,1,E);px(g,ox+7,oy+13,2,1,E)}
   else if(mood==='neutral'){px(g,ox+7,oy+13,2,1,E)}
   else{px(g,ox+7,oy+12,2,1,E);px(g,ox+6,oy+13,1,1,E);px(g,ox+9,oy+13,1,1,E)}
+  if(L.shades){px(g,ox+3,oy+8,4,2,OUT);px(g,ox+9,oy+8,4,2,OUT);px(g,ox+7,oy+8,2,1,OUT);px(g,ox+4,oy+8,1,1,'#6A6478');px(g,ox+10,oy+8,1,1,'#6A6478')}
   if(c.type==='picky'){
     [[4,8],[9,8]].forEach(([x,y])=>{px(g,ox+x,oy+y,3,1,OUT);px(g,ox+x,oy+y+3,3,1,OUT);px(g,ox+x,oy+y+1,1,2,OUT);px(g,ox+x+2,oy+y+1,1,2,OUT)});
     px(g,ox+7,oy+9,2,1,OUT);
@@ -869,6 +911,20 @@ function petCat(c){
   if(S&&S.phase==='open')hint(`${c.name} kêu meo và dụi đầu vào tay bạn.`);
 }
 function catAt(x,y){return shopCats.find(c=>x>=c.x-2&&x<=c.x+c.w+2&&y>=c.y-3&&y<=c.y+c.h+2&&!(c.id==='mun'&&(c.x<-10||c.x>W+5)))}
+function drawDecor(t){
+  if(season==='trungthu')[[22,9],[62,10],[98,9],[146,10]].forEach(([x,y],i)=>{
+    const sw=Math.round(Math.sin(t*1.5+i));g.globalAlpha=.25+.1*Math.sin(t*3+i);blit(g,x-4+sw,y-3,10,12,(a,b)=>inEll(a,b,5,6,5,6),'#FFB35A',null);g.globalAlpha=1;
+    px(g,x+sw,y-2,1,2,'#8A6A78');blit(g,x-3+sw,y,8,8,(a,b)=>inEll(a,b,4,4,3.6,3.8),(a,b)=>b<1.5||b>6.5?'#F2C94C':'#E0485F',OUT);px(g,x-1+sw,y+3,4,1,'#FF8A7A');px(g,x+sw,y+8,1,2,'#F2C94C')});
+  if(season==='tet'){for(let i=0;i<9;i++)px(g,4+i*2,20-i,1,1,'#7A4A2A');[[6,17],[10,14],[14,12],[8,19],[16,10]].forEach(([x,y])=>{px(g,x,y,2,2,'#F9D24A');px(g,x,y,1,1,'#FFF3B0')})}
+  if(ev()===EVENTS.holiday){const cols=['#E0485F','#F2C94C','#3F83C4','#7ED6B8'];for(let x=2;x<W;x+=6){const y=20+Math.round(2*Math.sin(Math.PI*((x%53)/53))),col=cols[(x/6|0)%4];px(g,x,y,4,1,col);px(g,x+1,y+1,2,1,col);px(g,x+1,y+2,1,1,col)}}
+  if(ev()===EVENTS.hot){blit(g,8,10,14,14,(x,y)=>inEll(x,y,7,7,5,5),'#FFD36B','#F2A541');for(let i=0;i<8;i++){const a=i/8*Math.PI*2+t*.3;px(g,15+Math.cos(a)*9,17+Math.sin(a)*9,1,1,'#F2A541')}}
+}
+function drawWeather(t){
+  if(ev()!==EVENTS.rain)return;
+  g.globalAlpha=.14;px(g,0,0,W,60,'#5A6E9A');g.globalAlpha=.7;
+  for(let i=0;i<46;i++){const x=Math.round((i*37+t*38)%(W+10))-5,y=Math.round((i*23+t*150)%(H+6))-6;px(g,x,y,1,3,'#A8C4F0')}
+  g.globalAlpha=1;
+}
 function drawScene(t){
   // sky
   [['#FFE6C8',0,14],['#FFD8BE',14,24],['#FFC9BB',24,31],['#FBB9C0',31,37],['#F2AEC7',37,42],['#E6A6CC',42,46]].forEach(([c,a,b])=>px(g,0,a,W,b-a,c));
@@ -914,7 +970,9 @@ function drawScene(t){
   // awning
   for(let x=0;x<W;x+=8){const c=(x/8)%2?'#FFF4EA':'#F58DA6';px(g,x,0,8,5,c);px(g,x+1,5,6,1,c);px(g,x+2,6,4,1,c);px(g,x+2,7,4,1,'#C85C7A')}
   px(g,0,0,W,1,'#D96A86');
+  drawDecor(t);
   drawShopCats(t);
+  drawWeather(t);
   if(S.phase==='paused'){g.globalAlpha=.45;px(g,0,0,W,H,'#FFF6EF');g.globalAlpha=1}
 }
 function cupInside(x,y){if(y<12||y>52)return false;return Math.abs(x-20)<=13-(y-12)*(3/40)}
@@ -1260,7 +1318,9 @@ function update(dt){
   if(rush&&!S.rushShown){S.rushShown=true;floatText(1,'Giờ cao điểm!','streak');hint('Giờ cao điểm! Khách kéo đến đông gấp đôi trong 30 giây.');[660,880,660,880].forEach((f,i)=>beep(f,.09,'square',.03,null,i*.12))}
   S.spawnT-=dt;
   if(S.spawnT<=0&&S.time<DAY_LEN-8){
-    S.spawnT=spawn()?(5+Math.random()*4)*Math.max(.55,1-.08*(S.day-1))*(rush?.45:1):1;
+    S.spawnT=spawn()?(5+Math.random()*4)*Math.max(.55,1-.08*(S.day-1))*(rush?.45:1)/ev().spawn:1;
+  }
+  if(save.event==='review'&&save.eventDay===S.day&&!S.reviewerCame&&S.time>40&&S.slots.some(x=>!x)){S.reviewerCame=true;spawn('reviewer');hint('Reviewer đã tới! Pha thật hoàn hảo nhé.');[880,1100,1320].forEach((f,i)=>beep(f,.1,'triangle',.04,null,i*.1))
   }
   let changed=false;
   for(const c of S.customers){
@@ -1295,7 +1355,9 @@ function loop(ts){
 /* ---------- day flow ---------- */
 function showOnly(id){['start','market','prep','end'].forEach(x=>$('#'+x).hidden=x!==id)}
 function openMarket(){
-  audio();newDay(save.day);S.phase='market';showOnly('market');
+  audio();
+  if(save.eventDay!==save.day){save.lastEvent=save.event;save.event=rollEvent(save.day);save.eventDay=save.day;persist()}
+  newDay(save.day);S.phase='market';showOnly('market');
   const teaPacks=unlocked(TEAS).reduce((a,t)=>a+(save.pantry[t.id]||0),0);
   const cheapest=Math.min(...SUPPLY.filter(x=>x.kind==='tea'&&save.owned.includes(x.id)).map(x=>x.price));
   if(!teaPacks&&save.wallet<cheapest){save.pantry.black=(save.pantry.black||0)+1;persist();mmsg('Dì ghé tặng một gói lá trà đen. Chúc bán đắt hàng!')}
@@ -1365,11 +1427,22 @@ function renderRevenue(){
   box.querySelectorAll('.rbar').forEach(g=>{const show=()=>{$('#rtip').textContent=g.getAttribute('aria-label');box.querySelectorAll('.rbar').forEach(x=>x.classList.toggle('on',x===g))};g.addEventListener('mouseenter',show);g.addEventListener('focus',show);g.addEventListener('click',show)});
 }
 function renderNews(){
-  const n=NEWS[save.day],box=$('#m-new');box.hidden=!n;
-  if(n)box.innerHTML=`<b>Mới hôm nay</b>`+n.map(([t,d])=>`<p><span>${t}</span>${d}</p>`).join('');
+  const n=NEWS[save.day]||[],e=ev(),box=$('#m-new'),items=[...n];
+  if(e!==EVENTS.normal)items.unshift(['Hôm nay: '+e.name,e.desc]);
+  if(season)items.push([SEASONS[season].name,SEASONS[season].desc]);
+  box.hidden=!items.length;
+  if(items.length)box.innerHTML=`<b>${n.length?'Mới hôm nay':'Hôm nay ở tiệm'}</b>`+items.map(([t,d])=>`<p><span>${t}</span>${d}</p>`).join('');
+}
+function drinkText(o){return `${tea(o.tea).name} · ${o.sugar}% đường · ${ICES[o.ice]}${o.tops.length?' · '+o.tops.map(x=>top(x).name).join(', '):''}`}
+function renderFriends(){
+  const fr=save.friends||{};
+  $('#m-friends').innerHTML=REGULARS.map(r=>{const f=fr[r.id]||{hearts:0};
+    const hearts=[0,1,2,3,4].map(i=>`<span class="${i<f.hearts?'on':''}">♥</span>`).join('');
+    const note=f.met?`Món ruột: ${drinkText(r.fav)}${f.hearts>=3?`<br><em>${r.bio}</em>`:''}${f.gift?`<br>Quà: ${r.gift}`:''}`:(canMake(r.fav)?'Chưa gặp. Hãy chờ họ ghé tiệm.':'Chưa gặp. Có lẽ tiệm cần thêm món mới.');
+    return `<div class="mitem friendcard${f.met?'':' lockd'}"><img src="${iconURL('friend',r.id)}" alt=""><div>${f.met?r.name:'???'}<span class="hearts">${hearts}</span><small>${note}</small></div></div>`}).join('');
 }
 function renderMarket(){
-  renderNews();renderNeeds();renderRevenue();
+  renderNews();renderFriends();renderNeeds();renderRevenue();
   $('#m-quests').innerHTML=questRows(S.quests);
   $('#mday').textContent=`Buổi sáng · Ngày ${save.day}`;
   $('#mwallet').textContent=save.wallet+'k';

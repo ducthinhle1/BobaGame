@@ -278,6 +278,10 @@
   .bk-note{margin:0;font-size:12.5px;color:var(--faint)}
   #bk-code{width:100%;box-sizing:border-box;font:12px/1.4 ui-monospace,Menlo,monospace;border:1px solid var(--line2);border-radius:10px;padding:8px;background:var(--surface2);color:var(--ink);resize:vertical;-webkit-user-select:text;user-select:text}
   #bk-msg{font-size:12.5px;color:var(--jade)}
+  .t-type.friend{color:#C0407A;text-transform:none;letter-spacing:0;font-size:11px}
+  .friendcard{grid-template-columns:36px 1fr}
+  .friendcard em{color:var(--dim)}
+  .hearts{margin-left:6px;font-size:12px;letter-spacing:1px;color:var(--line2)}.hearts .on{color:#E0557A}
   .needbox{display:grid;gap:8px;background:#FFF8F2;border:1px solid var(--line);border-radius:14px;padding:12px}
   .needsum,.needok{margin:0;font-size:13.5px;color:var(--dim)}.needok{color:var(--jade)}
   .needrow{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;font-size:14px}

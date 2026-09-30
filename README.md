@@ -49,6 +49,7 @@ Người chơi có thể sao lưu/khôi phục bằng mã trong menu Tạm dừn
 - [x] Sao lưu / khôi phục bằng mã
 - [ ] Tách `main.js` thành các module: `audio/`, `render/` (cảnh, cốc, icon), `systems/` (khách, kho, nhân viên, nhiệm vụ), `ui/`
 - [ ] Chuyển sang TypeScript
-- [ ] Album khách quen, trang trí tiệm, sự kiện theo mùa (Trung Thu, Tết), chi nhánh thứ hai
-- [ ] Sự kiện ngẫu nhiên mỗi ngày (mưa, ngày lễ, khách review)
+- [x] Sổ khách quen: 8 khách có tên, món ruột, tình thân 5 ♥, câu chuyện và quà
+- [x] Sự kiện mỗi ngày (mưa, ngày lễ, nắng nóng, reviewer) và theo mùa (Trung Thu, Tết)
+- [ ] Trang trí tiệm, chi nhánh thứ hai
 - [ ] Kiểm thử tự động (Playwright) cho vòng chơi một ngày
