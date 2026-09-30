@@ -1,7 +1,8 @@
 // Mèo Trân Châu — static game data: menu, prices, customer types, levels, shop items, staff.
-// Tune the game here; src/main.js holds the game logic.
+// Tune the game here; the game logic lives in src/game/ and src/logic/.
+import type {Tea,Topping,QualityInfo,Quality,CustomerType,TypeId,SupplyItem,ShopItem,StaffInfo,GameEvent,Season,Regular} from './types';
 
-export const TEAS=[
+export const TEAS:Tea[]=[
   {id:'black',name:'Trà sữa Mèo Mun',short:'Mèo Mun',vi:'Trà đen sữa',color:'#C08A5B',price:25},
   {id:'jasmine',name:'Trà lài Mèo Vàng',short:'Mèo Vàng',vi:'Trà lài sữa',color:'#D6CB7E',price:25},
   {id:'taro',name:'Khoai môn Mèo Tím',short:'Mèo Tím',vi:'Khoai môn sữa',color:'#B79BD6',price:30},
@@ -9,7 +10,7 @@ export const TEAS=[
   {id:'thai',name:'Trà Thái Mèo Cam',short:'Mèo Cam',vi:'Trà Thái sữa',color:'#E8894A',price:30,day:3},
 ];
 
-export const TOPS=[
+export const TOPS:Topping[]=[
   {id:'pearl',name:'Trân châu',short:'Trân châu',vi:'Trân châu',price:5},
   {id:'grass',name:'Sương sáo',short:'Sương sáo',vi:'Sương sáo',price:5},
   {id:'pudding',name:'Pudding mặt mèo',short:'Pudding',vi:'Pudding',price:7,day:2},
@@ -17,15 +18,15 @@ export const TOPS=[
   {id:'lychee',name:'Thạch chân mèo',short:'Chân mèo',vi:'Thạch vải',price:6,day:3},
 ];
 
-export const SUGARS=[0,30,50,70,100];
+export const SUGARS:number[]=[0,30,50,70,100];
 
-export const QUAL={perfect:{label:'Hoàn hảo',mul:1.4,cls:'q-perfect'},good:{label:'Tốt',mul:1,cls:''},weak:{label:'Nhạt',mul:.5,cls:'q-bad'},bitter:{label:'Đắng',mul:.5,cls:'q-bad'},clumpy:{label:'Vón cục',mul:.5,cls:'q-bad'}};
+export const QUAL:Record<Quality,QualityInfo>={perfect:{label:'Hoàn hảo',mul:1.4,cls:'q-perfect'},good:{label:'Tốt',mul:1,cls:''},weak:{label:'Nhạt',mul:.5,cls:'q-bad'},bitter:{label:'Đắng',mul:.5,cls:'q-bad'},clumpy:{label:'Vón cục',mul:.5,cls:'q-bad'}};
 
 export const PEARL_BATCH=10;
 
 export const ICES=['Không đá','Ít đá','Đá vừa'];
 
-export const TYPES={
+export const TYPES:Record<TypeId,CustomerType>={
   regular:{label:'Khách quen',patience:34,tip:1,pay:1,strict:false},
   rush:{label:'Đang vội',patience:22,tip:1.8,pay:1,strict:false},
   picky:{label:'Khó tính',patience:38,tip:2.2,pay:1,strict:true},
@@ -38,7 +39,7 @@ export const LEVELS=[0,120,340,660,1080,1600,2250];
 
 export const TUB=12;
 
-export const SUPPLY=[
+export const SUPPLY:SupplyItem[]=[
   {id:'black',kind:'tea',name:'Lá trà đen',desc:'1 gói pha được 1 mẻ',price:40},
   {id:'jasmine',kind:'tea',name:'Lá trà lài',desc:'1 gói pha được 1 mẻ',price:40},
   {id:'taro',kind:'tea',name:'Bột khoai môn',desc:'1 gói pha được 1 mẻ',price:50},
@@ -51,7 +52,7 @@ export const SUPPLY=[
   {id:'foam',kind:'top',name:'Hũ kem tai mèo',desc:`${TUB} muỗng, để được lâu`,price:65,tub:true},
 ];
 
-export const RECIPES=[
+export const RECIPES:ShopItem[]=[
   {id:'matcha',kind:'tea',name:'Matcha Mắt Mèo',lv:2,price:780,desc:'Món trà mới, giá 32k. Tặng kèm 1 gói.'},
   {id:'pudding',kind:'top',name:'Pudding mặt mèo',lv:2,price:570,desc:'Topping mới, +7k mỗi ly. Tặng kèm 1 hũ.'},
   {id:'thai',kind:'tea',name:'Trà Thái Mèo Cam',lv:3,price:830,desc:'Món trà mới, giá 30k. Tặng kèm 1 gói.'},
@@ -59,7 +60,7 @@ export const RECIPES=[
   {id:'foam',kind:'top',name:'Kem tai mèo',lv:5,price:990,desc:'Topping mới, +8k mỗi ly. Tặng kèm 1 hũ.'},
 ];
 
-export const UPGRADES=[
+export const UPGRADES:ShopItem[]=[
   {id:'double',name:'Menu 2 topping',lv:2,price:560,desc:'Khách được gọi 2 topping, hóa đơn lớn hơn.'},
   {id:'catbed',name:'Nệm êm cho mèo',lv:3,price:420,desc:'Mèo VIP bắt đầu ghé quán và trả gấp đôi.'},
   {id:'bigpot',name:'Ấm trà lớn',lv:4,price:980,desc:'Mỗi mẻ trà được 12 ly thay vì 8.'},
@@ -69,22 +70,22 @@ export const UPGRADES=[
   {id:'tipjar',name:'Hũ tip vẽ mèo',lv:6,price:840,desc:'Mọi tiền tip +25%.'},
 ];
 
-export const STAFF=[
+export const STAFF:StaffInfo[]=[
   {id:'hoa',name:'Chị Hoa · pha chế',lv:2,price:500,wage:70,desc:'Tự pha thêm trà và nấu trân châu khi sắp hết, dùng nguyên liệu trong kho.'},
   {id:'tu',name:'Anh Tú · chạy bàn',lv:3,price:730,wage:90,desc:'Ly nào khớp phiếu là Tú mang ra ngay. Trò chuyện giúp khách chờ lâu hơn 15%.'},
   {id:'na',name:'Bé Na · phụ quầy',lv:4,price:900,wage:110,desc:'Bấm “Nhờ Na” trên phiếu: Na rót sẵn trà, đường và đá. Nghỉ 15 giây giữa mỗi lần.'},
 ];
 
-export const DELIVERY=15,RUSH=[55,85];
+export const DELIVERY=15,RUSH:[number,number]=[55,85];
 
-export const FEATURES={seal:2,rush:2,minis:2,multi:3,online:3};
+export const FEATURES:Record<string,number>={seal:2,rush:2,minis:2,multi:3,online:3};
 
-export const NEWS={
+export const NEWS:Record<number,[string,string][]>={
   2:[['Dán nắp ly','Từ hôm nay pha xong phải bấm Dán nắp (phím S) rồi mới phục vụ được.'],['Giờ cao điểm','Giữa ca có 30 giây khách đến đông gấp đôi.'],['Mini game mới','Lúc chuẩn bị sẽ có thêm kiểu đun nước và đánh bọt, trân châu phải nhào bột rồi mới nấu.']],
   3:[['Khách mua nhiều ly','Phiếu có nhãn ×2: pha từng ly, cho vào túi, đủ ly thì bấm Đóng túi & giao.'],['Đơn online','Shipper MèoShip đặt 2 đến 3 ly, trả nhiều hơn 30% nhưng phải đóng túi.']],
 };
 
-export const MINI_INFO={
+export const MINI_INFO:Record<string,{label:string;text:(name:string)=>string}>={
   steep:{label:'Nhấc túi trà',text:n=>`Ủ ${n}: nhấc túi trà khi kim nằm trong vùng xanh.`},
   heat:{label:'Giữ để đun',text:n=>`Đun nước pha ${n}: giữ nút để đun, thả ra cho nguội. Giữ nhiệt trong vùng xanh đủ lâu.`},
   whisk:{label:'Đánh!',text:n=>`Đánh ${n}: vuốt qua lại trên hình (hoặc bấm liên tục, phím ← →) cho bọt đầy trước khi hết giờ.`},
@@ -98,10 +99,10 @@ SUPPLY.push(
   {id:'film',kind:'gear',gear:true,name:'Màng dán nắp',desc:'Cuộn 80 miếng',price:20,pack:80},
   {id:'bag',kind:'gear',gear:true,name:'Túi giấy mặt mèo',desc:'Xấp 20 túi',price:15,pack:20});
 
-export const GEAR=['cup','straw','film','bag'],GEAR_NAME={cup:'ly',straw:'ống hút',film:'màng dán',bag:'túi giấy'};
+export const GEAR=['cup','straw','film','bag'],GEAR_NAME:Record<string,string>={cup:'ly',straw:'ống hút',film:'màng dán',bag:'túi giấy'};
 
 // ---- daily events: rolled once per in-game day (from day 3), change traffic, patience, tips and prices
-export const EVENTS={
+export const EVENTS:Record<string,GameEvent>={
   normal:{name:'Ngày bình thường',desc:'',spawn:1,pat:1,tip:1,online:1,price:1,w:5},
   rain:{name:'Trời mưa',desc:'Ít khách ghé hơn nhưng ai tới cũng kiên nhẫn, tip +30% và đơn online nhiều gấp đôi.',spawn:.78,pat:1.2,tip:1.3,online:2,price:1,w:2},
   holiday:{name:'Ngày lễ',desc:'Phố đông nghẹt: khách nhiều hơn 35%, giá bán +10%, nhưng ai cũng vội hơn.',spawn:1.35,pat:.9,tip:1,online:1,price:1.1,w:1.5},
@@ -109,13 +110,13 @@ export const EVENTS={
   review:{name:'Reviewer ghé tiệm',desc:'Một reviewer nổi tiếng (đeo kính râm) sẽ ghé giữa ca. Pha hoàn hảo cho họ để nhận thưởng lớn.',spawn:1,pat:1,tip:1,online:1,price:1,w:1},
 };
 // ---- seasons follow the real calendar
-export const SEASONS={
+export const SEASONS:Record<string,Season>={
   trungthu:{name:'Mùa Trung Thu',desc:'Tiệm treo đèn lồng, khách vui vẻ nên tip +10%.',tip:1.1},
   tet:{name:'Tết',desc:'Tiệm chưng hoa mai, khách lì xì nên tip +20%.',tip:1.2},
 };
 
 // ---- regulars: named customers with a favourite drink; perfect drinks raise friendship (0-5 hearts)
-export const REGULARS=[
+export const REGULARS:Regular[]=[
   {id:'lan',name:'Cô Lan',fav:{tea:'taro',sugar:50,ice:1,tops:['pearl']},look:{skin:'#F3CDAA',hair:'#2A1E1A',style:'bun',shirt:'#B79BD6'},bio:'Cô giáo tiểu học, ghé sau giờ dạy và kể chuyện học trò cho mèo Bơ nghe.',gift:'Cô Lan tặng tiệm một hộp bánh nướng tự làm.'},
   {id:'minh',name:'Anh Minh',fav:{tea:'black',sugar:70,ice:2,tops:['pearl']},look:{skin:'#E2AD83',hair:'#2A1E1A',style:'short',shirt:'#6FA8E8',glasses:true},bio:'Lập trình viên. Bảo rằng một ly trà sữa sửa được mọi lỗi code.',gift:'Anh Minh làm giúp tiệm một trang đặt hàng online.'},
   {id:'hung',name:'Chú Hùng',fav:{tea:'black',sugar:0,ice:0,tops:[]},look:{skin:'#C68863',hair:'#4A2E22',style:'cap',cap:'#5C8F5A',shirt:'#E4D3B0'},bio:'Chạy xe ôm ở đầu hẻm. Luôn gọi không đường, không đá, không topping.',gift:'Chú Hùng giới thiệu cả nhóm xe ôm tới uống.'},

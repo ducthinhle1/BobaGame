@@ -1,0 +1,26 @@
+import './styles/main.css';
+import './game/core';
+import './game/settings';
+import './game/audio';
+import './game/state';
+import './game/quests';
+import './game/customers';
+import './game/serve';
+import './game/icons';
+import './game/station';
+import './game/orders';
+import './game/draw';
+import './game/cats';
+import './game/prep';
+import './game/fx';
+import './game/loop';
+import './game/day';
+import './game/input';
+import {newDay} from './game/state';
+import {save} from './game/core';
+import {renderStart} from './game/day';
+import {loop} from './game/loop';
+
+newDay(save.day);
+renderStart();
+requestAnimationFrame(loop);
