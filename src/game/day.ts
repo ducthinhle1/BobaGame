@@ -1,9 +1,10 @@
-import {EVENTS,GEAR_NAME,ICES,LEVELS,NEWS,PEARL_BATCH,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
+import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEWS,PEARL_BATCH,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
 import {goalFor} from '../logic/economy';
 import {track} from './analytics';
 import {audio,meow,sfx} from './audio';
 import {$,DAY_LEN,NEW_SAVE,g,has,isTub,levelOf,lvProgress,packOf,persist,save,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
 import {canMake,ev,rollEvent,season} from './customers';
+import {cozy,decorIconURL,ownsDecor} from './decor';
 import {iconURL} from './icons';
 import {last} from './loop';
 import {renderTickets,updateHud} from './orders';
@@ -25,7 +26,7 @@ export function openMarket(){
 }
 export function mmsg(t){$('#mmsg').textContent=t}
 export function marketItem(kind,it){
-  const lv=levelOf(save.xp),icon=kind==='up'?iconURL('up',it.id):kind==='staff'?iconURL('staff',it.id):it.gear?iconURL('gear',it.id):iconURL(it.kind,it.id);
+  const lv=levelOf(save.xp),icon=kind==='decor'?decorIconURL(it.id):kind==='up'?iconURL('up',it.id):kind==='staff'?iconURL('staff',it.id):it.gear?iconURL('gear',it.id):iconURL(it.kind,it.id);
   let btn,cls='mitem',note='';
   if(kind==='supply'){
     const n=save.pantry[it.id]||0;
@@ -37,9 +38,9 @@ export function marketItem(kind,it){
     else if(lv<it.lv){cls+=' lockd';btn=`<button class="btn" type="button" disabled>Cấp ${it.lv}</button>`}
     else btn=`<button class="btn" type="button" data-buy="staff:${it.id}"${save.wallet<it.price?' disabled':''}>Tuyển −${it.price}k</button>`;
   }else{
-    const owned=kind==='recipe'?save.owned.includes(it.id):has(it.id);
-    note=it.desc;
-    if(owned){cls+=' owned';btn=`<button class="btn" type="button" disabled>Đã có</button>`}
+    const owned=kind==='recipe'?save.owned.includes(it.id):kind==='decor'?ownsDecor(it.id):has(it.id);
+    note=kind==='decor'?`${it.desc} <b class="cozyp">+${it.cozy} ấm cúng</b>`:it.desc;
+    if(owned){cls+=' owned';btn=`<button class="btn" type="button" disabled>${kind==='decor'?'Đã đặt':'Đã có'}</button>`}
     else if(lv<it.lv){cls+=' lockd';btn=`<button class="btn" type="button" disabled>Cấp ${it.lv}</button>`}
     else btn=`<button class="btn" type="button" data-buy="${kind}:${it.id}"${save.wallet<it.price?' disabled':''}>−${it.price}k</button>`;
   }
@@ -113,6 +114,8 @@ export function renderMarket(){
   $('#m-recipe').innerHTML=RECIPES.map(x=>marketItem('recipe',x)).join('');
   $('#m-up').innerHTML=UPGRADES.map(x=>marketItem('up',x)).join('');
   $('#m-staff').innerHTML=STAFF.map(x=>marketItem('staff',x)).join('');
+  $('#m-decor').innerHTML=DECOR.map(x=>marketItem('decor',x)).join('');
+  const cz=cozy();$('#m-cozy').textContent=cz?`· ấm cúng ${cz} điểm (tip +${cz}%)`:'';
 }
 $('#market').addEventListener('click',e=>{
   const nb=(e.target as HTMLElement).closest<HTMLElement>('[data-needbuy]'),na=(e.target as HTMLElement).closest<HTMLElement>('[data-needall]');
@@ -123,12 +126,13 @@ $('#market').addEventListener('click',e=>{
   if(sb){const st=save.staff[sb.dataset.staff];st.on=!st.on;persist();renderMarket();sfx.click();mmsg(st.on?'Nhân viên sẽ đi làm hôm nay.':'Đã cho nhân viên nghỉ hôm nay.');return}
   const b=(e.target as HTMLElement).closest<HTMLElement>('[data-buy]');if(!b)return;audio();
   const [kind,id]=b.dataset.buy.split(':');
-  const it=(kind==='supply'?SUPPLY:kind==='recipe'?RECIPES:kind==='staff'?STAFF:UPGRADES).find(x=>x.id===id);
+  const it=(kind==='supply'?SUPPLY:kind==='recipe'?RECIPES:kind==='staff'?STAFF:kind==='decor'?DECOR:UPGRADES).find(x=>x.id===id);
   if(save.wallet<it.price){mmsg('Chưa đủ tiền tiết kiệm.');sfx.nope();return}
   save.wallet-=it.price;
   if(kind==='supply'){save.pantry[id]=(save.pantry[id]||0)+packOf(it);sfx.click();mmsg(`Đã mua ${it.name}.`)}
   else if(kind==='recipe'){track('unlock',{item:id,day:save.day});save.owned.push(id);save.pantry[id]=(save.pantry[id]||0)+(isTub(id)?TUB:1);sfx.win();mmsg(`${it.name} đã có trong menu.`)}
   else if(kind==='staff'){track('hire',{staff:id,day:save.day});save.staff=save.staff||{};save.staff[id]={hired:true,on:true};sfx.win();meow(1.2,.04,.3);mmsg(`${it.name.split(' · ')[0]} đã vào làm ở tiệm!`)}
+  else if(kind==='decor'){track('decor',{item:id,day:save.day});save.decor=[...(save.decor||[]),id];sfx.win();meow(1.25,.04,.25);mmsg(`Đã đặt ${it.name} trong tiệm. Ấm cúng thêm ${(it as any).cozy} điểm!`)}
   else{track('upgrade',{item:id,day:save.day});save.upgrades.push(id);sfx.win();mmsg(`Đã lắp ${it.name}.`)}
   persist();renderMarket();
 });

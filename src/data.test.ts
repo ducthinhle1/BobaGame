@@ -1,12 +1,12 @@
 // Sanity checks on the game data: catches typos in ids when adding drinks, toppings or shop items.
 import {describe, expect, it} from 'vitest';
-import {EVENTS, FEATURES, LEVELS, RECIPES, REGULARS, STAFF, SUGARS, SUPPLY, TEAS, TOPS, UPGRADES} from './data';
+import {DECOR, EVENTS, FEATURES, LEVELS, RECIPES, REGULARS, STAFF, SUGARS, SUPPLY, TEAS, TOPS, UPGRADES} from './data';
 
 const teaIds = TEAS.map(t => t.id), topIds = TOPS.map(t => t.id);
 
 describe('data', () => {
   it('ids are unique', () => {
-    for (const list of [TEAS, TOPS, SUPPLY, RECIPES, UPGRADES, STAFF, REGULARS]) {
+    for (const list of [TEAS, TOPS, SUPPLY, RECIPES, UPGRADES, STAFF, REGULARS, DECOR]) {
       const ids = list.map(x => x.id);
       expect(new Set(ids).size).toBe(ids.length);
     }
@@ -28,6 +28,9 @@ describe('data', () => {
   it('every tea has a fixed brewing mini game; matcha is whisked', () => {
     for (const t of TEAS) expect(['steep', 'heat', 'whisk']).toContain(t.brew);
     expect(TEAS.find(t => t.id === 'matcha')!.brew).toBe('whisk');
+  });
+  it('decorations cost something and add coziness', () => {
+    for (const d of DECOR) { expect(d.price).toBeGreaterThan(0); expect(d.cozy).toBeGreaterThan(0); }
   });
   it('levels start at 0 and go up', () => {
     expect(LEVELS[0]).toBe(0);

@@ -2,6 +2,7 @@ import {EVENTS} from '../data';
 import {audio,meow,purr} from './audio';
 import {H,OUT,W,cg,g,pick,tea} from './core';
 import {ev,season} from './customers';
+import {drawShopDecor,ownsDecor} from './decor';
 import {blit,drawPerson,inEll,px} from './draw';
 import {coins} from './fx';
 import {METAL,METAL_HI} from './icons';
@@ -82,7 +83,8 @@ export function petCat(c){
 }
 export function catAt(x,y){return shopCats.find(c=>x>=c.x-2&&x<=c.x+c.w+2&&y>=c.y-3&&y<=c.y+c.h+2&&!(c.id==='mun'&&(c.x<-10||c.x>W+5)))}
 export function drawDecor(t){
-  if(season==='trungthu')[[22,9],[62,10],[98,9],[146,10]].forEach(([x,y],i)=>{
+  // moon-festival lanterns step aside for the wooden sign when the shop has one
+  if(season==='trungthu')(ownsDecor('sign')?[[24,9],[52,10],[110,9],[146,10]]:[[22,9],[62,10],[98,9],[146,10]]).forEach(([x,y],i)=>{
     const sw=Math.round(Math.sin(t*1.5+i));g.globalAlpha=.25+.1*Math.sin(t*3+i);blit(g,x-4+sw,y-3,10,12,(a,b)=>inEll(a,b,5,6,5,6),'#FFB35A',null);g.globalAlpha=1;
     px(g,x+sw,y-2,1,2,'#8A6A78');blit(g,x-3+sw,y,8,8,(a,b)=>inEll(a,b,4,4,3.6,3.8),(a,b)=>b<1.5||b>6.5?'#F2C94C':'#E0485F',OUT);px(g,x-1+sw,y+3,4,1,'#FF8A7A');px(g,x+sw,y+8,1,2,'#F2C94C')});
   if(season==='tet'){for(let i=0;i<9;i++)px(g,4+i*2,20-i,1,1,'#7A4A2A');[[6,17],[10,14],[14,12],[8,19],[16,10]].forEach(([x,y])=>{px(g,x,y,2,2,'#F9D24A');px(g,x,y,1,1,'#FFF3B0')})}
@@ -140,6 +142,7 @@ export function drawScene(t){
   // awning
   for(let x=0;x<W;x+=8){const c=(x/8)%2?'#FFF4EA':'#F58DA6';px(g,x,0,8,5,c);px(g,x+1,5,6,1,c);px(g,x+2,6,4,1,c);px(g,x+2,7,4,1,'#C85C7A')}
   px(g,0,0,W,1,'#D96A86');
+  drawShopDecor(t);
   drawDecor(t);
   drawShopCats(t);
   drawWeather(t);

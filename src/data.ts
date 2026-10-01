@@ -1,6 +1,6 @@
 // Mèo Trân Châu — static game data: menu, prices, customer types, levels, shop items, staff.
 // Tune the game here; the game logic lives in src/game/ and src/logic/.
-import type {Tea,Topping,QualityInfo,Quality,CustomerType,TypeId,SupplyItem,ShopItem,StaffInfo,GameEvent,Season,Regular} from './types';
+import type {DecorItem,Tea,Topping,QualityInfo,Quality,CustomerType,TypeId,SupplyItem,ShopItem,StaffInfo,GameEvent,Season,Regular} from './types';
 
 // brew: each tea always uses the same prep mini game (steep = lift the tea bag in time,
 // heat = keep the water in the green zone, whisk = whisk up the foam)
@@ -127,4 +127,17 @@ export const REGULARS:Regular[]=[
   {id:'mai',name:'Chị Mai',fav:{tea:'matcha',sugar:50,ice:1,tops:['pudding']},look:{skin:'#F3CDAA',hair:'#3B2F5A',style:'long',shirt:'#8FBF6A'},bio:'Nhiếp ảnh gia, đăng ảnh tiệm lên mạng và được cả nghìn lượt thích.',gift:'Bài đăng của chị Mai làm tiệm nổi tiếng hơn.'},
   {id:'khoa',name:'Khoa',fav:{tea:'thai',sugar:100,ice:2,tops:['pearl']},look:{skin:'#C68863',hair:'#2A1E1A',style:'spiky',shirt:'#E8894A'},bio:'Vận động viên bóng rổ, hảo ngọt và luôn gọi 100% đường.',gift:'Khoa mang cả đội bóng tới ủng hộ.'},
   {id:'ngoc',name:'Ngọc',fav:{tea:'taro',sugar:70,ice:1,tops:['lychee']},look:{skin:'#F6D5B8',hair:'#9E4A3A',style:'long',shirt:'#F2A541'},bio:'Streamer, hay livestream cảnh pha chế và mèo Mun đi dạo.',gift:'Buổi livestream của Ngọc có hàng nghìn người xem.'},
+];
+
+// ---- shop decorations: bought once, shown in the street scene. Each point of coziness = +1% tips
+// and +0.5% customer patience (see cozyBonus in src/logic/economy.ts).
+export const DECOR:DecorItem[]=[
+  {id:'plant',name:'Chậu trầu bà',lv:1,price:150,cozy:2,desc:'Đặt cạnh hũ tip, lá rủ xuống mép quầy.'},
+  {id:'bunting',name:'Dây cờ pastel',lv:1,price:220,cozy:3,desc:'Một hàng cờ tam giác màu kẹo dưới dây đèn.'},
+  {id:'chime',name:'Chuông gió vỏ sò',lv:2,price:180,cozy:2,desc:'Treo dưới mái hiên, thỉnh thoảng kêu leng keng.'},
+  {id:'cookies',name:'Hũ bánh quy cá',lv:2,price:200,cozy:2,desc:'Bánh quy hình cá trên quầy. Bé Bơ cứ nhìn chằm chằm.'},
+  {id:'board',name:'Bảng menu phấn màu',lv:3,price:280,cozy:3,desc:'Vẽ lại bảng menu bằng phấn màu, có hình mèo ở góc.'},
+  {id:'flowers',name:'Hộp hoa trước quầy',lv:3,price:260,cozy:3,desc:'Một hộp hoa nhỏ treo trước mặt quầy.'},
+  {id:'sign',name:'Bảng hiệu gỗ',lv:4,price:340,cozy:4,desc:'Bảng hiệu treo giữa mái hiên: mặt mèo, trái tim và ly trà sữa.'},
+  {id:'lantern',name:'Đèn lồng tai mèo',lv:4,price:380,cozy:4,desc:'Đèn giấy hình đầu mèo, sáng ấm ở góc tiệm.'},
 ];

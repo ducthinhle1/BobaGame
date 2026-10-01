@@ -12,6 +12,8 @@ export interface CustomerType { label: string; patience: number; tip: number; pa
 export interface SupplyItem { id: string; kind: 'tea' | 'top' | 'gear'; name: string; desc: string; price: number; tub?: boolean; gear?: boolean; pack?: number }
 export interface ShopItem { id: string; kind?: 'tea' | 'top'; name: string; lv: number; price: number; desc: string }
 export interface StaffInfo extends ShopItem { wage: number }
+/** Shop decoration: drawn in the street scene; each adds coziness points (tips and patience). */
+export interface DecorItem { id: string; name: string; lv: number; price: number; cozy: number; desc: string }
 export interface GameEvent { name: string; desc: string; spawn: number; pat: number; tip: number; online: number; price: number; w: number; iceHeavy?: boolean }
 export interface Season { name: string; desc: string; tip: number }
 
@@ -41,6 +43,7 @@ export interface Save {
   history: DayRecord[];
   friends?: Record<string, Friendship>;
   event?: string; eventDay?: number; lastEvent?: string;
+  decor?: string[];
 }
 
 export type CustomerState = 'walk' | 'wait' | 'leave';

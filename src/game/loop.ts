@@ -4,6 +4,7 @@ import {drawCup,drawScene,updateCats} from './cats';
 import {DAY_LEN,SLOTS,addBatch,feat,packOf,save,staffOn,stockName,teaBatch} from './core';
 import {ev,leave,spawn} from './customers';
 import {endDay} from './day';
+import {chimeTinkle} from './decor';
 import {drawLifted,drawParts,drawSign,puff,updateParts} from './fx';
 import {naWork,renderTickets,ticketRefs,updateBars,updateHud} from './orders';
 import {drawMini,updateMini} from './prep';
@@ -31,6 +32,7 @@ export function update(dt){
   }
   if(Object.keys(S.brewing).length||Object.keys(S.delivering).length||S.time<.05)syncBadges();
   // Chị Hoa keeps what you've brewed today topped up
+  if(Math.random()<dt/15)chimeTinkle();
   if(staffOn('hoa')){S.hoaT-=dt;if(S.hoaT<=0){S.hoaT=.4;hoaWork()}}
   if(S.sealT>0){S.sealT-=dt;if(S.sealT<=0){S.sealT=0;cup.sealed=true;cupChanged();beep(160,.07,'square',.05);beep(110,.12,'square',.05,null,.06)}}
   S.slots.forEach((c,i)=>{if(c&&c.bagT>0){c.bagT-=dt;if(c.bagT<=0){c.bagT=0;finishBag(i);renderTickets()}}});

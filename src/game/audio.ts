@@ -1,5 +1,4 @@
 import {ev} from './customers';
-import {loop} from './loop';
 import {musicBase,settings} from './settings';
 
 /* ---------- sound ---------- */

@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {bagTip, comboOf, cupPrice, cupTip, goalFor, levelOf, levelProgress, moodOf} from './economy';
+import {bagTip, comboOf, cozyBonus, cozyPoints, cupPrice, cupTip, goalFor, levelOf, levelProgress, moodOf} from './economy';
 import {LEVELS, TEAS, TOPS} from '../data';
 
 const list = {tea: (id: string) => TEAS.find(t => t.id === id)!, top: (id: string) => TOPS.find(t => t.id === id)!};
@@ -49,5 +49,19 @@ describe('progress', () => {
   });
   it('mood follows patience', () => {
     expect([0.9, 0.4, 0.2, 0.05].map(moodOf)).toEqual(['happy', 'okay', 'upset', 'furious']);
+  });
+});
+
+describe('coziness', () => {
+  const decor = [{id: 'a', cozy: 2}, {id: 'b', cozy: 3}];
+  it('adds up owned decorations only', () => {
+    expect(cozyPoints([], decor)).toBe(0);
+    expect(cozyPoints(['b'], decor)).toBe(3);
+    expect(cozyPoints(['a', 'b', 'zzz'], decor)).toBe(5);
+  });
+  it('1% tips and 0.5% patience per point', () => {
+    expect(cozyBonus(0)).toEqual({tip: 1, patience: 1});
+    expect(cozyBonus(10).tip).toBeCloseTo(1.1);
+    expect(cozyBonus(10).patience).toBeCloseTo(1.05);
   });
 });

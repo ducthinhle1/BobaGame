@@ -56,3 +56,13 @@ export type Mood = 'happy' | 'okay' | 'upset' | 'furious';
 export function moodOf(patience: number): Mood {
   return patience > 0.5 ? 'happy' : patience > 0.25 ? 'okay' : patience > 0.1 ? 'upset' : 'furious';
 }
+
+/** Coziness from decorations: +1% tips and +0.5% patience per point. */
+export function cozyBonus(points: number): {tip: number; patience: number} {
+  return {tip: 1 + points / 100, patience: 1 + points * 0.005};
+}
+
+/** Total coziness of the decorations the player owns. */
+export function cozyPoints(owned: readonly string[], decor: readonly {id: string; cozy: number}[]): number {
+  return decor.filter(d => owned.includes(d.id)).reduce((s, d) => s + d.cozy, 0);
+}
