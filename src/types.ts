@@ -55,7 +55,8 @@ export interface Save {
   cats?: string[];
   login?: { last: string; streak: number };
   tutDone?: boolean;
-  stats?: { served: number; perfect: number; bestStreak: number; days: number; cleanDays: number };
+  stats?: { served: number; perfect: number; bestStreak: number; days: number; cleanDays: number; pets?: number; perfectDays?: number; maxDumps?: number; seasonal?: number; maxTips?: number; midnight?: number };
+  achSeen?: number;
   achievements?: string[];
   seasonGift?: string;
 }

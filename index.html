@@ -95,7 +95,7 @@
       <div><span class="lab" id="mday">Buổi sáng · Ngày 1</span><h2 class="preptitle">Đi chợ</h2></div>
       <div class="wallet"><span class="lab">Tiết kiệm</span><b id="mwallet">0k</b><span class="lab" id="mlv">Cấp 1</span><div class="goal"><i id="mxp"></i></div></div>
     </div>
-    <nav class="mtabs" role="tablist" aria-label="Các mục ở chợ"><button type="button" role="tab" data-mtab="today" class="on" aria-selected="true">Hôm nay<i class="dot" hidden></i></button><button type="button" role="tab" data-mtab="stock" aria-selected="false">Nhập hàng<i class="dot" hidden></i></button><button type="button" role="tab" data-mtab="grow" aria-selected="false">Phát triển<i class="dot" hidden></i></button><button type="button" role="tab" data-mtab="book" aria-selected="false">Sổ sách<i class="dot" hidden></i></button></nav>
+    <nav class="mtabs" role="tablist" aria-label="Các mục ở chợ"><button type="button" role="tab" data-mtab="today" class="on" aria-selected="true">Hôm nay<i class="dot" hidden></i></button><button type="button" role="tab" data-mtab="stock" aria-selected="false">Nhập hàng<i class="dot" hidden></i></button><button type="button" role="tab" data-mtab="grow" aria-selected="false">Phát triển<i class="dot" hidden></i></button><button type="button" role="tab" data-mtab="book" aria-selected="false">Sổ sách<i class="dot" hidden></i></button><button type="button" role="tab" data-mtab="ach" aria-selected="false">Thành tựu<i class="dot" hidden></i></button></nav>
     <section class="mtab" data-tab="today">
     <div class="newbox" id="m-new" hidden></div>
     <h3 class="lab">Cần mua</h3><div class="needbox" id="m-need"></div>
@@ -114,9 +114,12 @@
     </section>
     <section class="mtab" data-tab="book" hidden>
     <h3 class="lab">Doanh thu</h3><div class="revbox" id="m-rev"></div>
-    <h3 class="lab">Thành tích <span class="cozy" id="m-achsum"></span></h3><div class="achlist" id="m-ach"></div>
     <h3 class="lab">Sổ mèo <span class="cozy" id="m-catsum"></span></h3><div class="catgrid" id="m-cats"></div><p class="qbonus">Thỉnh thoảng có bé mèo ghé quán giữa ca và ngồi ngoài đường với dấu “?”. Chạm vào bé để làm quen. Mỗi bé trong sổ +1 ấm cúng.</p>
     <h3 class="lab">Sổ khách quen</h3><div class="mgrid" id="m-friends"></div><p class="qbonus">Khách quen thỉnh thoảng ghé và gọi món ruột. Mỗi ly hoàn hảo cho họ thêm 1 ♥. Đủ 3 ♥ họ tip gấp rưỡi và kể chuyện, đủ 5 ♥ họ tặng quà.</p>
+    </section>
+    <section class="mtab" data-tab="ach" hidden>
+    <div class="achhead" id="m-achsum"></div>
+    <div id="m-ach"></div>
     </section>
     <div class="prepfoot sticky"><span id="mmsg" aria-live="polite"></span><button class="btn big" id="mgo" type="button">Đi chuẩn bị</button></div>
   </div>

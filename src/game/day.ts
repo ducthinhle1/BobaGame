@@ -1,6 +1,6 @@
 import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEEDS_PLACE,NEWS,PEARL_BATCH,PLACES,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
 import {seasonKey} from '../logic/season';
-import {checkAchievements,recordDay,renderAchievements} from './achieve';
+import {checkAchievements,hasUnseenAchievements,markAchievementsSeen,recordDay,renderAchievements} from './achieve';
 import {track} from './analytics';
 import {audio,beep,meow,sfx} from './audio';
 import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeIndex,placeInfo,save,scene,seasonTea,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
@@ -139,18 +139,19 @@ export function moveTo(id){
   renderMarket();$('#m-place').scrollIntoView({block:'nearest'});
   mmsg(nx.id==='kiosk'?'Chào mừng tới Ki-ốt góc chợ! Có thêm Khoai môn Mèo Tím và sương sáo (tặng kèm 1 gói, 1 hũ).':'Tiệm Mèo Trân Châu khai trương! Giờ bạn có thể thuê nhân viên và trang trí tiệm.');
 }
-/* market tabs: Hôm nay · Nhập hàng · Phát triển · Sổ sách */
+/* market tabs: Hôm nay · Nhập hàng · Phát triển · Sổ sách · Thành tựu */
 export function showTab(id:string){
   document.querySelectorAll<HTMLElement>('.mtabs [data-mtab]').forEach(b=>{const on=b.dataset.mtab===id;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
   document.querySelectorAll<HTMLElement>('#market .mtab').forEach(sec=>sec.hidden=sec.dataset.tab!==id);
   $('#market').scrollTop=0;
+  if(id==='ach'){renderAchievements();markAchievementsSeen();tabDots()}
 }
 $('#market').querySelector('.mtabs').addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLElement>('[data-mtab]');if(!b)return;audio();sfx.click();showTab(b.dataset.mtab)});
 /** little dots on the tabs: something to buy today, or a bigger place you can move to */
 function tabDots(){
   const lv=levelOf(save.xp),nx=nextPlace();
   const canGrow=(nx&&lv>=nx.lv&&save.wallet>=nx.price)||[...RECIPES.filter(r=>!save.owned.includes(r.id)&&placeAtLeast('kiosk')),...UPGRADES.filter(u=>!has(u.id)&&(u.id!=='catbed'||placeAtLeast('shop'))),...(placeAtLeast('shop')?DECOR.filter(d=>!ownsDecor(d.id)):[])].some(x=>lv>=x.lv&&save.wallet>=x.price);
-  const dots={today:shoppingList().list.length>0,grow:!!canGrow};
+  const dots={today:shoppingList().list.length>0,grow:!!canGrow,ach:hasUnseenAchievements()};
   document.querySelectorAll<HTMLElement>('.mtabs [data-mtab]').forEach(b=>{b.querySelector<HTMLElement>('.dot').hidden=!dots[b.dataset.mtab]});
 }
 export function renderMarket(){

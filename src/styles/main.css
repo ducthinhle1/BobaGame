@@ -708,3 +708,28 @@ body:has(#mini:not([hidden]))::after{content:"";position:fixed;inset:0;backgroun
 @keyframes rise-in{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
 body.in-shift .wrap{animation:fadein .35s ease-out}
 @media (prefers-reduced-motion:reduce){.overlay:not([hidden]),.overlay:not([hidden])>.card,.overlay:not([hidden])>.receipt,body.in-shift .wrap{animation:none}}
+/* market tabs: more breathing room between sections (news, shopping list, quests…) */
+.mtab{display:grid;gap:8px;padding-top:4px}
+.mtab>.lab{margin-top:14px}
+.mtab>.lab:first-child,.mtab>.newbox[hidden]+.lab{margin-top:4px}
+.mtab>.newbox{margin-top:4px}
+.mtab>.qbonus{margin-top:-2px}
+/* Thành tựu tab */
+.achhead{display:grid;gap:8px;padding:14px 16px;margin-top:6px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.achbig{display:flex;align-items:baseline;gap:6px}
+.achbig b{font-size:30px;line-height:1;font-weight:700;color:var(--ink)}
+.achbig span{font-size:14px;color:var(--muted)}
+.achhead .goal{width:100%;margin:0}
+.achmeta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:12.5px;color:var(--muted)}
+#m-ach{display:grid;gap:8px}
+#m-ach>.lab{margin-top:14px}
+.ach-top b em{font-style:normal;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(124,92,196,.14);color:#7C5CC4;vertical-align:1px;margin-left:4px}
+.ach-top b em.new{background:var(--gold);color:#fff}
+.ach.secret{background:repeating-linear-gradient(135deg,var(--surface) 0 10px,var(--surface2,#FBF1EA) 10px 20px);border-style:dashed}
+.ach.secret .ach-top b{color:var(--muted);letter-spacing:.08em}
+.ach.secret small{font-style:italic}
+.ach.locked{opacity:.75;border-style:dashed}
+.ach.locked .ach-top b{color:var(--muted)}
+.ach.fresh{box-shadow:0 0 0 2px var(--gold) inset}
+.mtabs button{white-space:nowrap}
+@media (max-width:420px){.mtabs{gap:2px;padding:3px}.mtabs button{min-width:0;white-space:normal;font-size:11.5px;line-height:1.15;padding:6px 2px}.mtabs .dot{top:3px;right:2px;width:6px;height:6px}}
