@@ -1,4 +1,5 @@
 import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEEDS_PLACE,NEWS,PEARL_BATCH,PLACES,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
+import {checkAchievements,recordDay,renderAchievements} from './achieve';
 import {track} from './analytics';
 import {audio,beep,meow,sfx} from './audio';
 import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeIndex,placeInfo,save,scene,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
@@ -48,6 +49,7 @@ export function marketItem(kind,it){
     const owned=kind==='recipe'?save.owned.includes(it.id):kind==='decor'?ownsDecor(it.id):has(it.id);
     note=kind==='decor'?`${it.desc} <b class="cozyp">+${it.cozy} ấm cúng</b>`:it.desc;
     if(owned){cls+=' owned';btn=`<button class="btn" type="button" disabled>${kind==='decor'?'Đã đặt':'Đã có'}</button>`}
+    else if(it.exclusive){cls+=' lockd';btn=`<button class="btn" type="button" disabled>Thành tích</button>`}
     else if(lv<it.lv){cls+=' lockd';btn=`<button class="btn" type="button" disabled>Cấp ${it.lv}</button>`}
     else btn=`<button class="btn" type="button" data-buy="${kind}:${it.id}"${save.wallet<it.price?' disabled':''}>−${it.price}k</button>`;
   }
@@ -148,7 +150,8 @@ function tabDots(){
   document.querySelectorAll<HTMLElement>('.mtabs [data-mtab]').forEach(b=>{b.querySelector<HTMLElement>('.dot').hidden=!dots[b.dataset.mtab]});
 }
 export function renderMarket(){
-  renderNews();renderPlace();tabDots();renderCatAlbum();renderFriends();renderNeeds();renderRevenue();
+  checkAchievements();
+  renderNews();renderPlace();tabDots();renderCatAlbum();renderAchievements();renderFriends();renderNeeds();renderRevenue();
   $('#m-quests').innerHTML=questRows(S.quests);
   $('#mday').textContent=`Buổi sáng · Ngày ${save.day}`;
   $('#mwallet').textContent=save.wallet+'k';
@@ -211,6 +214,7 @@ export function endDay(){
   const wage=STAFF.filter(x=>staffOn(x.id)).reduce((a,x)=>a+x.wage,0);
   save.history=(save.history||[]).concat([{d:S.day,earned:S.cash,tips:S.tips,quest:qCash,wage,net:S.cash+qCash-wage,served:S.served,perfect:S.perfect}]).slice(-60);
   const prevDay=save.history[save.history.length-2];
+  recordDay();
   track('day_end',{day:S.day,served:S.served,perfect:S.perfect,missed:S.missed,stars,goal_met:S.cash>=goal,staff:STAFF.filter(x=>staffOn(x.id)).length});
   save.wallet+=S.cash+qCash-wage;save.day=S.day+1;persist();
   const lvAfter=levelOf(save.xp),gained=save.xp-S.xp0;

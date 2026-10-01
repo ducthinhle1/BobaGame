@@ -1,4 +1,5 @@
 import {PEARL_BATCH,RUSH,SUPPLY} from '../data';
+import {checkAchievements} from './achieve';
 import {beep,meow,sfx} from './audio';
 import {drawCup,drawScene,updateCats} from './cats';
 import {DAY_LEN,SLOTS,addBatch,feat,packOf,save,staffOn,stockName,teaBatch} from './core';
@@ -36,6 +37,7 @@ export function update(dt){
   // Chị Hoa keeps what you've brewed today topped up
   if(Math.random()<dt/15)chimeTinkle();
   updateVisitor(dt);
+  S.achT=(S.achT||0)-dt;if(S.achT<=0){S.achT=2;checkAchievements()}
   if(staffOn('hoa')){S.hoaT-=dt;if(S.hoaT<=0){S.hoaT=.4;hoaWork()}}
   if(S.sealT>0){S.sealT-=dt;if(S.sealT<=0){S.sealT=0;cup.sealed=true;cupChanged();beep(160,.07,'square',.05);beep(110,.12,'square',.05,null,.06)}}
   S.slots.forEach((c,i)=>{if(c&&c.bagT>0){c.bagT-=dt;if(c.bagT<=0){c.bagT=0;finishBag(i);renderTickets()}}});

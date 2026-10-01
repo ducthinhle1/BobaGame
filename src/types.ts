@@ -19,7 +19,7 @@ export interface VisitorCat { id: string; name: string; place: PlaceId; fur: str
 /** `pay`: how much more customers pay per cup here (a nicer place charges more). */
 export interface PlaceInfo { id: PlaceId; name: string; lv: number; price: number; slots: number; goal: number; pay: number; desc: string; perks: string[] }
 /** Shop decoration: drawn in the street scene; each adds coziness points (tips and patience). */
-export interface DecorItem { id: string; name: string; lv: number; price: number; cozy: number; desc: string }
+export interface DecorItem { id: string; name: string; lv: number; price: number; cozy: number; desc: string; exclusive?: boolean }
 export interface GameEvent { name: string; desc: string; spawn: number; pat: number; tip: number; online: number; price: number; w: number; iceHeavy?: boolean }
 export interface Season { name: string; desc: string; tip: number }
 
@@ -54,6 +54,8 @@ export interface Save {
   cats?: string[];
   login?: { last: string; streak: number };
   tutDone?: boolean;
+  stats?: { served: number; perfect: number; bestStreak: number; days: number; cleanDays: number };
+  achievements?: string[];
 }
 
 export type CustomerState = 'walk' | 'wait' | 'leave';

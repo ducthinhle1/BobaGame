@@ -30,7 +30,7 @@ describe('data', () => {
     expect(TEAS.find(t => t.id === 'matcha')!.brew).toBe('whisk');
   });
   it('decorations cost something and add coziness', () => {
-    for (const d of DECOR) { expect(d.price).toBeGreaterThan(0); expect(d.cozy).toBeGreaterThan(0); }
+    for (const d of DECOR) { if (!d.exclusive) expect(d.price).toBeGreaterThan(0); expect(d.cozy).toBeGreaterThan(0); }
   });
   it('places start free at the cart and get bigger, pricier and need a higher level', () => {
     expect(PLACES[0]).toMatchObject({id: 'cart', price: 0});

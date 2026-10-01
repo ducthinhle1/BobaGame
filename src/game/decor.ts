@@ -62,6 +62,22 @@ function board(c){
   px(c,150,57,1,1,'#FFF4EA');px(c,154,57,1,1,'#FFF4EA');px(c,150,58,5,1,'#FFF4EA');
 }
 
+function trophy(c,x,y){
+  px(c,x+1,y,7,1,OUT);px(c,x+1,y+1,7,4,'#F2C94C');px(c,x+2,y+1,1,3,'#FFF3B0');px(c,x,y+1,1,3,'#E0A82E');px(c,x+8,y+1,1,3,'#E0A82E');
+  px(c,x+2,y+5,5,1,'#E0A82E');px(c,x+4,y+6,1,2,'#E0A82E');px(c,x+2,y+8,5,2,'#8A5A3C');px(c,x+3,y+2,3,1,'#E86A6A');
+}
+function neon(c,x,y,t){
+  const on=Math.floor(t*1.3)%9!==0,col=on?'#FF8FB6':'#C76A8C';
+  if(on){c.globalAlpha=.25;px(c,x-2,y-2,24,13,'#FF8FB6');c.globalAlpha=1}
+  // cat head outline + a boba cup
+  px(c,x,y+2,1,6,col);px(c,x+9,y+2,1,6,col);px(c,x,y+8,10,1,col);px(c,x+1,y+1,1,1,col);px(c,x+2,y,1,1,col);px(c,x+7,y,1,1,col);px(c,x+8,y+1,1,1,col);px(c,x+3,y+2,4,1,col);
+  px(c,x+3,y+4,1,1,col);px(c,x+6,y+4,1,1,col);px(c,x+4,y+6,2,1,col);
+  px(c,x+13,y+3,6,1,col);px(c,x+13,y+3,1,6,col);px(c,x+18,y+3,1,6,col);px(c,x+13,y+8,6,1,col);px(c,x+16,y,1,3,col);
+}
+function cushion(c,x,y){
+  px(c,x,y,22,3,'#B79BD6');px(c,x+1,y-1,20,1,'#CDB8E6');px(c,x,y+3,22,1,'#8E76B0');
+  [x-1,x+22].forEach(tx=>{px(c,tx,y+1,1,1,'#F2C94C');px(c,tx,y+2,1,2,'#F2C94C')});
+}
 /** draws the owned decorations into the scene (called after the awning, before the cats) */
 export function drawShopDecor(t){
   const own=save.decor||[];if(!own.length)return;
@@ -73,6 +89,9 @@ export function drawShopDecor(t){
   if(own.includes('cookies'))cookies(g,118,50);
   if(own.includes('board'))board(g);
   if(own.includes('flowers'))flowers(g,112,63,t);
+  if(own.includes('trophy'))trophy(g,31,50);
+  if(own.includes('neon'))neon(g,100,21,t);
+  if(own.includes('cushion'))cushion(g,95,58);
 }
 
 /** 16×16 market icon for a decoration */
@@ -87,6 +106,9 @@ export function decorIconURL(id:string){
   else if(id==='lantern')lantern(c,3,1,0);
   else if(id==='sign'){px(c,1,3,14,9,OUT);px(c,2,4,12,7,'#E8B97E');px(c,4,5,1,1,'#F2A541');px(c,9,5,1,1,'#F2A541');px(c,4,6,6,4,'#F2A541');px(c,5,7,1,1,OUT);px(c,8,7,1,1,OUT);px(c,6,8,2,1,'#E86A6A')}
   else if(id==='bunting'){px(c,0,3,16,1,'#B08AA0');['#F58DA6','#7ED6B8','#F2C94C'].forEach((col,i)=>{const x=1+i*5;px(c,x,4,5,2,col);px(c,x+1,6,3,2,col);px(c,x+2,8,1,2,col)})}
+  else if(id==='trophy')trophy(c,3,3);
+  else if(id==='neon')neon(c,-2,4,0);
+  else if(id==='cushion'){cushion(c,-3,9);px(c,4,4,8,5,'#F4AA55');px(c,4,3,1,1,'#F4AA55');px(c,11,3,1,1,'#F4AA55')}
   else if(id==='board'){px(c,1,1,14,14,OUT);px(c,2,2,12,12,'#23302A');['#F58DA6','#7ED6B8','#F2C94C'].forEach((col,i)=>{px(c,4,4+i*3,5,1,col);px(c,10,4+i*3,2,1,'#F2A541')});px(c,9,12,4,1,'#FFF4EA');px(c,9,11,1,1,'#FFF4EA');px(c,12,11,1,1,'#FFF4EA')}
   return iconCache[id]=cv.toDataURL();
 }

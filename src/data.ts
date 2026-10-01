@@ -147,6 +147,10 @@ export const DECOR:DecorItem[]=[
   {id:'flowers',name:'Hộp hoa trước quầy',lv:3,price:260,cozy:3,desc:'Một hộp hoa nhỏ treo trước mặt quầy.'},
   {id:'sign',name:'Bảng hiệu gỗ',lv:4,price:340,cozy:4,desc:'Bảng hiệu treo giữa mái hiên: mặt mèo, trái tim và ly trà sữa.'},
   {id:'lantern',name:'Đèn lồng tai mèo',lv:4,price:380,cozy:4,desc:'Đèn giấy hình đầu mèo, sáng ấm ở góc tiệm.'},
+  // only from achievements
+  {id:'trophy',name:'Cúp trà sữa vàng',lv:1,price:0,cozy:5,exclusive:true,desc:'Phần thưởng thành tích “Năm trăm ly”. Đặt trên quầy.'},
+  {id:'neon',name:'Biển neon mèo',lv:1,price:0,cozy:5,exclusive:true,desc:'Phần thưởng thành tích “Bậc thầy trà sữa”. Sáng hồng dưới mái hiên.'},
+  {id:'cushion',name:'Gối nhung cho bé Bơ',lv:1,price:0,cozy:5,exclusive:true,desc:'Phần thưởng thành tích “Tiệm của riêng mình”. Bơ ngủ ngon hơn hẳn.'},
 ];
 
 // ---- places: a new game starts with the pushcart; moving up costs savings and needs a level.
