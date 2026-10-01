@@ -53,6 +53,7 @@ export interface Save {
   place?: PlaceId;
   cats?: string[];
   login?: { last: string; streak: number };
+  tutDone?: boolean;
 }
 
 export type CustomerState = 'walk' | 'wait' | 'leave';

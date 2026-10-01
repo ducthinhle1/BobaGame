@@ -23,6 +23,8 @@ import {loop} from './game/loop';
 
 import {startAnalytics} from './game/analytics';
 startAnalytics();
+import {boFace} from './game/tutorial';
+(document.getElementById('tut-face') as HTMLImageElement).src=boFace();
 newDay(save.day);
 renderStart();
 requestAnimationFrame(loop);

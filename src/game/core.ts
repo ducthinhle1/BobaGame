@@ -39,6 +39,7 @@ export let save:Save=NEW_SAVE();
 export function loadSave(v:any):Save{
   const out=Object.assign(NEW_SAVE(),v);
   if(!v.place)out.place=v.day>1||(v.history||[]).length?'shop':'cart';
+  if(v.tutDone===undefined&&(v.day>1||v.xp>0))out.tutDone=true;
   if(out.pantry.cup===undefined)Object.assign(out.pantry,{cup:40,straw:40,film:40,bag:10});
   return out;
 }

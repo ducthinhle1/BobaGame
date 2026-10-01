@@ -638,3 +638,15 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
 .catcard small{color:var(--faint);font-size:12px}
 .catcard.met{background:var(--surface);border-style:solid;border-color:var(--line)}
 .catcard.met b{color:var(--ink)}.catcard.met small{color:var(--muted)}
+
+/* first-day tutorial */
+.tut{position:fixed;left:50%;translate:-50% 0;top:calc(8px + env(safe-area-inset-top,0px));z-index:30;width:min(440px,calc(100vw - 20px));display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:start;
+  background:var(--surface);border:2px solid var(--gold);border-radius:16px;padding:10px 12px;box-shadow:0 10px 30px rgba(90,40,50,.25);animation:pop .25s ease-out}
+.tut img{width:40px;height:40px;image-rendering:pixelated}
+.tut p{margin:0 0 6px;font-size:14px;line-height:1.4;color:var(--ink)}
+.tut-row{display:flex;align-items:center;gap:10px}
+.tut-row #tut-step{font-size:11px;color:var(--faint);font-weight:600}
+.tut-row .btn{margin-left:auto;padding:6px 14px}
+.linkbtn{border:0;background:none;padding:0;font:inherit;font-size:12px;color:var(--faint);text-decoration:underline;cursor:pointer}
+.tut-target{outline:3px solid var(--gold)!important;outline-offset:3px;border-radius:12px;animation:tutpulse 1.2s ease-in-out infinite;position:relative;z-index:5}
+@keyframes tutpulse{50%{outline-color:rgba(224,85,122,.35)}}

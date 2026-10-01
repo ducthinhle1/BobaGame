@@ -10,6 +10,7 @@ import {parts} from './fx';
 import {hint,serve} from './serve';
 import {S,cup} from './state';
 import {cupChanged,syncAgain,syncBadges} from './station';
+import {tutorialActive} from './tutorial';
 
 /* ---------- tickets ---------- */
 /** the hidden order tickets, one per counter slot (null when empty); the counter UI reads its state from here */
@@ -107,7 +108,7 @@ export function syncServeBtn(){
     lab=lab[0].toUpperCase()+lab.slice(1);
     state=full?'bag':r.ready?'ready':''}
   if($('#serveLab').textContent!==lab)$('#serveLab').textContent=lab;
-  b.className='serveBig'+(state?' '+state:'');b.disabled=!r;
+  b.className='serveBig'+(state?' '+state:'')+(b.classList.contains('tut-target')?' tut-target':'');b.disabled=!r;
 }
 export function serveTarget(){audio();const i=targetSlot();if(i<0){hint('Chưa có khách nào chờ.');return}serve(i)}
 $('#serveBig').addEventListener('click',serveTarget);
@@ -148,6 +149,7 @@ export function markTickets(){
 // gentle step-by-step guidance for a brand new player's first drinks
 export let coachMsg='';
 export function coach(){
+  if(tutorialActive())return;
   if(!S||S.phase!=='open'||save.day>1||S.served+S.missed>=2)return;
   const live=ticketRefs.filter(Boolean);
   let m='';

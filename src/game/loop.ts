@@ -12,6 +12,7 @@ import {checkQuests} from './quests';
 import {finishBag,floatText,hint,serve,tickHint} from './serve';
 import {S,cup} from './state';
 import {cupChanged,hoaWork,rebrew,syncBadges,syncGear} from './station';
+import {tutorialTick} from './tutorial';
 import {updateVisitor} from './visitors';
 
 /* ---------- loop ---------- */
@@ -64,6 +65,7 @@ export function update(dt){
 export let animT=0;
 export function loop(ts){
   const dt=Math.min(.05,(ts-last)/1000);last=ts;
+  tutorialTick();
   const paused=S.phase==='paused';
   if(!paused)animT+=dt;
   const t=animT;

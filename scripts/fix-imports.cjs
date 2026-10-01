@@ -4,13 +4,14 @@
 const ts=require('typescript'),fs=require('fs');
 const dir='src/game',mods=fs.readdirSync(dir).filter(f=>f.endsWith('.ts')).map(f=>f.slice(0,-3));
 const parse=p=>ts.createSourceFile(p,fs.readFileSync(p,'utf8'),ts.ScriptTarget.Latest,true);
-const declsOf=sf=>{const out=[];for(const st of sf.statements){
+const exported=st=>!!(st.modifiers&&st.modifiers.some(m=>m.kind===ts.SyntaxKind.ExportKeyword));
+const declsOf=(sf,onlyExported)=>{const out=[];for(const st of sf.statements){if(onlyExported&&!exported(st))continue;
   if((ts.isFunctionDeclaration(st)||ts.isInterfaceDeclaration(st)||ts.isTypeAliasDeclaration(st))&&st.name)out.push([st.name.text,ts.isInterfaceDeclaration(st)||ts.isTypeAliasDeclaration(st)]);
   if(ts.isVariableStatement(st))st.declarationList.declarations.forEach(d=>ts.isIdentifier(d.name)&&out.push([d.name.text,false]))}return out};
 const owner={},isType={};
-const addOwner=(file,spec,onlyNew)=>declsOf(parse(file)).forEach(([n,t])=>{if(onlyNew&&owner[n])return;owner[n]=spec;isType[n]=t});
+const addOwner=(file,spec,onlyNew)=>declsOf(parse(file),true).forEach(([n,t])=>{if(onlyNew&&owner[n])return;owner[n]=spec;isType[n]=t});
 const info={};
-for(const m of mods){const sf=parse(`${dir}/${m}.ts`);info[m]={sf};declsOf(sf).forEach(([n,t])=>{owner[n]='./'+m;isType[n]=t})}
+for(const m of mods){const sf=parse(`${dir}/${m}.ts`);info[m]={sf};declsOf(sf,true).forEach(([n,t])=>{owner[n]='./'+m;isType[n]=t})}
 for(const f of fs.readdirSync('src/logic').filter(f=>f.endsWith('.ts')&&!f.endsWith('.test.ts')))addOwner('src/logic/'+f,'../logic/'+f.slice(0,-3),true);
 addOwner('src/data.ts','../data',true);addOwner('src/types.ts','../types',true);
 for(const m of mods){const {sf}=info[m];const decl=new Set(declsOf(sf).map(x=>x[0])),used=new Set(),keep=[];
