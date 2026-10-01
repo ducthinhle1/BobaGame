@@ -30,6 +30,7 @@ Mỗi lần đẩy code lên `main`, GitHub Actions (`.github/workflows/ci.yml`)
 ## Deploy
 
 - **Netlify (khuyên dùng):** kết nối repo GitHub, Netlify tự đọc `netlify.toml` (build `npm run build`, publish `dist`).
+  Để tiết kiệm credit của gói miễn phí, Netlify **chỉ build commit có chữ `[deploy]` trong lời nhắn**; các commit khác được bỏ qua.
   Hoặc chạy `npm run build` rồi kéo thả thư mục `dist/` vào tab *Deploys* của site.
 - **itch.io:** nén `dist/index.html` thành .zip, tạo project loại *HTML*, bật *Mobile friendly*.
 - **GitHub Pages:** đưa `dist/index.html` lên nhánh `gh-pages` hoặc dùng GitHub Actions.

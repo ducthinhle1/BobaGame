@@ -1,7 +1,12 @@
-# Netlify builds the game from source on every push (or drag-and-drop the dist/ folder).
+# Netlify builds the game from source when a commit asks for it.
+#
+# Each production deploy costs credits on Netlify's free plan (300 a month), so ordinary pushes
+# are skipped: only a commit whose message contains [deploy] is built and published.
+# (Netlify runs `ignore`: exit 0 = skip this build, exit 1 = build it.)
 [build]
   command = "npm run build"
   publish = "dist"
+  ignore = "git log -1 --pretty=%B | grep -q '\\[deploy\\]' && exit 1 || exit 0"
 
 [build.environment]
   NODE_VERSION = "20"
