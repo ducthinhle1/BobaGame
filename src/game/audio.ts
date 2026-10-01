@@ -26,13 +26,19 @@ export function audio(){try{
 // iPhones only unlock sound on a finished tap (touchend/click), not on touch start
 ['touchend','click'].forEach(ev=>document.addEventListener(ev,()=>audio(),{capture:true,passive:true}));
 document.addEventListener('keydown',()=>audio());
-export function beep(f,d,type='square',v=.04,to?,delay=0){
+/** one soft synth note. Harsh waveforms are softened (square/sawtooth play as triangle) and every note
+ *  fades in over a few ms, so nothing clicks; this keeps the effects in tune with the lo-fi music. */
+export function beep(f,d,type='triangle',v=.04,to?,delay=0){
   if(muted||!actx)return;
+  if(type==='square'||type==='sawtooth'){type='triangle';v*=.8}
   const t0=actx.currentTime+delay,o=actx.createOscillator(),gn=actx.createGain();
   o.type=type;o.frequency.setValueAtTime(f,t0);if(to)o.frequency.exponentialRampToValueAtTime(to,t0+d);
-  v*=settings.sfx/100;if(v<.0005)return;gn.gain.setValueAtTime(v,t0);gn.gain.exponentialRampToValueAtTime(.0001,t0+d);
+  v*=settings.sfx/100;if(v<.0005)return;
+  gn.gain.setValueAtTime(.0001,t0);gn.gain.linearRampToValueAtTime(v,t0+Math.min(.008,d*.2));gn.gain.exponentialRampToValueAtTime(.0001,t0+d);
   o.connect(gn).connect(actx.destination);o.start(t0);o.stop(t0+d+.02);
 }
+/** a little bell: a sine with a quiet overtone that rings a bit longer */
+function ding(f,v,delay=0,len=.45){v*=1.5;beep(f,len,'sine',v,null,delay);beep(f*2.01,len*.5,'sine',v*.25,null,delay);beep(f*3.98,len*.2,'sine',v*.08,null,delay)}
 // a synthesized meow: a buzzy voice through a moving 'mi-a-ow' mouth filter
 export function meow(pitch=1,vol=.07,delay=0){
   if(muted||!actx)return;const v=vol*settings.sfx/100;if(v<.0005)return;
@@ -57,13 +63,20 @@ export function purr(dur=1.3,vol=.09){
   o.start(t);lfo.start(t);o.stop(t+dur+.05);lfo.stop(t+dur+.05);
 }
 export const sfx={
-  click:()=>beep(660,.05,'square',.03),
-  pour:()=>beep(260,.3,'triangle',.06,520),
-  bell:()=>{beep(1175,.09,'square',.025);beep(1568,.14,'square',.025,null,.08)},
-  win:()=>{[523,659,784,1047].forEach((f,i)=>beep(f,.1,'square',.035,null,i*.07))},
-  ok:()=>{beep(523,.1,'square',.03);beep(659,.12,'square',.03,null,.08)},
-  fail:()=>beep(220,.35,'sawtooth',.03,98),
-  nope:()=>beep(160,.12,'square',.03),
+  // a soft wooden tick for buttons
+  click:()=>{beep(1320,.035,'sine',.032);beep(2640,.02,'sine',.009)},
+  // a round "pop" for toppings and choices on the bar
+  pop:()=>{beep(520,.08,'sine',.065,1040);beep(1560,.03,'sine',.012,null,.03)},
+  // pouring: a rising glide plus two tiny bubbles
+  pour:()=>{beep(330,.3,'sine',.06,640);beep(1400,.03,'sine',.018,null,.14);beep(1650,.03,'sine',.015,null,.22)},
+  // a shop-door bell
+  bell:()=>{ding(1568,.028);ding(2093,.022,.09)},
+  // a happy music-box arpeggio
+  win:()=>{[659,784,988,1319].forEach((f,i)=>ding(f,.026,i*.075,.5))},
+  ok:()=>{ding(784,.026);ding(1047,.022,.08)},
+  // a gentle "uh-oh" instead of a buzzer
+  fail:()=>{beep(392,.18,'triangle',.045,330);beep(330,.26,'triangle',.042,262,.16)},
+  nope:()=>beep(247,.09,'triangle',.038,220),
 };
 
 /* ---------- background music: an original lo-fi loop generated live ---------- */

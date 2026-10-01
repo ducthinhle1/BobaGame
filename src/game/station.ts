@@ -103,13 +103,13 @@ document.querySelector<HTMLElement>('.controls').addEventListener('click',e=>{
   if(cup.sealed){hint('Ly đã dán nắp rồi. Muốn đổi thì đổ ly.');sfx.nope();return}
   if(k==='tea'){if(cup.tea===v)return;if(cup.tea){hint(LOCKED);sfx.nope();return}
     if(stockN(v)<=0){rebrew(v);return}if(!useGear('cup'))return;cup.teaQ=takeServing(v);cup.level=0;cup.tea=v;sfx.pour()}
-  else if(k==='sugar'){if(cup.sugar===+v)return;if(cup.sugar!==null){hint(LOCKED);sfx.nope();return}cup.sugar=+v;sfx.click()}
-  else if(k==='ice'){if(cup.ice===+v)return;if(cup.ice!==null){hint(LOCKED);sfx.nope();return}cup.ice=+v;sfx.click()}
+  else if(k==='sugar'){if(cup.sugar===+v)return;if(cup.sugar!==null){hint(LOCKED);sfx.nope();return}cup.sugar=+v;sfx.pop()}
+  else if(k==='ice'){if(cup.ice===+v)return;if(cup.ice!==null){hint(LOCKED);sfx.nope();return}cup.ice=+v;sfx.pop()}
   else{if(cup.tops.includes(v)){hint('Topping đã cho vào thì không lấy ra được.');sfx.nope();return}
     if(cup.tops.length>=maxTops()){hint(`Hôm nay mỗi ly tối đa ${maxTops()} topping.`);sfx.nope();return}
     if(v==='pearl'){if(stockN('pearl')<=0){rebrew('pearl');return}cup.pearlQ=takeServing('pearl')}
     else{if((save.pantry[v]||0)<=0){orderDelivery(v);return}save.pantry[v]--;syncBadges()}
-    cup.tops.push(v);sfx.click()}
+    cup.tops.push(v);sfx.pop()}
   syncBadges();
   cupChanged();
 });
