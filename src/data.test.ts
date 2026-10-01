@@ -38,6 +38,7 @@ describe('data', () => {
       expect(p.price).toBeGreaterThan(PLACES[i].price);
       expect(p.lv).toBeGreaterThanOrEqual(PLACES[i].lv);
       expect(p.slots).toBeGreaterThanOrEqual(PLACES[i].slots);
+      expect(p.pay).toBeGreaterThan(PLACES[i].pay);
     });
     Object.values(NEEDS_PLACE).forEach(id => expect(PLACES.map(p => p.id)).toContain(id));
   });

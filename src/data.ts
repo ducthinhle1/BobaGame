@@ -145,12 +145,12 @@ export const DECOR:DecorItem[]=[
 // ---- places: a new game starts with the pushcart; moving up costs savings and needs a level.
 // slots = customers served at once; goal = share of the daily revenue target.
 export const PLACES:PlaceInfo[]=[
-  {id:'cart',name:'Xe đẩy trà sữa',lv:1,price:0,slots:2,goal:.6,desc:'Chiếc xe đẩy nhỏ ở đầu hẻm, dù hồng che nắng.',
+  {id:'cart',name:'Xe đẩy trà sữa',lv:1,price:0,slots:2,goal:.6,pay:1,desc:'Chiếc xe đẩy nhỏ ở đầu hẻm, dù hồng che nắng.',
     perks:['2 khách một lúc','Trà sữa Mèo Mun, Trà lài Mèo Vàng, trân châu']},
-  {id:'kiosk',name:'Ki-ốt góc chợ',lv:2,price:2000,slots:3,goal:.85,desc:'Một quầy có mái che ở góc chợ.',
-    perks:['3 khách một lúc','Thêm Khoai môn Mèo Tím và sương sáo','Học được công thức món mới']},
-  {id:'shop',name:'Tiệm Mèo Trân Châu',lv:4,price:6000,slots:3,goal:1,desc:'Một tiệm thật sự có mái hiên sọc hồng.',
-    perks:['Thuê nhân viên','Trang trí tiệm','Nhận đơn online MèoShip','Bé Mochi về nằm trên mái hiên']},
+  {id:'kiosk',name:'Ki-ốt góc chợ',lv:2,price:2000,slots:3,goal:.85,pay:1.1,desc:'Một quầy có mái che ở góc chợ.',
+    perks:['Khách trả thêm 10% mỗi ly','3 khách một lúc','Thêm Khoai môn Mèo Tím và sương sáo','Học được công thức món mới']},
+  {id:'shop',name:'Tiệm Mèo Trân Châu',lv:4,price:6000,slots:3,goal:1,pay:1.25,desc:'Một tiệm thật sự có mái hiên sọc hồng.',
+    perks:['Khách trả thêm 25% mỗi ly','Thuê nhân viên','Trang trí tiệm','Nhận đơn online MèoShip','Bé Mochi về nằm trên mái hiên']},
 ];
 /** the first place where each thing becomes available */
 export const NEEDS_PLACE:Record<string,PlaceId>={recipe:'kiosk',staff:'shop',decor:'shop',online:'shop',catbed:'shop'};

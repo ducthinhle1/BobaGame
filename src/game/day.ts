@@ -108,7 +108,7 @@ export function renderFriends(){
 /** "Mặt bằng": where you sell now, and what it takes to move up */
 export function renderPlace(){
   const cur=placeInfo(),nx=nextPlace(),lv=levelOf(save.xp);
-  let html=`<div class="pl-cur"><b>${cur.name}</b><small>${cur.desc} Mục tiêu mỗi ngày ${Math.round(cur.goal*100)}% so với tiệm lớn.</small></div>`;
+  let html=`<div class="pl-cur"><b>${cur.name}</b><small>${cur.desc} ${cur.pay>1?`Khách trả thêm ${Math.round((cur.pay-1)*100)}% mỗi ly. `:''}Mục tiêu mỗi ngày ${Math.round(cur.goal*100)}% so với tiệm lớn.</small></div>`;
   if(nx){
     const lvOk=lv>=nx.lv,cashOk=save.wallet>=nx.price,pct=Math.min(100,save.wallet/nx.price*100);
     html+=`<div class="pl-next"><span class="lab">Bước tiếp theo</span><b>${nx.name}</b>

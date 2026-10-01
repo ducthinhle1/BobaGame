@@ -31,7 +31,7 @@ export function pick(a){return a[Math.floor(Math.random()*a.length)]}
 export function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 export function unlocked(list){return list.filter(x=>save.owned.includes(x.id))}
 export function maxTops(){return has('double')?2:1}
-export function orderPrice(o:Order){return econ.cupPrice(o,{tea,top},ev().price)}
+export function orderPrice(o:Order){return econ.cupPrice(o,{tea,top},ev().price*placeInfo().pay)}
 
 export function NEW_SAVE():Save{return ({day:1,wallet:200,xp:0,place:'cart',owned:['black','jasmine','pearl'],upgrades:[],pantry:{black:2,jasmine:2,pearl:2,cup:40,straw:40,film:40,bag:10},staff:{},history:[]})}
 export let save:Save=NEW_SAVE();

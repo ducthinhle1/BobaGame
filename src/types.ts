@@ -14,7 +14,8 @@ export interface ShopItem { id: string; kind?: 'tea' | 'top'; name: string; lv: 
 export interface StaffInfo extends ShopItem { wage: number }
 export type PlaceId = 'cart' | 'kiosk' | 'shop';
 /** Where you sell: you start with a pushcart and move up as you earn. */
-export interface PlaceInfo { id: PlaceId; name: string; lv: number; price: number; slots: number; goal: number; desc: string; perks: string[] }
+/** `pay`: how much more customers pay per cup here (a nicer place charges more). */
+export interface PlaceInfo { id: PlaceId; name: string; lv: number; price: number; slots: number; goal: number; pay: number; desc: string; perks: string[] }
 /** Shop decoration: drawn in the street scene; each adds coziness points (tips and patience). */
 export interface DecorItem { id: string; name: string; lv: number; price: number; cozy: number; desc: string }
 export interface GameEvent { name: string; desc: string; spawn: number; pat: number; tip: number; online: number; price: number; w: number; iceHeavy?: boolean }
