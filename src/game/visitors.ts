@@ -91,7 +91,7 @@ export function catFaceURL(v: VisitorCat, met: boolean) {
   blit(c, 0, 0, 16, 16, ear(4.5), F, O); blit(c, 0, 0, 16, 16, ear(11.5), met && v.patch ? v.patch : F, O);
   blit(c, 0, 0, 16, 16, (x, y) => inEll(x, y, 8, 10, 6.4, 5), F, O);
   if (met) {
-    if (v.patch) px(c, 3, 9, 3, 3, v.patch);
+    if (v.patch) { px(c, 2, 11, 3, 2, v.patch); px(c, 3, 7, 3, 2, v.dark); } // calico: orange cheek, dark patch over one eye's brow
     if (v.id === 'muop' || v.id === 'hoangtu') { px(c, 7, 6, 1, 2, v.dark); px(c, 9, 6, 1, 2, v.dark); }
     px(c, 5, 9, 1, 2, v.eye); px(c, 10, 9, 1, 2, v.eye); px(c, 7, 11, 2, 1, '#E8788F');
     if (v.id === 'hoangtu') { px(c, 5, 1, 6, 2, '#F2C94C'); px(c, 5, 0, 1, 1, '#F2C94C'); px(c, 8, 0, 1, 1, '#F2C94C'); px(c, 10, 0, 1, 1, '#F2C94C'); }
