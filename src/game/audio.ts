@@ -72,10 +72,24 @@ export const sfx={
 export const music:{on:boolean;started:boolean;[node:string]:any}={on:true,started:false};
 try{if(localStorage.getItem('tcs-music')==='off')music.on=false}catch(e){}
 export function mtof(m){return 440*Math.pow(2,(m-69)/12)}
-export const STEP=60/74/2; // eighth notes at 74 bpm
-export const PROG:[number,number[]][]=[ // 8-bar loop: [bass root, chord voicing]
-  [41,[57,60,64,67]],[40,[55,59,62,64]],[38,[53,57,60,64]],[36,[52,55,59,64]],
-  [34,[50,53,57,62]],[33,[48,52,55,60]],[31,[50,53,58,62]],[36,[48,53,55,58]],
+/*  "Mèo Trân Châu" theme — an original 32-bar lo-fi tune in F major, 84 bpm with a lazy swing.
+    Form: A (intro: Rhodes, bass, soft drums) → A' (music-box melody) → B (kalimba arpeggios, a little
+    "mew" call and answer) → A'' (melody an octave up with sparkles), then around again.  */
+export const STEP=60/84/2; // eighth notes at 84 bpm
+// [bass root, Rhodes voicing] per bar: Fmaj7 | Am7 | Dm7 | C7sus | Bbmaj7 | Am7 | Gm7 | C7
+export const PROG:[number,number[]][]=[
+  [41,[53,57,60,64]],[45,[52,55,57,60]],[38,[50,53,57,60]],[36,[53,55,58,60]],
+  [34,[53,57,58,62]],[33,[52,55,57,60]],[31,[50,53,55,58]],[36,[52,55,58,60]],
+];
+const _=null,M='mew';
+// melody, eight eighth-notes per bar (MIDI; _ = rest, M = a tiny cat "mew")
+const MEL_A:(number|null|string)[][]=[
+  [81,_,79,77,_,_,72,_],[_,_,77,79,81,_,_,_],[84,_,81,_,79,_,77,_],[79,_,_,_,_,_,_,_],
+  [77,_,79,81,_,86,_,84],[_,_,81,_,79,_,_,_],[77,_,_,79,_,77,_,74],[77,_,_,_,_,_,_,_],
+];
+const MEL_B:(number|null|string)[][]=[
+  [_,_,_,_,84,_,86,_],[84,_,81,_,_,_,_,_],[_,_,_,_,81,_,84,_],[79,_,_,_,_,_,M,_],
+  [_,_,_,_,86,_,88,_],[86,_,84,_,_,_,_,_],[_,_,81,_,79,_,77,_],[79,_,_,_,_,_,M,_],
 ];
 export function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 export function startMusic(){
@@ -83,26 +97,27 @@ export function startMusic(){
   music.started=true;
   const now=actx.currentTime;
   const master=actx.createGain();master.gain.setValueAtTime(0,now);master.gain.linearRampToValueAtTime(Math.max(.0001,musicBase()),now+3);
-  const warm=actx.createBiquadFilter();warm.type='lowpass';warm.frequency.value=2300;warm.Q.value=.4;
+  const warm=actx.createBiquadFilter();warm.type='lowpass';warm.frequency.value=2600;warm.Q.value=.4;
   warm.connect(master).connect(actx.destination);
+  // a soft dotted-eighth echo for the bells and the kalimba
   const delay=actx.createDelay(2);delay.delayTime.value=STEP*3;
-  const fb=actx.createGain();fb.gain.value=.3;const wet=actx.createGain();wet.gain.value=.35;
-  const dtone=actx.createBiquadFilter();dtone.type='lowpass';dtone.frequency.value=1600;
+  const fb=actx.createGain();fb.gain.value=.28;const wet=actx.createGain();wet.gain.value=.3;
+  const dtone=actx.createBiquadFilter();dtone.type='lowpass';dtone.frequency.value=1800;
   delay.connect(dtone).connect(fb).connect(delay);dtone.connect(wet).connect(warm);
-  // slow tape wobble on the keys
-  const lfo=actx.createOscillator();lfo.frequency.value=.35;const lfoAmt=actx.createGain();lfoAmt.gain.value=7;lfo.connect(lfoAmt);lfo.start();
-  // noise for crackle and percussion
+  // slow tape wobble on the Rhodes
+  const lfo=actx.createOscillator();lfo.frequency.value=.3;const lfoAmt=actx.createGain();lfoAmt.gain.value=6;lfo.connect(lfoAmt);lfo.start();
+  // noise for the drums
   const len=actx.sampleRate*2,buf=actx.createBuffer(1,len,actx.sampleRate),d=buf.getChannelData(0);
   for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
-  // vinyl: mostly silence, a whisper of hiss and a few soft pops (no steady rain-like wash)
+  // vinyl: mostly silence, a whisper of hiss and a few soft pops
   const vlen=actx.sampleRate*4,vbuf=actx.createBuffer(1,vlen,actx.sampleRate),v=vbuf.getChannelData(0);
   for(let i=0;i<vlen;i++)v[i]=(Math.random()*2-1)*.04;
-  for(let k=0;k<7;k++){const at=Math.floor(Math.random()*(vlen-200)),amp=.4+Math.random()*.5;for(let j=0;j<60;j++)v[at+j]+=(Math.random()*2-1)*amp*Math.exp(-j/12)}
+  for(let k=0;k<6;k++){const at=Math.floor(Math.random()*(vlen-200)),amp=.4+Math.random()*.5;for(let j=0;j<60;j++)v[at+j]+=(Math.random()*2-1)*amp*Math.exp(-j/12)}
   const crackle=actx.createBufferSource();crackle.buffer=vbuf;crackle.loop=true;
-  const chp=actx.createBiquadFilter();chp.type='bandpass';chp.frequency.value=1800;chp.Q.value=.7;const cg2=actx.createGain();cg2.gain.value=.012;
+  const chp=actx.createBiquadFilter();chp.type='bandpass';chp.frequency.value=1800;chp.Q.value=.7;const cg2=actx.createGain();cg2.gain.value=.01;
   crackle.connect(chp).connect(cg2).connect(master);crackle.start();
-  Object.assign(music,{master,warm,delay,lfo,lfoAmt,buf,crackle,next:now+.15,step:0,last:69});
-  music.timer=setInterval(scheduleMusic,80);
+  Object.assign(music,{master,warm,delay,lfo,lfoAmt,buf,crackle,next:now+.15,step:0});
+  music.timer=setInterval(()=>scheduleMusic(),80);
 }
 export function stopMusic(){
   if(!music.started)return;music.started=false;clearInterval(music.timer);
@@ -118,35 +133,64 @@ export function voice(type,freq,t,dur,vol,dest,detune?){
   gn.gain.exponentialRampToValueAtTime(vol*.3,t+Math.min(.7,dur*.5));gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
   o.connect(gn).connect(dest);o.start(t);o.stop(t+dur+.05);
 }
-export function keys(m,t,dur,vol){voice('sine',mtof(m),t,dur,vol,music.warm,true);voice('triangle',mtof(m)*2.003,t,dur*.6,vol*.1,music.warm,true)}
-export function bell(m,t){const f=mtof(m);[music.warm,music.delay].forEach(dst=>{voice('sine',f,t,1.6,.06,dst);voice('sine',f*3.01,t,.5,.008,dst)})}
-export function bass(m,t,dur){const o=actx.createOscillator(),gn=actx.createGain();o.type='sine';o.frequency.value=mtof(m);
-  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(.2,t+.03);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(gn).connect(music.warm);o.start(t);o.stop(t+dur+.05)}
-export function kick(t){const o=actx.createOscillator(),gn=actx.createGain();o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(42,t+.14);
-  gn.gain.setValueAtTime(.26,t);gn.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(gn).connect(music.master);o.start(t);o.stop(t+.3)}
+/** warm electric piano */
+export function keys(m,t,dur,vol){voice('sine',mtof(m),t,dur,vol,music.warm,true);voice('triangle',mtof(m)*2.003,t,dur*.5,vol*.09,music.warm,true)}
+/** music box: a pure tone plus a bright, quickly fading overtone */
+export function musicBox(m,t,vol=.05){const f=mtof(m);
+  [music.warm,music.delay].forEach((dst,i)=>{voice('sine',f,t,1.3,vol*(i?.6:1),dst);voice('sine',f*4.02,t,.18,vol*.22*(i?.5:1),dst)})}
+/** kalimba: a tine that starts a hair sharp and settles */
+export function kalimba(m,t,vol=.045){const f=mtof(m),o=actx.createOscillator(),gn=actx.createGain();o.type='sine';
+  o.frequency.setValueAtTime(f*1.012,t);o.frequency.exponentialRampToValueAtTime(f,t+.04);
+  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(vol,t+.005);gn.gain.exponentialRampToValueAtTime(.0001,t+.9);
+  o.connect(gn);gn.connect(music.warm);gn.connect(music.delay);o.start(t);o.stop(t+.95);
+  voice('triangle',f*2,t,.12,vol*.25,music.warm)}
+/** a tiny, sweet cat "mew" played as an instrument (pitch slides up, then settles) */
+export function mew(t,root=79){const f=mtof(root),o=actx.createOscillator(),fl=actx.createBiquadFilter(),gn=actx.createGain();
+  o.type='triangle';o.frequency.setValueAtTime(f*.84,t);o.frequency.linearRampToValueAtTime(f*1.12,t+.09);o.frequency.linearRampToValueAtTime(f*.94,t+.3);
+  fl.type='lowpass';fl.frequency.value=2400;
+  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(.035,t+.03);gn.gain.linearRampToValueAtTime(0,t+.34);
+  o.connect(fl).connect(gn);gn.connect(music.warm);gn.connect(music.delay);o.start(t);o.stop(t+.36)}
+export function bass(m,t,dur,vol=.19){const o=actx.createOscillator(),gn=actx.createGain();o.type='sine';o.frequency.value=mtof(m);
+  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(vol,t+.03);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(gn).connect(music.warm);o.start(t);o.stop(t+dur+.05)}
+export function kick(t,vol=.22){const o=actx.createOscillator(),gn=actx.createGain();o.frequency.setValueAtTime(90,t);o.frequency.exponentialRampToValueAtTime(42,t+.13);
+  gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.0001,t+.26);o.connect(gn).connect(music.master);o.start(t);o.stop(t+.3)}
 export function noiseHit(t,type,f,vol,dur){const src=actx.createBufferSource();src.buffer=music.buf;const fl=actx.createBiquadFilter();fl.type=type;fl.frequency.value=f;
   const gn=actx.createGain();gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
   src.connect(fl).connect(gn).connect(music.warm);src.start(t,Math.random()*1.5);src.stop(t+dur+.02)}
-export function scheduleMusic(){
+/** woodblock-ish rim tick: cuter than a snare */
+export function tick(t,vol=.03){voice('sine',1650,t,.05,vol,music.warm);noiseHit(t,'bandpass',3200,vol*.8,.03)}
+export function scheduleMusic(until?:number){
   if(!music.started)return;
-  while(music.next<actx.currentTime+.4){
-    const st=music.step,pos=st%8,bar=Math.floor(st/8)%8,loop=Math.floor(st/64);
-    const swing=pos%2?STEP*.18:0,t=music.next+swing;
-    const [root,ch]=PROG[bar];
-    if(pos===0){ch.forEach((n,i)=>keys(n,t+i*.025,STEP*8,.075));bass(root,t,STEP*3.5)}
-    if(pos===5)bass(root+7,t,STEP*2.5);
-    if(pos===0||pos===5)kick(t);
-    if(pos===4)noiseHit(t,'bandpass',1900,.045,.09);
-    if(pos%2)noiseHit(t,'highpass',7000,.007,.03);
-    // melody: phrases repeat for two loops, then a new phrase
-    if(pos===0)music.rand=rng(1000+(Math.floor(loop/2)%4)*77+bar);
-    const r=music.rand;
-    const pr=[.55,.1,.35,.45,.2,.3,.5,.12][pos]*(bar===3||bar===7?.5:1);
-    if(r()<pr){
-      const pool=[];ch.forEach(n=>{pool.push(n+12);if(n+24<=84)pool.push(n+24)});
-      const cand=pool.filter(n=>n>=64&&n<=84).sort((a,b)=>Math.abs(a-music.last)-Math.abs(b-music.last)).slice(0,3);
-      const n=cand[Math.floor(r()*cand.length)];music.last=n;bell(n,t+.01);
+  const horizon=until??actx.currentTime+.4;
+  while(music.next<horizon){
+    const st=music.step,pos=st%8,bar=Math.floor(st/8)%8,sec=Math.floor(st/64)%4,round=Math.floor(st/256);
+    const swing=pos%2?STEP*.2:0,t=music.next+swing;
+    const [root,ch]=PROG[bar],r=rng(st*7+round*131);
+    // Rhodes: long chord on 1, a soft bouncy re-strike on the "and" of 2 (not in the quiet B section)
+    if(pos===0)ch.forEach((n,i)=>keys(n,t+i*.02,STEP*7,.06));
+    if(pos===3&&sec!==2)ch.slice(1).forEach(n=>keys(n,t,STEP*2,.028));
+    // bass: root on 1, a fifth on the "and" of 3, little walk-up into the next bar
+    if(pos===0)bass(root,t,STEP*3);
+    if(pos===5)bass(root+7,t,STEP*1.6,.15);
+    if(pos===7&&sec!==2)bass(PROG[(bar+1)%8][0]-1,t,STEP*.8,.1);
+    // drums: soft kick, woodblock tick on the backbeat, a shaker that leans on the offbeats
+    if(pos===0||(pos===5&&sec!==2))kick(t,sec===0&&bar<2?.12:.2);
+    if(pos===4)tick(t,sec===2?.02:.03);
+    noiseHit(t,'highpass',8000,pos%2?.008:.004,.035);
+    // melody
+    if(sec===1||sec===3){
+      const n=MEL_A[bar][pos];
+      if(typeof n==='number'){musicBox(n+(sec===3?12:0),t+.01,sec===3?.04:.05);
+        if(sec===3&&r()<.3)musicBox(n+(r()<.5?4:7),t+STEP*.5,.02);} // sprinkles on the last pass
+      if(sec===3&&bar===7&&pos===4)[96,100,103].forEach((m,i)=>musicBox(m,t+i*STEP*.33,.018));
     }
+    if(sec===2){
+      // kalimba walks up and down the chord, the melody answers sparsely, and a cat mews at the end of each phrase
+      const arp=[0,1,2,3,2,1,2,3][pos];kalimba(ch[arp]+12,t,.032);
+      const n=MEL_B[bar][pos];
+      if(typeof n==='number')musicBox(n,t+.01,.042);else if(n===M)mew(t,bar===3?79:84);
+    }
+    if(sec===0&&bar===7&&pos===6)mew(t); // a little hello before the melody comes in
     music.next+=STEP;music.step++;
   }
 }
