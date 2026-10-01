@@ -45,7 +45,7 @@ export function startMini(id){
   $('#mtext').textContent=MINI_INFO[kind].text(isTea?tea(id).name:'');
   $('#mact').textContent=MINI_INFO[kind].label;
   $<HTMLButtonElement>('#mact').disabled=false;$('#mini').hidden=false;renderPrep();
-  $('#mini').scrollIntoView({block:'nearest'});$('#mact').focus({preventScroll:true});sfx.pour();
+  $('#mact').focus({preventScroll:true});sfx.pour();
 }
 export function miniAct(){
   const m=mini;if(!m||m.done)return;
@@ -99,7 +99,7 @@ export function finishMini(q,n){
   $('#mtext').textContent=`Xong ${n} ${isTea?'ly '+tea(m.id).name:'muỗng trân châu'}. ${msg}`;
   $<HTMLButtonElement>('#mact').disabled=true;$('#mact').textContent=QUAL[q].label;
   (q==='perfect'?sfx.win:q==='good'?sfx.ok:sfx.fail)();
-  setTimeout(()=>{if(mini===m){mini=null;renderPrep();$('#popen').focus({preventScroll:true})}},1500);
+  setTimeout(()=>{if(mini===m){mini=null;$('#mini').hidden=true;renderPrep();$('#popen').focus({preventScroll:true})}},1500);
 }
 export function updateMini(dt){
   const m=mini;if(!m||m.done)return;
@@ -218,3 +218,6 @@ $('#popen').addEventListener('click',()=>{
   hint('Mở cửa rồi! Vị khách đầu tiên đang tới.');
 });
 export function resetMini(){mini=null}
+// the mini-game panel lives at the top level of the page so `position:fixed` centres it on the screen
+// (inside the blurred prep overlay it would be positioned relative to that scrolling box instead)
+document.body.appendChild($('#mini'));

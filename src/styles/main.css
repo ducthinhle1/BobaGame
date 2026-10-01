@@ -663,10 +663,10 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
 .ach .ach-n{font-size:11px;color:var(--faint)}
 .ach.done{background:rgba(47,154,108,.07);border-color:rgba(47,154,108,.35)}
 .ach.done .ach-top b{color:var(--jade)}
-.toast{position:fixed;left:50%;translate:-50% 0;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;display:grid;gap:2px;text-align:center;
+.toast{position:fixed;left:50%;translate:-50% 0;top:calc(62px + env(safe-area-inset-top,0px));z-index:40;display:grid;gap:2px;text-align:center;
   background:#3B2A2D;color:#FFF6EF;padding:10px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:pop .3s ease-out;transition:opacity .3s,translate .3s}
 .toast b{font-size:14.5px}.toast span{font-size:12.5px;color:#F7C7D3}
-.toast.out{opacity:0;translate:-50% 10px}
+.toast.out{opacity:0;translate:-50% -10px}
 
 /* title screen */
 .startcard{max-width:420px;text-align:center;display:grid;justify-items:center;gap:6px;padding-top:18px}
@@ -684,4 +684,14 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
   .startcard .savebadge{grid-area:badge}
   .startcard .startbtns{grid-area:btns;justify-items:start;margin-top:6px}
   .startbtns .btn.big{min-width:0}
+}
+
+/* prep mini games float in the middle of the screen (never under the sticky button, no scrolling) */
+body:has(#mini:not([hidden]))::after{content:"";position:fixed;inset:0;background:rgba(90,55,55,.35);z-index:24;animation:fadein .2s ease-out}
+#mini:not([hidden]){position:fixed;left:50%;top:50%;translate:-50% -50%;z-index:25;width:min(420px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;
+  background:var(--surface);box-shadow:0 18px 50px rgba(60,30,40,.35);border:1px solid var(--line);animation:pop .25s ease-out}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@media (max-height:520px) and (orientation:landscape){
+  #mini:not([hidden]){grid-template-columns:1.2fr 1fr;align-items:center;width:min(640px,calc(100vw - 24px));gap:8px 14px}
+  #mini:not([hidden]) #mcv{grid-row:1/4;max-width:none}
 }
