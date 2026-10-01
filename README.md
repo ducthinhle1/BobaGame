@@ -1,6 +1,7 @@
 # Mèo Trân Châu 🐱🧋
 
 Game tiệm trà sữa mèo pixel art chạy ngay trên trình duyệt (điện thoại và máy tính).
+Bắt đầu với một chiếc xe đẩy, dành dụm để lên ki-ốt góc chợ rồi mở tiệm riêng.
 Mỗi ngày: đi chợ → chuẩn bị (ủ trà, nấu trân châu qua mini game) → bán hàng → xem hóa đơn.
 
 Toàn bộ hình ảnh là pixel art vẽ bằng code, âm thanh và nhạc nền được tổng hợp trực tiếp bằng Web Audio,
@@ -87,5 +88,7 @@ Lượt truy cập, loại thiết bị, trình duyệt, quốc gia do Umami t�
 - [ ] Siết kiểu chặt dần cho `src/game/` (hiện `src/logic/` và dữ liệu đã strict)
 - [x] Sổ khách quen: 8 khách có tên, món ruột, tình thân 5 ♥, câu chuyện và quà
 - [x] Sự kiện mỗi ngày (mưa, ngày lễ, nắng nóng, reviewer) và theo mùa (Trung Thu, Tết)
-- [ ] Trang trí tiệm, chi nhánh thứ hai
+- [x] Mặt bằng: xe đẩy → ki-ốt góc chợ → tiệm (nhân viên, trang trí, đơn online chỉ có ở tiệm)
+- [x] Trang trí tiệm: 8 món, điểm ấm cúng tăng tip và độ kiên nhẫn
+- [ ] Quán cà phê mèo 2 tầng / chi nhánh thứ hai
 - [ ] Kiểm thử tự động (Playwright) cho vòng chơi một ngày trong CI

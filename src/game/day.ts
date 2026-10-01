@@ -1,8 +1,7 @@
-import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEWS,PEARL_BATCH,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
-import {goalFor} from '../logic/economy';
+import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEEDS_PLACE,NEWS,PEARL_BATCH,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
 import {track} from './analytics';
 import {audio,meow,sfx} from './audio';
-import {$,DAY_LEN,NEW_SAVE,g,has,isTub,levelOf,lvProgress,packOf,persist,save,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
+import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeInfo,save,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
 import {canMake,ev,rollEvent,season} from './customers';
 import {cozy,decorIconURL,ownsDecor} from './decor';
 import {iconURL} from './icons';
@@ -28,6 +27,11 @@ export function mmsg(t){$('#mmsg').textContent=t}
 export function marketItem(kind,it){
   const lv=levelOf(save.xp),icon=kind==='decor'?decorIconURL(it.id):kind==='up'?iconURL('up',it.id):kind==='staff'?iconURL('staff',it.id):it.gear?iconURL('gear',it.id):iconURL(it.kind,it.id);
   let btn,cls='mitem',note='';
+  const need=NEEDS_PLACE[kind]||NEEDS_PLACE[it.id],placeLock=need&&!placeAtLeast(need)?placeInfo(need):null;
+  if(placeLock&&kind!=='supply'){
+    note=kind==='decor'?`${it.desc} <b class="cozyp">+${it.cozy} ấm cúng</b>`:kind==='staff'?`${it.desc} Lương ${it.wage}k/ngày.`:it.desc;
+    return `<div class="mitem lockd"><img src="${icon}" alt=""><div>${it.name}<small>${note}</small></div><button class="btn" type="button" disabled>Có ở ${placeLock.name.split(' ')[0]==='Tiệm'?'tiệm':'ki-ốt'}</button></div>`;
+  }
   if(kind==='supply'){
     const n=save.pantry[it.id]||0;
     note=`<span class="have">Đang có ${n}${it.tub?' muỗng':it.gear?' '+GEAR_NAME[it.id]:''}</span> · ${it.desc}`;
@@ -87,7 +91,7 @@ export function renderRevenue(){
   box.querySelectorAll('.rbar').forEach(g=>{const show=()=>{$('#rtip').textContent=g.getAttribute('aria-label');box.querySelectorAll('.rbar').forEach(x=>x.classList.toggle('on',x===g))};g.addEventListener('mouseenter',show);g.addEventListener('focus',show);g.addEventListener('click',show)});
 }
 export function renderNews(){
-  const n=NEWS[save.day]||[],e=ev(),box=$('#m-new'),items=[...n];
+  const n=(NEWS[save.day]||[]).filter(([t])=>t!=='Đơn online'||placeAtLeast('shop')),e=ev(),box=$('#m-new'),items=[...n];
   if(e!==EVENTS.normal)items.unshift(['Hôm nay: '+e.name,e.desc]);
   if(season)items.push([SEASONS[season].name,SEASONS[season].desc]);
   box.hidden=!items.length;
@@ -101,8 +105,31 @@ export function renderFriends(){
     const note=f.met?`Món ruột: ${drinkText(r.fav)}${f.hearts>=3?`<br><em>${r.bio}</em>`:''}${f.gift?`<br>Quà: ${r.gift}`:''}`:(canMake(r.fav)?'Chưa gặp. Hãy chờ họ ghé tiệm.':'Chưa gặp. Có lẽ tiệm cần thêm món mới.');
     return `<div class="mitem friendcard${f.met?'':' lockd'}"><img src="${iconURL('friend',r.id)}" alt=""><div>${f.met?r.name:'???'}<span class="hearts">${hearts}</span><small>${note}</small></div></div>`}).join('');
 }
+/** "Mặt bằng": where you sell now, and what it takes to move up */
+export function renderPlace(){
+  const cur=placeInfo(),nx=nextPlace(),lv=levelOf(save.xp);
+  let html=`<div class="pl-cur"><b>${cur.name}</b><small>${cur.desc} Mục tiêu mỗi ngày ${Math.round(cur.goal*100)}% so với tiệm lớn.</small></div>`;
+  if(nx){
+    const lvOk=lv>=nx.lv,cashOk=save.wallet>=nx.price,pct=Math.min(100,save.wallet/nx.price*100);
+    html+=`<div class="pl-next"><span class="lab">Bước tiếp theo</span><b>${nx.name}</b>
+      <ul>${nx.perks.map(p=>`<li>${p}</li>`).join('')}</ul>
+      <div class="pl-req"><span class="${lvOk?'ok':''}">Cấp ${nx.lv}${lvOk?' ✓':` (đang cấp ${lv})`}</span><span class="${cashOk?'ok':''}">${save.wallet}k / ${nx.price}k</span></div>
+      <div class="goal pl-bar"><i style="width:${pct}%"></i></div>
+      <button class="btn big" type="button" data-move="${nx.id}"${lvOk&&cashOk?'':' disabled'}>Chuyển tới ${nx.name} −${nx.price}k</button></div>`;
+  }else html+=`<div class="pl-next done"><b>Bạn đã có tiệm của riêng mình!</b><small>Chi nhánh thứ hai sẽ có trong bản sau.</small></div>`;
+  $('#m-place').innerHTML=html;
+}
+export function moveTo(id){
+  const nx=nextPlace();if(!nx||nx.id!==id)return;
+  if(levelOf(save.xp)<nx.lv||save.wallet<nx.price){sfx.nope();return}
+  save.wallet-=nx.price;save.place=nx.id;
+  if(nx.id==='kiosk'){['taro','grass'].forEach(x=>{if(!save.owned.includes(x))save.owned.push(x)});save.pantry.taro=(save.pantry.taro||0)+1;save.pantry.grass=(save.pantry.grass||0)+12}
+  track('move',{place:nx.id,day:save.day});persist();sfx.win();meow(1.2,.05,.2);meow(1.35,.04,.6);
+  renderMarket();$('#m-place').scrollIntoView({block:'nearest'});
+  mmsg(nx.id==='kiosk'?'Chào mừng tới Ki-ốt góc chợ! Có thêm Khoai môn Mèo Tím và sương sáo (tặng kèm 1 gói, 1 hũ).':'Tiệm Mèo Trân Châu khai trương! Giờ bạn có thể thuê nhân viên và trang trí tiệm.');
+}
 export function renderMarket(){
-  renderNews();renderFriends();renderNeeds();renderRevenue();
+  renderNews();renderPlace();renderFriends();renderNeeds();renderRevenue();
   $('#m-quests').innerHTML=questRows(S.quests);
   $('#mday').textContent=`Buổi sáng · Ngày ${save.day}`;
   $('#mwallet').textContent=save.wallet+'k';
@@ -118,6 +145,7 @@ export function renderMarket(){
   const cz=cozy();$('#m-cozy').textContent=cz?`· ấm cúng ${cz} điểm (tip +${cz}%)`:'';
 }
 $('#market').addEventListener('click',e=>{
+  const mv=(e.target as HTMLElement).closest<HTMLElement>('[data-move]');if(mv){audio();moveTo(mv.dataset.move);return}
   const nb=(e.target as HTMLElement).closest<HTMLElement>('[data-needbuy]'),na=(e.target as HTMLElement).closest<HTMLElement>('[data-needall]');
   if(nb||na){audio();const {list}=shoppingList();let n=0,miss=0;
     (na?list:list.filter(x=>x.it.id===nb.dataset.needbuy)).forEach(x=>{if(buyNeed(x))n++;else miss++});
@@ -144,7 +172,7 @@ export function endDay(){
   const leftovers=Object.keys(S.stock).reduce((a,id)=>a+stockN(id),0);
   S.customers.forEach(c=>{if(c.state!=='leave'){c.state='leave';c.result='ok';c.bubbleT=.6}});
   S.slots=[null,null,null];renderTickets();updateHud();
-  const goal=goalFor(S.day),total=S.served+S.missed,rate=total?S.perfect/total:0;
+  const goal=dayGoal(S.day),total=S.served+S.missed,rate=total?S.perfect/total:0;
   const stars=S.cash>=goal?(rate>=.75?3:2):S.cash>=goal*.5?1:0;
   const lvBefore=levelOf(S.xp0);
   checkQuests(true);

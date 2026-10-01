@@ -1,7 +1,7 @@
 import type {Customer,Look} from '../types';
 import {EVENTS,REGULARS,SEASONS,TEAS,TOPS,TYPES} from '../data';
 import {keys,sfx} from './audio';
-import {W,feat,has,maxTops,persist,pick,save,shuffle,staffOn,unlocked} from './core';
+import {W,feat,has,maxTops,persist,pick,placeInfo,save,shuffle,staffOn,unlocked} from './core';
 import {cozyEffect} from './decor';
 import {renderTickets,updateHud} from './orders';
 import {floatText,hint} from './serve';
@@ -49,7 +49,7 @@ export function genOrder(type){
   return{tea:t.id,sugar:pick([0,30,50,50,70,70,100]),ice:ev().iceHeavy?pick([1,2,2,2]):pick([0,1,1,2,2]),tops,qty};
 }
 export function spawn(force?){
-  const free=[0,1,2].filter(i=>!S.slots[i]);
+  const free=[0,1,2].filter(i=>!S.slots[i]&&i<placeInfo().slots);
   if(!free.length)return false;
   const slot=pick(free),type=force||pickType(),pat=ev().pat*TYPES[type].patience*Math.max(.62,1-.07*(S.day-1))*(has('lights')?1.2:1)*(staffOn('tu')?1.15:1)*cozyEffect().patience;
   let order=genOrder(type),look=makeLook(type),friend=null;

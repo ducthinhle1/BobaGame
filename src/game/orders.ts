@@ -1,9 +1,9 @@
 import type {Customer} from '../types';
 import {ICES,REGULARS,TYPES} from '../data';
 import {matchParts} from '../logic/cup';
-import {goalFor,moodOf} from '../logic/economy';
+import {moodOf} from '../logic/economy';
 import {audio,sfx} from './audio';
-import {$,DAY_LEN,OUT,levelOf,orderPrice,save,sealNeeded,staffOn,stockN,takeServing,tea,top,useGear} from './core';
+import {$,DAY_LEN,OUT,dayGoal,levelOf,orderPrice,save,sealNeeded,staffOn,stockN,takeServing,tea,top,useGear} from './core';
 import {friendOf} from './customers';
 import {MOODS,blit,faceURL,inEll,px} from './draw';
 import {parts} from './fx';
@@ -195,7 +195,7 @@ export function updateHud(){
   const m=600+Math.floor(Math.min(1,S.time/DAY_LEN)*690);
   $('#h-clock').textContent=`${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}`;
   $('#h-cash').textContent=S.cash+'k';
-  $('#h-goallab').textContent=`Mục tiêu ${goalFor(S.day)}k`;
-  $('#h-goal').style.width=Math.min(100,S.cash/goalFor(S.day)*100)+'%';
+  $('#h-goallab').textContent=`Mục tiêu ${dayGoal(S.day)}k`;
+  $('#h-goal').style.width=Math.min(100,S.cash/dayGoal(S.day)*100)+'%';
   $('#h-streak').textContent=S.streak>=3?`×${S.streak}`:String(S.streak);
 }

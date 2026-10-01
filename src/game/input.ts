@@ -1,7 +1,7 @@
 import {startAnalytics} from './analytics';
 import {audio,music,musicLevel,muted,setMuted,sfx,stopMusic} from './audio';
 import {catAt,petCat} from './cats';
-import {$,H,NEW_SAVE,SLOTS,W,persist,save,scene,setSave} from './core';
+import {$,H,SLOTS,W,loadSave,persist,save,scene,setSave} from './core';
 import {openMarket} from './day';
 import {shake} from './fx';
 import {renderTickets,serveTarget} from './orders';
@@ -50,7 +50,7 @@ $('#bk-load').addEventListener('click',()=>{
   try{if(!raw.startsWith('MTC1.'))throw 0;data=JSON.parse(decodeURIComponent(escape(atob(raw.slice(5)))));if(!data||!Array.isArray(data.owned)||!data.pantry)throw 0}catch(e){bkMsg('Mã không hợp lệ. Hãy kiểm tra lại.');sfx.nope();bkArmed=false;return}
   if(!bkArmed){bkArmed=true;$('#bk-load').textContent='Bấm lần nữa để thay dữ liệu hiện tại';bkMsg(`Mã hợp lệ: ngày ${data.day}, tiết kiệm ${data.wallet}k.`);return}
   bkArmed=false;$('#bk-load').textContent='Khôi phục từ mã';
-  setSave(Object.assign(NEW_SAVE(),data));if(save.pantry.cup===undefined)Object.assign(save.pantry,{cup:40,straw:40,film:40,bag:10});
+  setSave(loadSave(data));
   persist();bkMsg('Đã khôi phục!');sfx.win();
   setTimeout(()=>{$('#pausemenu').hidden=true;openMarket()},700);
 });

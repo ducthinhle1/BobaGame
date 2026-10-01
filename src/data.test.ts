@@ -1,6 +1,6 @@
 // Sanity checks on the game data: catches typos in ids when adding drinks, toppings or shop items.
 import {describe, expect, it} from 'vitest';
-import {DECOR, EVENTS, FEATURES, LEVELS, RECIPES, REGULARS, STAFF, SUGARS, SUPPLY, TEAS, TOPS, UPGRADES} from './data';
+import {DECOR, EVENTS, NEEDS_PLACE, PLACES, FEATURES, LEVELS, RECIPES, REGULARS, STAFF, SUGARS, SUPPLY, TEAS, TOPS, UPGRADES} from './data';
 
 const teaIds = TEAS.map(t => t.id), topIds = TOPS.map(t => t.id);
 
@@ -31,6 +31,18 @@ describe('data', () => {
   });
   it('decorations cost something and add coziness', () => {
     for (const d of DECOR) { expect(d.price).toBeGreaterThan(0); expect(d.cozy).toBeGreaterThan(0); }
+  });
+  it('places start free at the cart and get bigger, pricier and need a higher level', () => {
+    expect(PLACES[0]).toMatchObject({id: 'cart', price: 0});
+    PLACES.slice(1).forEach((p, i) => {
+      expect(p.price).toBeGreaterThan(PLACES[i].price);
+      expect(p.lv).toBeGreaterThanOrEqual(PLACES[i].lv);
+      expect(p.slots).toBeGreaterThanOrEqual(PLACES[i].slots);
+    });
+    Object.values(NEEDS_PLACE).forEach(id => expect(PLACES.map(p => p.id)).toContain(id));
+  });
+  it('staff only come with the shop', () => {
+    expect(NEEDS_PLACE.staff).toBe('shop');
   });
   it('levels start at 0 and go up', () => {
     expect(LEVELS[0]).toBe(0);

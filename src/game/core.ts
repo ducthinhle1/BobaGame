@@ -1,7 +1,7 @@
 import * as stock from '../logic/stock';
 import * as econ from '../logic/economy';
-import type {Order,Quality,Save} from '../types';
-import {FEATURES,GEAR_NAME,LEVELS,SUPPLY,TEAS,TOPS,TUB} from '../data';
+import type {Order,PlaceId,Quality,Save} from '../types';
+import {FEATURES,GEAR_NAME,LEVELS,NEEDS_PLACE,PLACES,SUPPLY,TEAS,TOPS,TUB} from '../data';
 import {ev} from './customers';
 import {hint} from './serve';
 import {S} from './state';
@@ -33,11 +33,16 @@ export function unlocked(list){return list.filter(x=>save.owned.includes(x.id))}
 export function maxTops(){return has('double')?2:1}
 export function orderPrice(o:Order){return econ.cupPrice(o,{tea,top},ev().price)}
 
-export function NEW_SAVE():Save{return ({day:1,wallet:200,xp:0,owned:['black','jasmine','taro','pearl','grass'],upgrades:[],pantry:{black:2,jasmine:1,taro:1,pearl:2,grass:12,cup:40,straw:40,film:40,bag:10},staff:{},history:[]})}
+export function NEW_SAVE():Save{return ({day:1,wallet:200,xp:0,place:'cart',owned:['black','jasmine','pearl'],upgrades:[],pantry:{black:2,jasmine:2,pearl:2,cup:40,straw:40,film:40,bag:10},staff:{},history:[]})}
 export let save:Save=NEW_SAVE();
-try{const v=JSON.parse(localStorage.getItem('tcs-save3'));if(v&&v.owned)save=Object.assign(NEW_SAVE(),v)}catch(e){}
-// older saves: hand out a starter box of cups, straws, film and bags once
-if(save.pantry.cup===undefined)Object.assign(save.pantry,{cup:40,straw:40,film:40,bag:10});
+/** fills in fields added by later versions; saves from before places existed keep their full shop */
+export function loadSave(v:any):Save{
+  const out=Object.assign(NEW_SAVE(),v);
+  if(!v.place)out.place=v.day>1||(v.history||[]).length?'shop':'cart';
+  if(out.pantry.cup===undefined)Object.assign(out.pantry,{cup:40,straw:40,film:40,bag:10});
+  return out;
+}
+try{const v=JSON.parse(localStorage.getItem('tcs-save3'));if(v&&v.owned)save=loadSave(v)}catch(e){}
 export function persist(){try{localStorage.setItem('tcs-save3',JSON.stringify(save))}catch(e){}}
 export function has(id){return save.upgrades.includes(id)}
 
@@ -50,13 +55,21 @@ export function useGear(id){if((save.pantry[id]||0)<=0){hint(`Hết ${GEAR_NAME[
 
 
 
-export function staffOn(id){return !!(save.staff&&save.staff[id]&&save.staff[id].hired&&save.staff[id].on)}
+export function staffOn(id){return placeAtLeast('shop')&&!!(save.staff&&save.staff[id]&&save.staff[id].hired&&save.staff[id].on)}
 
 // new players meet one new thing per day instead of everything at once
 
-export function feat(f){return !!S&&S.day>=FEATURES[f]}
+export function feat(f){if(NEEDS_PLACE[f]&&!placeAtLeast(NEEDS_PLACE[f]))return false;return !!S&&S.day>=FEATURES[f]}
 export function sealNeeded(){return feat('seal')}
 
 export function teaBatch(){return has('bigpot')?12:8}
 export function isTub(id){return !!(SUPPLY.find(x=>x.id===id)||{}).tub}
 export function setSave(v:Save){save=v}
+
+/* ---------- places: pushcart → kiosk → shop ---------- */
+export function placeInfo(id:PlaceId=save.place||'shop'){return PLACES.find(p=>p.id===id)}
+export function placeIndex(id:PlaceId=save.place||'shop'){return PLACES.findIndex(p=>p.id===id)}
+export function placeAtLeast(id:PlaceId){return placeIndex()>=placeIndex(id)}
+export function nextPlace(){return PLACES[placeIndex()+1]||null}
+/** today's revenue target, smaller while you're still at the cart or the kiosk */
+export function dayGoal(d:number){return Math.round(econ.goalFor(d)*placeInfo().goal/10)*10}

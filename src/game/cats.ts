@@ -1,6 +1,6 @@
 import {EVENTS} from '../data';
 import {audio,meow,purr} from './audio';
-import {H,OUT,W,cg,g,pick,tea} from './core';
+import {H,OUT,W,cg,g,pick,placeAtLeast,save,tea} from './core';
 import {ev,season} from './customers';
 import {drawShopDecor,ownsDecor} from './decor';
 import {blit,drawPerson,inEll,px} from './draw';
@@ -32,7 +32,8 @@ export function drawShopCats(t){
   px(g,bx+11,by+7,4,1,'#E08A34');px(g,bx+14,by+6,1,1,'#E08A34');
   if(!pet&&Math.floor(t*.8)%3===0){const zp=(t*.8)%1;g.globalAlpha=1-zp;px(g,bx+6,by-3-zp*6,3,1,'#8A6A78');px(g,bx+7,by-2-zp*6,1,1,'#8A6A78');px(g,bx+6,by-1-zp*6,3,1,'#8A6A78');g.globalAlpha=1}
   // Mochi: calico peeking down from the awning, tail swinging
-  const m=catById('mochi'),mx=m.x,my=m.y,sw=Math.round(Math.sin(t*2.2)*2);
+  const m=catById('mochi');
+  if(catHere(m)){const mx=m.x,my=m.y,sw=Math.round(Math.sin(t*2.2)*2);
   for(let i=0;i<8;i++){const tx=mx+12+Math.round(Math.sin(t*2.2+i*.5)*(i/4));px(g,tx,my+1+i,1,1,i<4?'#FFFFFF':'#F2A541');px(g,tx+1,my+1+i,1,1,OUT)}
   blit(g,mx,my,12,10,(x,y)=>inEll(x,y,6,5.5,4.8,3.8),(x,y)=>x<4.5&&y<6?'#F2A541':x>8&&y<5?'#3B2A2D':'#FFFFFF',OUT);
   const ear=cx=>(x,y)=>y>0&&y<3.2&&Math.abs(x-cx)<=y*.55;
@@ -43,8 +44,9 @@ export function drawShopCats(t){
   else{px(g,mx+3,my+4,1,2,OUT);px(g,mx+8,my+4,1,2,OUT)}
   px(g,mx+5,my+6,2,1,'#E8788F');px(g,mx+2,my+6,1,1,'#F7A8BC');px(g,mx+9,my+6,1,1,'#F7A8BC');
   px(g,mx+3,my+9,2,2,'#FFFFFF');px(g,mx+7,my+9,2,2,'#FFFFFF');px(g,mx+3,my+11,2,1,OUT);px(g,mx+7,my+11,2,1,OUT);
+  }
   // little 'meo' speech bubbles when a cat talks on its own
-  shopCats.forEach(c=>{if(c.meowT>0&&!(c.id==='mun'&&(c.x<-10||c.x>W))){const bx=Math.round(c.x+c.w/2)+2,by=c.y-9-Math.round((1.4-c.meowT)*2);px(g,bx,by,9,6,'#8A6A78');px(g,bx+1,by+1,7,4,'#FFFFFF');px(g,bx+1,by+6,1,1,'#8A6A78');
+  shopCats.forEach(c=>{if(c.meowT>0&&catHere(c)&&!(c.id==='mun'&&(c.x<-10||c.x>W))){const bx=Math.round(c.x+c.w/2)+2,by=c.y-9-Math.round((1.4-c.meowT)*2);px(g,bx,by,9,6,'#8A6A78');px(g,bx+1,by+1,7,4,'#FFFFFF');px(g,bx+1,by+6,1,1,'#8A6A78');
     px(g,bx+2,by+2,1,2,'#E0557A');px(g,bx+3,by+2,1,1,'#E0557A');px(g,bx+4,by+2,1,2,'#E0557A');px(g,bx+6,by+2,1,2,'#E0557A');px(g,bx+6,by+2,1,1,'#E0557A')}});
   // hearts for any cat being petted
   shopCats.forEach(c=>{if(c.petT>0){const q=1-c.petT/1.6;g.globalAlpha=Math.min(1,c.petT*1.5);heart(c.x+c.w/2-1,c.y-3-q*10);heart(c.x+c.w/2+3,c.y-1-q*7,'#FF9DB3');g.globalAlpha=1}});
@@ -72,7 +74,7 @@ export function updateCats(dt){
 export let ambT=10+Math.random()*8;
 export function ambientCats(dt){
   ambT-=dt;if(ambT>0)return;ambT=13+Math.random()*16;
-  const pool=shopCats.filter(c=>c.id!=='mun'||(c.x>0&&c.x<W));const c=pick(pool);
+  const pool=shopCats.filter(c=>catHere(c)&&(c.id!=='mun'||(c.x>0&&c.x<W)));const c=pick(pool);
   c.meowT=1.4;meow(c.id==='bo'?.9:c.id==='mochi'?1.25:1.05,.035);
 }
 export function petCat(c){
@@ -81,10 +83,11 @@ export function petCat(c){
   if(S&&S.q){S.q.pet=(S.q.pet||0)+1;if(S.phase==='open'||S.phase==='prep')checkQuests()}
   if(S&&S.phase==='open')hint(`${c.name} kêu meo và dụi đầu vào tay bạn.`);
 }
-export function catAt(x,y){return shopCats.find(c=>x>=c.x-2&&x<=c.x+c.w+2&&y>=c.y-3&&y<=c.y+c.h+2&&!(c.id==='mun'&&(c.x<-10||c.x>W+5)))}
+export function catHere(c){return c.id!=='mochi'||placeAtLeast('shop')}
+export function catAt(x,y){return shopCats.find(c=>catHere(c)&&x>=c.x-2&&x<=c.x+c.w+2&&y>=c.y-3&&y<=c.y+c.h+2&&!(c.id==='mun'&&(c.x<-10||c.x>W+5)))}
 export function drawDecor(t){
   // moon-festival lanterns step aside for the wooden sign when the shop has one
-  if(season==='trungthu')(ownsDecor('sign')?[[24,9],[52,10],[110,9],[146,10]]:[[22,9],[62,10],[98,9],[146,10]]).forEach(([x,y],i)=>{
+  if(season==='trungthu'&&placeAtLeast('kiosk'))(ownsDecor('sign')?[[24,9],[52,10],[110,9],[146,10]]:[[22,9],[62,10],[98,9],[146,10]]).forEach(([x,y],i)=>{
     const sw=Math.round(Math.sin(t*1.5+i));g.globalAlpha=.25+.1*Math.sin(t*3+i);blit(g,x-4+sw,y-3,10,12,(a,b)=>inEll(a,b,5,6,5,6),'#FFB35A',null);g.globalAlpha=1;
     px(g,x+sw,y-2,1,2,'#8A6A78');blit(g,x-3+sw,y,8,8,(a,b)=>inEll(a,b,4,4,3.6,3.8),(a,b)=>b<1.5||b>6.5?'#F2C94C':'#E0485F',OUT);px(g,x-1+sw,y+3,4,1,'#FF8A7A');px(g,x+sw,y+8,1,2,'#F2C94C')});
   if(season==='tet'){for(let i=0;i<9;i++)px(g,4+i*2,20-i,1,1,'#7A4A2A');[[6,17],[10,14],[14,12],[8,19],[16,10]].forEach(([x,y])=>{px(g,x,y,2,2,'#F9D24A');px(g,x,y,1,1,'#FFF3B0')})}
@@ -113,6 +116,7 @@ export function drawScene(t){
   px(g,0,52,W,10,'#EDCFCB');
   for(let i=0;i<18;i++)px(g,(i*23+5)%W,53+(i%3)*3,2,1,'#E0B9B8');
   drawWalker(t);
+  if(placeAtLeast('shop')){
   // string lights
   const bulbs=['#F2A541','#7ED6B8','#E86A6A','#F4EBD6'];
   for(let x=0;x<W;x++){
@@ -124,25 +128,33 @@ export function drawScene(t){
       px(g,x-1,y+1,3,3,on?col:'#D8C4D6');
     }
   }
+  }else if(save.place==='kiosk')drawKioskBack(t);
   // customers
   S.customers.forEach(c=>drawPerson(c,t));
+  if(save.place==='cart')drawCart(t);
+  else{
   // counter + props
   px(g,0,60,W,20,'#CF915F');px(g,0,60,W,2,'#EDB888');px(g,0,62,W,1,'#A76C44');
   for(let x=10;x<W;x+=20)px(g,x,63,1,14,'#B97A4E');
   for(let x=4;x<W;x+=20){px(g,x,68,2,1,'#E8A87A');px(g,x-1,69,1,1,'#E8A87A');px(g,x+2,69,1,1,'#E8A87A')} // little paw prints
   px(g,0,77,W,3,'#A76C44');
+  }
   // tip jar
   const coins=Math.min(7,Math.floor(S.tips/8));
   px(g,3,49,11,11,OUT);px(g,4,50,9,10,'#BFDCEA');px(g,4,49,9,1,'#EAF6FB');
   for(let i=0;i<coins;i++)px(g,5+(i%3)*3,58-Math.floor(i/3)*2,2,1,'#F2C94C');
   px(g,5,51,1,6,'#FFFFFF');
-  // menu board
+  // menu board (on the cart it stands in the street on little legs)
+  if(save.place==='cart'){px(g,143,58,1,4,'#6E4630');px(g,154,58,1,4,'#6E4630')}
   px(g,141,44,16,16,OUT);px(g,142,45,14,14,'#23302A');
   for(let r=0;r<4;r++){px(g,144,47+r*3,6,1,'#CFE6D8');px(g,152,47+r*3,2,1,'#F2A541')}
-  // awning
-  for(let x=0;x<W;x+=8){const c=(x/8)%2?'#FFF4EA':'#F58DA6';px(g,x,0,8,5,c);px(g,x+1,5,6,1,c);px(g,x+2,6,4,1,c);px(g,x+2,7,4,1,'#C85C7A')}
-  px(g,0,0,W,1,'#D96A86');
-  drawShopDecor(t);
+  if(placeAtLeast('shop')){
+    // awning
+    for(let x=0;x<W;x+=8){const c=(x/8)%2?'#FFF4EA':'#F58DA6';px(g,x,0,8,5,c);px(g,x+1,5,6,1,c);px(g,x+2,6,4,1,c);px(g,x+2,7,4,1,'#C85C7A')}
+    px(g,0,0,W,1,'#D96A86');
+    drawShopDecor(t);
+  }else if(save.place==='kiosk')drawKioskRoof(t);
+  else drawUmbrella(t);
   drawDecor(t);
   drawShopCats(t);
   drawWeather(t);
@@ -186,4 +198,39 @@ export function drawCup(){
   if(cup.tea&&cup.level>.6){px(cg,15,21,1,2,'#3B2A2D');px(cg,23,21,1,2,'#3B2A2D');px(cg,18,24,1,1,'#3B2A2D');px(cg,19,25,1,1,'#3B2A2D');px(cg,20,24,1,1,'#3B2A2D');
     cg.globalAlpha=.55;px(cg,13,24,2,1,'#FF8FAB');px(cg,24,24,2,1,'#FF8FAB');cg.globalAlpha=1}
   cg.globalAlpha=.3;px(cg,9,14,2,34,'#FFFFFF');cg.globalAlpha=1;
+}
+
+/* ---------- the pushcart and the kiosk ---------- */
+function drawCart(t){
+  // sidewalk under and around the cart
+  px(g,0,62,W,18,'#E6C3BE');for(let i=0;i<10;i++)px(g,(i*31+12)%W,65+(i%3)*4,3,1,'#D9AFAB');
+  // cart body: a pink box with cream stripes on two wheels, a handle on the right
+  px(g,4,58,116,3,'#EDB888');px(g,4,58,116,1,'#F7D3A8');px(g,4,61,116,1,'#A76C44');
+  px(g,6,62,112,12,'#F58DA6');for(let x=10;x<118;x+=12)px(g,x,62,5,12,'#FFF4EA');
+  px(g,6,62,112,1,'#D96A86');px(g,6,73,112,1,'#C85C7A');
+  px(g,118,55,1,7,'#8A6A78');px(g,118,55,9,1,'#8A6A78');px(g,126,55,2,2,'#5A4A55');
+  [[22,75],[102,75]].forEach(([cx,cy])=>{blit(g,cx-5,cy-5,11,11,(x,y)=>inEll(x,y,5,5,5,5),(x,y)=>inEll(x,y,5,5,2,2)?'#E8DCCF':'#5A4A55',OUT);
+    const a=t*.6;px(g,cx+Math.round(Math.cos(a)*3),cy+Math.round(Math.sin(a)*3),1,1,'#E8DCCF');px(g,cx,cy,1,1,OUT)});
+  px(g,0,79,W,1,'#D9B4B2');
+}
+function drawUmbrella(t){
+  // a pink beach umbrella over the cart, its scallops bobbing a little in the breeze
+  px(g,61,14,2,44,'#8A6A78');
+  const sway=Math.round(Math.sin(t*.9)*.6);
+  blit(g,16+sway,4,92,14,(x,y)=>inEll(x,y,46,13,46,10)&&y<13,(x,y)=>Math.floor((x-1)/11.5)%2?'#FFF4EA':'#F58DA6',OUT);
+  for(let i=0;i<8;i++){const x=18+sway+i*11.5;px(g,Math.round(x),16,10,1,i%2?'#FFF4EA':'#F58DA6');px(g,Math.round(x)+2,17,6,1,i%2?'#FFF4EA':'#F58DA6');px(g,Math.round(x)+3,18,4,1,'#C85C7A')}
+  px(g,60+sway,2,4,2,'#F2C94C');
+}
+function drawKioskBack(t){
+  // two posts holding the roof, a strip of warm bulbs under it
+  px(g,4,12,3,48,'#8A5A3C');px(g,153,12,3,48,'#8A5A3C');px(g,5,12,1,48,'#A8724E');px(g,154,12,1,48,'#A8724E');
+  for(let x=10;x<W-8;x+=10){const on=Math.floor(t*1.5+x)%6!==0;if(on){g.globalAlpha=.2;px(g,x-1,13,4,4,'#FFD36B');g.globalAlpha=1}px(g,x,13,2,2,on?'#FFD36B':'#D8C4D6')}
+}
+function drawKioskRoof(t){
+  // a mint tin roof with corrugation and a scalloped trim
+  px(g,0,0,W,11,'#7ED6B8');for(let x=0;x<W;x+=4)px(g,x,0,1,11,'#5FB89B');px(g,0,0,W,1,'#4E9F86');
+  for(let x=0;x<W;x+=6){px(g,x,11,6,1,'#FFF4EA');px(g,x+1,12,4,1,'#FFF4EA');px(g,x+2,13,2,1,'#E0C8B8')}
+  // a little hanging cat-face sign
+  px(g,79,13,1,3,'#8A6A78');px(g,74,16,11,7,OUT);px(g,75,17,9,5,'#F2A541');px(g,75,15,1,1,'#F2A541');px(g,83,15,1,1,'#F2A541');
+  px(g,77,18,1,1,OUT);px(g,81,18,1,1,OUT);px(g,79,19,1,1,'#E86A6A');
 }

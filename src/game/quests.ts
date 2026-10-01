@@ -1,7 +1,6 @@
 import {TEAS} from '../data';
-import {goalFor} from '../logic/economy';
 import {beep,rng} from './audio';
-import {$,has,unlocked} from './core';
+import {$,dayGoal,has,unlocked} from './core';
 import {updateHud} from './orders';
 import {floatText,hint} from './serve';
 import {S} from './state';
@@ -12,7 +11,7 @@ export const QUESTS=[
   {id:'streak',w:2,make:d=>{const n=Math.min(8,3+Math.floor(d/2));return{text:`Đạt chuỗi ${n} ly hoàn hảo liên tiếp`,target:n,prog:()=>S.bestStreak,cash:50+d*8,xp:25}}},
   {id:'pearl',w:2,make:d=>{const n=3+Math.floor(d/2);return{text:`Phục vụ ${n} ly có trân châu`,target:n,prog:()=>S.q.pearl,cash:35+d*6,xp:15}}},
   {id:'tea',w:2,make:(d,r)=>{const ts=unlocked(TEAS),t=ts[Math.floor(r()*ts.length)],n=3+Math.floor(d/3);return{text:`Phục vụ ${n} ly ${t.name}`,target:n,prog:()=>S.q.tea[t.id]||0,cash:35+d*6,xp:15}}},
-  {id:'earn',w:2,make:d=>{const n=Math.round(goalFor(d)*1.15/10)*10;return{text:`Kiếm ${n}k trong một ca`,target:n,unit:'k',prog:()=>S.cash,cash:60+d*8,xp:25}}},
+  {id:'earn',w:2,make:d=>{const n=Math.round(dayGoal(d)*1.15/10)*10;return{text:`Kiếm ${n}k trong một ca`,target:n,unit:'k',prog:()=>S.cash,cash:60+d*8,xp:25}}},
   {id:'nowalk',w:1,make:d=>({text:'Không để khách nào bỏ về',target:1,endOnly:true,fail:()=>S.missed>0,cash:70+d*10,xp:30})},
   {id:'nodump',w:1,make:d=>({text:'Hết ca mà không đổ ly nào',target:1,endOnly:true,fail:()=>S.dumped>0,cash:40+d*6,xp:15})},
   {id:'brew',w:1,make:d=>({text:'Pha một mẻ trà Hoàn hảo',target:1,prog:()=>S.q.perfBrew,cash:30+d*5,xp:15})},

@@ -575,3 +575,16 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
 .ask.na.busy{color:#fff;background:var(--jade)}
 .lab .cozy{font-weight:600;letter-spacing:0;text-transform:none;color:var(--gold)}
 .cozyp{font-weight:600;color:var(--gold)}
+
+.placebox{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin-bottom:6px}
+@media (max-width:640px){.placebox{grid-template-columns:1fr}}
+.pl-cur,.pl-next{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:4px;align-content:start}
+.pl-cur b,.pl-next b{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink)}
+.pl-cur small,.pl-next small{color:var(--muted);font-size:12.5px}
+.pl-next{border-color:rgba(224,85,122,.45)}
+.pl-next ul{margin:2px 0 4px;padding-left:18px;font-size:12.5px;color:var(--muted)}
+.pl-req{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--faint)}
+.pl-req .ok{color:var(--jade)}
+.pl-bar{width:100%;margin:0 0 4px}
+.pl-next .btn.big{width:100%;margin-top:4px}
+.pl-next.done b{color:var(--gold)}
