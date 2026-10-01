@@ -4,11 +4,13 @@ import {track} from './analytics';
 import {audio,meow,sfx} from './audio';
 import {$,persist,save,unlocked} from './core';
 import {mmsg,renderMarket} from './day';
+import {S} from './state';
 
 let pending: number | null = null;
 
 /** called when the market opens: shows the gift once per calendar day */
 export function checkDaily() {
+  if (!S || S.phase !== 'market') return;
   const s = nextStreak(save.login, new Date());
   if (s === null) return;
   pending = s;

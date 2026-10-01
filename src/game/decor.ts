@@ -1,7 +1,8 @@
 import {DECOR} from '../data';
 import {cozyBonus,cozyPoints} from '../logic/economy';
 import {beep} from './audio';
-import {OUT,W,g,save} from './core';
+import {OUT,W,g,placeAtLeast,save} from './core';
+import {season} from './customers';
 import {blit,inEll,px} from './draw';
 
 /** coziness of what the player owns, and what it does */
@@ -115,3 +116,54 @@ export function decorIconURL(id:string){
 
 /** a soft, random little tinkle from the wind chime */
 export function chimeTinkle(){if(!ownsDecor('chime'))return;[2093,2637,3136,2349].sort(()=>Math.random()-.5).slice(0,3).forEach((f,i)=>beep(f,.35,'sine',.012,null,i*.11))}
+
+/* ---------- seasonal decorations (every place), on top of the lanterns and blossoms in drawDecor ---------- */
+function pumpkin(c,x,y,big){
+  const w=big?9:6,h=big?7:5;
+  blit(c,x,y,w,h,(a,b)=>inEll(a,b,w/2-.5,h/2,w/2,h/2-.2),(a,b)=>Math.round(a)%3===0?'#D9682A':'#F08A3C',OUT);
+  px(c,x+Math.floor(w/2)-1,y-1,2,1,'#5C8F5A');
+  if(big){px(c,x+2,y+2,1,1,'#FFD36B');px(c,x+6,y+2,1,1,'#FFD36B');px(c,x+3,y+4,3,1,'#FFD36B')}
+}
+function bat(c,x,y,t){const f=Math.floor(t*8)%2;px(c,x,y,3,2,'#3B2A2D');px(c,x-2,y-f,2,1,'#3B2A2D');px(c,x+3,y-f,2,1,'#3B2A2D');px(c,x-3,y+1-f,1,1,'#3B2A2D');px(c,x+5,y+1-f,1,1,'#3B2A2D');px(c,x,y-1,1,1,'#3B2A2D');px(c,x+2,y-1,1,1,'#3B2A2D')}
+function web(c,x,y){const col='rgba(255,255,255,.75)';for(let i=0;i<9;i++){px(c,x+i,y,1,1,col);px(c,x,y+i,1,1,col);px(c,x+i,y+i,1,1,col)}
+  [3,6].forEach(r=>{for(let i=0;i<=r;i++)px(c,x+i,y+r-Math.round(i*.15)-(i===r?0:0),1,1,col)});}
+function star(c,x,y,t){const sw=Math.round(Math.sin(t*1.4));px(c,x+3,y-6,1,6,'#8A6A78');
+  const pts=[[3,0],[2,1],[3,1],[4,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[1,3],[2,3],[3,3],[4,3],[5,3],[2,4],[3,4],[4,4],[1,5],[2,5],[4,5],[5,5],[0,6],[6,6]];
+  c.globalAlpha=.25;blit(c,x-3+sw,y-3,13,13,(a,b)=>inEll(a,b,6,6,6,6),'#FFD36B',null);c.globalAlpha=1;
+  pts.forEach(([a,b])=>px(c,x+a+sw,y+b,1,1,'#E0485F'));px(c,x+3+sw,y+3,1,1,'#F2C94C');
+}
+function mooncake(c,x,y){blit(c,x,y,9,6,(a,b)=>inEll(a,b,4,3,4.4,2.8),(a,b)=>(a+b)%3===0?'#B9783E':'#D4995A',OUT);px(c,x+3,y+2,3,1,'#8A5A3C');px(c,x+4,y+1,1,3,'#8A5A3C')}
+function watermelon(c,x,y){blit(c,x,y,9,5,(a,b)=>b>=0&&inEll(a,b,4,0,4.5,4.5),(a,b)=>inEll(a,b,4,0,3.3,3.3)?'#F2556E':'#5FB86A',OUT);px(c,x+2,y+1,1,1,OUT);px(c,x+5,y+1,1,1,OUT);px(c,x+4,y+2,1,1,OUT)}
+function wreath(c,x,y){blit(c,x,y,11,11,(a,b)=>inEll(a,b,5,5,5.4,5.4)&&!inEll(a,b,5,5,2.6,2.6),(a,b)=>(a*3+b)%4===0?'#E0485F':(a+b)%2?'#3E8F5A':'#5FB86A',OUT);px(c,x+3,y+9,5,2,'#E0485F');px(c,x+5,y+10,1,2,'#E0485F')}
+function envelope(c,x,y){px(c,x,y,5,7,'#E0485F');px(c,x,y,5,1,'#F2C94C');px(c,x+2,y+3,1,1,'#F2C94C')}
+
+export function drawSeason(t){
+  if(!season)return;
+  if(season==='halloween'){
+    web(g,1,8);web(g,W-10,8);
+    for(let i=0;i<3;i++){const x=((t*(14+i*5)+i*61)%(W+30))-15,y=22+i*5+Math.round(Math.sin(t*2+i)*3);bat(g,Math.round(x),y,t+i)}
+    pumpkin(g,48,53,true);pumpkin(g,132,55,false);
+  }else if(season==='noel'){
+    for(let i=0;i<46;i++){const x=(i*37+Math.sin(t*.8+i)*4+t*3)%W,y=(i*53+t*(9+i%5))%80;px(g,Math.round(x),Math.round(y),1,1,'#FFFFFF')}
+    wreath(g,40,63);
+  }else if(season==='he'){
+    blit(g,140,8,14,14,(x,y)=>inEll(x,y,7,7,5,5),'#FFD36B','#F2A541');
+    watermelon(g,46,55);watermelon(g,52,56);
+  }else if(season==='tet'){
+    // a yellow apricot-blossom (mai) branch reaching in from the left, below the roof
+    const br=[[2,34],[5,32],[8,30],[11,29],[14,27],[17,26],[20,24],[23,23],[9,27],[10,25],[16,29],[19,31]];
+    br.forEach(([x,y])=>px(g,x,y,2,1,'#7A4A2A'));
+    [[6,30],[12,26],[15,24],[21,21],[24,22],[9,24],[18,29],[20,32],[4,31],[13,29]].forEach(([x,y],i)=>{const tw=Math.sin(t*2+i)>.6;px(g,x,y,3,2,'#F9D24A');px(g,x+1,y,1,1,tw?'#FFFFFF':'#FFF3B0');px(g,x+1,y+1,1,1,'#E8A33A')});
+    envelope(g,40,64);envelope(g,47,66);
+    [[132,12],[146,12]].forEach(([x,y],i)=>{const sw=Math.round(Math.sin(t*1.5+i));px(g,x+3+sw,y-4,1,4,'#8A6A78');blit(g,x+sw,y,8,8,(a,b)=>inEll(a,b,4,4,3.6,3.8),(a,b)=>b<1.5||b>6.5?'#F2C94C':'#E0485F',OUT);px(g,x+3+sw,y+8,1,2,'#F2C94C')});
+  }else if(season==='trungthu'){
+    if(!placeAtLeast('kiosk'))star(g,18,22,t);
+    mooncake(g,48,54);
+  }
+}
+/** little seasonal outfits for Bơ */
+export function drawBoOutfit(bx,by){
+  if(season==='noel'){px(g,bx,by-1,8,1,'#FFFFFF');px(g,bx+1,by-2,6,1,'#E0485F');px(g,bx+2,by-3,4,1,'#E0485F');px(g,bx+4,by-4,2,1,'#E0485F');px(g,bx+6,by-5,2,2,'#FFFFFF')}
+  else if(season==='he'){px(g,bx+1,by+3,3,2,OUT);px(g,bx+5,by+3,2,2,OUT);px(g,bx+4,by+3,1,1,OUT);px(g,bx+2,by+3,1,1,'#6E6880')}
+  else if(season==='halloween'){px(g,bx+1,by-2,6,1,'#3B2A2D');px(g,bx+2,by-4,4,2,'#3B2A2D');px(g,bx+3,by-6,2,2,'#3B2A2D');px(g,bx+2,by-3,4,1,'#B79BD6')}
+}

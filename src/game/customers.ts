@@ -1,7 +1,9 @@
 import type {Customer,Look} from '../types';
+import type {SeasonId} from '../logic/season';
 import {EVENTS,REGULARS,SEASONS,TEAS,TOPS,TYPES} from '../data';
+import {seasonOf} from '../logic/season';
 import {keys,sfx} from './audio';
-import {W,feat,has,maxTops,persist,pick,placeInfo,save,shuffle,staffOn,unlocked} from './core';
+import {W,feat,has,maxTops,persist,pick,placeInfo,save,seasonTea,shuffle,staffOn,unlocked} from './core';
 import {cozyEffect} from './decor';
 import {renderTickets,updateHud} from './orders';
 import {floatText,hint} from './serve';
@@ -9,7 +11,8 @@ import {S} from './state';
 
 /* ---------- customers ---------- */
 /* ---------- daily events, seasons and regulars ---------- */
-export const season=(()=>{const d=new Date(),m=d.getMonth()+1,day=d.getDate();if((m===9&&day>=12)||(m===10&&day<=12))return'trungthu';if((m===1&&day>=20)||(m===2&&day<=20))return'tet';return null})();
+/** today's season (real calendar); add ?season=halloween (etc.) to the page address to preview another */
+export const season:SeasonId|null=(()=>{const q=new URLSearchParams(location.search).get('season');if(q&&SEASONS[q])return q as SeasonId;if(q==='none')return null;return seasonOf(new Date())})();
 export function ev(){return EVENTS[save.event&&save.eventDay===save.day?save.event:'normal']||EVENTS.normal}
 export function tipBoost(){return ev().tip*(season?SEASONS[season].tip:1)*cozyEffect().tip*(has('paint')?1.05:1)*(has('fan')?1.05:1)}
 /** cart/kiosk upgrades that bring customers in faster */
@@ -43,7 +46,7 @@ export function makeLook(type):Look{
     style,cap:pick(['#E86A6A','#6FA8E8','#F2A541']),shirt:type==='online'?'#F58DA6':type==='rush'?pick(['#DCE3EE','#C9D6E8']):pick(['#E86A6A','#7ED6B8','#6FA8E8','#F2A541','#B79BD6','#5C8F5A','#E4D3B0'])};
 }
 export function genOrder(type){
-  const t=pick(unlocked(TEAS));
+  const st=seasonTea(),t=st&&Math.random()<.3?st:pick(unlocked(TEAS));
   let n=pick(maxTops()===1?[0,1,1]:[0,1,1,2]);
   let tops=shuffle(unlocked(TOPS).map(x=>x.id)).slice(0,Math.min(n,maxTops()));
   if(type==='cat'&&!tops.includes('pearl'))tops=['pearl',...tops].slice(0,maxTops());

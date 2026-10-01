@@ -94,6 +94,9 @@ Lượt truy cập, loại thiết bị, trình duyệt, quốc gia do Umami t�
 - [x] Thấy rõ lợi ích nâng cấp: màn hình khai trương, hóa đơn ghi “Nhờ nâng cấp hôm nay”, nâng cấp riêng cho xe đẩy và ki-ốt
 - [x] Quà mỗi ngày theo chuỗi ngày thật (7 ngày, ngày 7 tặng bé mèo Hoàng Tử)
 - [x] Sổ mèo: 7 bé mèo ghé thăm giữa ca, chạm để làm quen, mỗi bé +1 ấm cúng
-- [ ] Thành tích
+- [x] Hướng dẫn chơi lần đầu (bé Bơ dẫn qua 11 bước)
+- [x] Thành tích: 14 mốc, 3 món trang trí độc quyền
+- [x] Mùa theo lịch thật: món giới hạn và trang trí riêng cho Hè, Trung Thu, Halloween, Giáng Sinh, Tết
+  (xem trước bằng cách thêm `?season=halloween` vào địa chỉ trang)
 - [ ] Quán cà phê mèo 2 tầng / chi nhánh thứ hai
 - [ ] Kiểm thử tự động (Playwright) cho vòng chơi một ngày trong CI

@@ -5,7 +5,8 @@ export type TypeId = 'regular' | 'rush' | 'picky' | 'cat' | 'reviewer' | 'online
 
 /** How a tea is brewed before opening: always the same mini game for the same tea. */
 export type BrewStyle = 'steep' | 'heat' | 'whisk';
-export interface Tea { id: string; name: string; short: string; vi: string; color: string; price: number; brew: BrewStyle; day?: number }
+/** `season`: a limited-time drink, sold only during that season */
+export interface Tea { id: string; name: string; short: string; vi: string; color: string; price: number; brew: BrewStyle; day?: number; season?: string }
 export interface Topping { id: string; name: string; short: string; vi: string; price: number; day?: number }
 export interface QualityInfo { label: string; mul: number; cls: string }
 export interface CustomerType { label: string; patience: number; tip: number; pay: number; strict: boolean }
@@ -56,6 +57,7 @@ export interface Save {
   tutDone?: boolean;
   stats?: { served: number; perfect: number; bestStreak: number; days: number; cleanDays: number };
   achievements?: string[];
+  seasonGift?: string;
 }
 
 export type CustomerState = 'walk' | 'wait' | 'leave';

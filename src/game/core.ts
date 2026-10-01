@@ -2,7 +2,7 @@ import * as stock from '../logic/stock';
 import * as econ from '../logic/economy';
 import type {Order,PlaceId,Quality,Save} from '../types';
 import {FEATURES,GEAR_NAME,LEVELS,NEEDS_PLACE,PLACES,SUPPLY,TEAS,TOPS,TUB} from '../data';
-import {ev} from './customers';
+import {ev,season} from './customers';
 import {hint} from './serve';
 import {S} from './state';
 import {orderDelivery,syncGear} from './station';
@@ -29,7 +29,9 @@ export function tea(id){return TEAS.find(t=>t.id===id)}
 export function top(id){return TOPS.find(t=>t.id===id)}
 export function pick(a){return a[Math.floor(Math.random()*a.length)]}
 export function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-export function unlocked(list){return list.filter(x=>save.owned.includes(x.id))}
+export function unlocked(list){return list.filter(x=>save.owned.includes(x.id)||(x.season&&x.season===season))}
+/** this season's limited drink, if any */
+export function seasonTea(){return season?TEAS.find(t=>t.season===season)||null:null}
 export function maxTops(){return has('double')?2:1}
 export function orderPrice(o:Order){return econ.cupPrice(o,{tea,top},ev().price*placeInfo().pay)}
 

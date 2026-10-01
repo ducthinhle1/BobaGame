@@ -10,6 +10,12 @@ export const TEAS:Tea[]=[
   {id:'taro',name:'Khoai môn Mèo Tím',short:'Mèo Tím',vi:'Khoai môn sữa',color:'#B79BD6',price:30,brew:'heat'},
   {id:'matcha',name:'Matcha Mắt Mèo',short:'Mắt Mèo',vi:'Matcha sữa',color:'#8FBF6A',price:32,brew:'whisk',day:2},
   {id:'thai',name:'Trà Thái Mèo Cam',short:'Mèo Cam',vi:'Trà Thái sữa',color:'#E8894A',price:30,brew:'steep',day:3},
+  // limited-time seasonal drinks (on the menu only during their season)
+  {id:'dao',name:'Trà Đào Cam Sả',short:'Trà Đào',vi:'Trà đào cam sả',color:'#F7A86B',price:35,brew:'steep',season:'he'},
+  {id:'banhdeo',name:'Trà sữa Bánh Dẻo',short:'Bánh Dẻo',vi:'Trà sữa hạt sen',color:'#E8D6A8',price:35,brew:'heat',season:'trungthu'},
+  {id:'bingo',name:'Bí Ngô Mèo Đen',short:'Bí Ngô',vi:'Trà sữa bí đỏ',color:'#F08A3C',price:35,brew:'whisk',season:'halloween'},
+  {id:'gung',name:'Trà sữa Gừng Quế',short:'Gừng Quế',vi:'Trà sữa gừng quế',color:'#C98B5A',price:35,brew:'steep',season:'noel'},
+  {id:'mutdua',name:'Trà sữa Mứt Dừa',short:'Mứt Dừa',vi:'Trà sữa mứt dừa',color:'#F4EEDC',price:35,brew:'heat',season:'tet'},
 ];
 
 export const TOPS:Topping[]=[
@@ -47,6 +53,11 @@ export const SUPPLY:SupplyItem[]=[
   {id:'taro',kind:'tea',name:'Bột khoai môn',desc:'1 gói pha được 1 mẻ',price:50},
   {id:'matcha',kind:'tea',name:'Bột matcha',desc:'1 gói pha được 1 mẻ',price:60},
   {id:'thai',kind:'tea',name:'Trà Thái',desc:'1 gói pha được 1 mẻ',price:50},
+  {id:'dao',kind:'tea',name:'Đào ngâm & sả',desc:'Món mùa hè · 1 gói pha được 1 mẻ',price:55},
+  {id:'banhdeo',kind:'tea',name:'Hạt sen & bánh dẻo',desc:'Món Trung Thu · 1 gói pha được 1 mẻ',price:55},
+  {id:'bingo',kind:'tea',name:'Bột bí đỏ',desc:'Món Halloween · 1 gói pha được 1 mẻ',price:55},
+  {id:'gung',kind:'tea',name:'Gừng & quế',desc:'Món Giáng Sinh · 1 gói pha được 1 mẻ',price:55},
+  {id:'mutdua',kind:'tea',name:'Mứt dừa',desc:'Món Tết · 1 gói pha được 1 mẻ',price:55},
   {id:'pearl',kind:'top',name:'Bao bột năng',desc:'1 bao nấu được 10 muỗng trân châu',price:25},
   {id:'grass',kind:'top',name:'Hũ sương sáo',desc:`${TUB} muỗng, để được lâu`,price:40,tub:true},
   {id:'pudding',kind:'top',name:'Hũ pudding mặt mèo',desc:`${TUB} muỗng, để được lâu`,price:55,tub:true},
@@ -120,8 +131,11 @@ export const EVENTS:Record<string,GameEvent>={
 };
 // ---- seasons follow the real calendar
 export const SEASONS:Record<string,Season>={
-  trungthu:{name:'Mùa Trung Thu',desc:'Tiệm treo đèn lồng, khách vui vẻ nên tip +10%.',tip:1.1},
-  tet:{name:'Tết',desc:'Tiệm chưng hoa mai, khách lì xì nên tip +20%.',tip:1.2},
+  he:{name:'Mùa hè',desc:'Nắng vàng, dây cờ dưa hấu. Món mùa: Trà Đào Cam Sả. Tip +5%.',tip:1.05},
+  trungthu:{name:'Mùa Trung Thu',desc:'Tiệm treo đèn lồng, đèn ông sao. Món mùa: Trà sữa Bánh Dẻo. Tip +10%.',tip:1.1},
+  halloween:{name:'Halloween',desc:'Bí ngô, dơi nhỏ và mạng nhện. Món mùa: Bí Ngô Mèo Đen. Tip +10%.',tip:1.1},
+  noel:{name:'Giáng Sinh',desc:'Tuyết rơi, vòng nguyệt quế và mũ ông già Noel cho bé Bơ. Món mùa: Trà sữa Gừng Quế. Tip +10%.',tip:1.1},
+  tet:{name:'Tết',desc:'Hoa mai, lồng đèn đỏ và bao lì xì. Món mùa: Trà sữa Mứt Dừa. Tip +20%.',tip:1.2},
 };
 
 // ---- regulars: named customers with a favourite drink; perfect drinks raise friendship (0-5 hearts)

@@ -2,7 +2,7 @@ import {EVENTS} from '../data';
 import {audio,meow,purr} from './audio';
 import {H,OUT,W,cg,g,has,pick,placeAtLeast,save,tea} from './core';
 import {ev,season} from './customers';
-import {drawShopDecor,ownsDecor} from './decor';
+import {drawBoOutfit,drawSeason,drawShopDecor,ownsDecor} from './decor';
 import {blit,drawPerson,inEll,px} from './draw';
 import {coins} from './fx';
 import {METAL,METAL_HI} from './icons';
@@ -31,6 +31,7 @@ export function drawShopCats(t){
   if(pet){px(g,bx+2,by+3,1,1,OUT);px(g,bx+5,by+3,1,1,OUT)}else{px(g,bx+2,by+4,2,1,OUT);px(g,bx+5,by+4,1,1,OUT)}
   px(g,bx+3,by+5,1,1,'#E8788F');
   px(g,bx+11,by+7,4,1,'#E08A34');px(g,bx+14,by+6,1,1,'#E08A34');
+  drawBoOutfit(bx,by);
   if(!pet&&Math.floor(t*.8)%3===0){const zp=(t*.8)%1;g.globalAlpha=1-zp;px(g,bx+6,by-3-zp*6,3,1,'#8A6A78');px(g,bx+7,by-2-zp*6,1,1,'#8A6A78');px(g,bx+6,by-1-zp*6,3,1,'#8A6A78');g.globalAlpha=1}
   // Mochi: calico peeking down from the awning, tail swinging
   const m=catById('mochi');
@@ -158,6 +159,7 @@ export function drawScene(t){
   }else if(save.place==='kiosk')drawKioskRoof(t);
   else drawUmbrella(t);
   drawDecor(t);
+  drawSeason(t);
   drawShopCats(t);
   drawWeather(t);
   if(S.phase==='paused'){g.globalAlpha=.45;px(g,0,0,W,H,'#FFF6EF');g.globalAlpha=1}

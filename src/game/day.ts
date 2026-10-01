@@ -1,8 +1,9 @@
 import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEEDS_PLACE,NEWS,PEARL_BATCH,PLACES,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
+import {seasonKey} from '../logic/season';
 import {checkAchievements,recordDay,renderAchievements} from './achieve';
 import {track} from './analytics';
 import {audio,beep,meow,sfx} from './audio';
-import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeIndex,placeInfo,save,scene,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
+import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeIndex,placeInfo,save,scene,seasonTea,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
 import {canMake,ev,rollEvent,season} from './customers';
 import {checkDaily} from './daily';
 import {cozy,decorIconURL,ownsDecor} from './decor';
@@ -20,7 +21,9 @@ export function showOnly(id){['start','market','prep','end'].forEach(x=>$('#'+x)
 export function openMarket(){
   audio();
   if(save.eventDay!==save.day){save.lastEvent=save.event;save.event=rollEvent(save.day);save.eventDay=save.day;persist()}
-  newDay(save.day);S.phase='market';showOnly('market');showTab('today');setTimeout(checkDaily,250);setTimeout(maybeStartTutorial,300);
+  const st=seasonTea(),sk=st?seasonKey(season,new Date()):null;
+  if(st&&save.seasonGift!==sk){save.seasonGift=sk;save.pantry[st.id]=(save.pantry[st.id]||0)+2;persist();setTimeout(()=>mmsg(`${SEASONS[season].name}! Tặng 2 gói ${st.name} để pha món mùa.`),400)}
+  newDay(save.day);S.phase='market';showOnly('market');showTab('today');checkDaily();setTimeout(maybeStartTutorial,300);
   const teaPacks=unlocked(TEAS).reduce((a,t)=>a+(save.pantry[t.id]||0),0);
   const cheapest=Math.min(...SUPPLY.filter(x=>x.kind==='tea'&&save.owned.includes(x.id)).map(x=>x.price));
   if(!teaPacks&&save.wallet<cheapest){save.pantry.black=(save.pantry.black||0)+1;persist();mmsg('Dì ghé tặng một gói lá trà đen. Chúc bán đắt hàng!')}
@@ -158,7 +161,7 @@ export function renderMarket(){
   const lv=levelOf(save.xp);
   $('#mlv').textContent=lv>=LEVELS.length?`Cấp ${lv} · tối đa`:`Cấp ${lv} · ${save.xp}/${LEVELS[lv]} XP`;
   $('#mxp').style.width=(lvProgress(save.xp)*100)+'%';
-  $('#m-supply').innerHTML=SUPPLY.filter(x=>!x.gear&&save.owned.includes(x.id)).map(x=>marketItem('supply',x)).join('');
+  $('#m-supply').innerHTML=SUPPLY.filter(x=>!x.gear&&(save.owned.includes(x.id)||seasonTea()?.id===x.id)).map(x=>marketItem('supply',x)).join('');
   $('#m-gear').innerHTML=SUPPLY.filter(x=>x.gear).map(x=>marketItem('supply',x)).join('');
   $('#m-recipe').innerHTML=RECIPES.map(x=>marketItem('recipe',x)).join('');
   $('#m-up').innerHTML=UPGRADES.filter(x=>!x.place||has(x.id)||placeIndex(x.place)>=placeIndex()).map(x=>marketItem('up',x)).join('');

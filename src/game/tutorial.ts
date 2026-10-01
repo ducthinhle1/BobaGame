@@ -10,7 +10,7 @@ import {S,cup} from './state';
 type Step = {phase: string; target?: string; text: string; done: () => boolean; next?: boolean};
 
 // every tea you sell today has a batch (or nothing left in the pantry to brew)
-const allTeas = () => unlocked(TEAS).every(t => (S.stock[t.id] || []).length > 0 || !(save.pantry[t.id] > 0));
+const allTeas = () => unlocked(TEAS).filter(t => !t.season).every(t => (S.stock[t.id] || []).length > 0 || !(save.pantry[t.id] > 0));
 const STEPS: Step[] = [
   {phase: 'market', target: '#m-need', next: true, done: () => false,
     text: 'Chào bạn! Mình là Bơ, mèo của tiệm. Sáng nào mình cũng đi chợ trước. Mục “Cần mua” cho biết món nào sắp thiếu.'},
@@ -41,6 +41,7 @@ export function tutorialActive() { return step >= 0; }
 
 /** starts the tutorial for a brand-new game */
 export function maybeStartTutorial() {
+  if (step >= 0 || !S || S.phase !== 'market') return;
   if (save.tutDone || save.day !== 1 || save.xp > 0) return;
   step = 0; show();
 }
