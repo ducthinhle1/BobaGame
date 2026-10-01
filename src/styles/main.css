@@ -588,3 +588,12 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
 .pl-bar{width:100%;margin:0 0 4px}
 .pl-next .btn.big{width:100%;margin-top:4px}
 .pl-next.done b{color:var(--gold)}
+
+/* market tabs + an always-visible "go" button */
+.mtabs{display:flex;gap:4px;margin:12px 0 4px;padding:4px;background:var(--surface2,#FBF1EA);border:1px solid var(--line);border-radius:14px}
+.mtabs button{flex:1;position:relative;border:0;background:transparent;border-radius:10px;padding:9px 4px;font:inherit;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.mtabs button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(90,40,50,.12)}
+.mtabs .dot{position:absolute;top:5px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.mtab{min-height:240px}
+.prepfoot.sticky{position:sticky;bottom:-76px;z-index:2;margin:14px -8px -8px;padding:12px 8px 10px;background:linear-gradient(rgba(255,251,247,0),var(--surface) 30%)}
+@media (max-width:640px){.mtabs button{font-size:12px;padding:8px 2px}.mtabs .dot{right:4px}}

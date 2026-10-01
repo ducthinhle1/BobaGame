@@ -16,7 +16,7 @@ export function showOnly(id){['start','market','prep','end'].forEach(x=>$('#'+x)
 export function openMarket(){
   audio();
   if(save.eventDay!==save.day){save.lastEvent=save.event;save.event=rollEvent(save.day);save.eventDay=save.day;persist()}
-  newDay(save.day);S.phase='market';showOnly('market');
+  newDay(save.day);S.phase='market';showOnly('market');showTab('today');
   const teaPacks=unlocked(TEAS).reduce((a,t)=>a+(save.pantry[t.id]||0),0);
   const cheapest=Math.min(...SUPPLY.filter(x=>x.kind==='tea'&&save.owned.includes(x.id)).map(x=>x.price));
   if(!teaPacks&&save.wallet<cheapest){save.pantry.black=(save.pantry.black||0)+1;persist();mmsg('Dì ghé tặng một gói lá trà đen. Chúc bán đắt hàng!')}
@@ -128,8 +128,22 @@ export function moveTo(id){
   renderMarket();$('#m-place').scrollIntoView({block:'nearest'});
   mmsg(nx.id==='kiosk'?'Chào mừng tới Ki-ốt góc chợ! Có thêm Khoai môn Mèo Tím và sương sáo (tặng kèm 1 gói, 1 hũ).':'Tiệm Mèo Trân Châu khai trương! Giờ bạn có thể thuê nhân viên và trang trí tiệm.');
 }
+/* market tabs: Hôm nay · Nhập hàng · Phát triển · Sổ sách */
+export function showTab(id:string){
+  document.querySelectorAll<HTMLElement>('.mtabs [data-mtab]').forEach(b=>{const on=b.dataset.mtab===id;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
+  document.querySelectorAll<HTMLElement>('#market .mtab').forEach(sec=>sec.hidden=sec.dataset.tab!==id);
+  $('#market').scrollTop=0;
+}
+$('#market').querySelector('.mtabs').addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLElement>('[data-mtab]');if(!b)return;audio();sfx.click();showTab(b.dataset.mtab)});
+/** little dots on the tabs: something to buy today, or a bigger place you can move to */
+function tabDots(){
+  const lv=levelOf(save.xp),nx=nextPlace();
+  const canGrow=(nx&&lv>=nx.lv&&save.wallet>=nx.price)||[...RECIPES.filter(r=>!save.owned.includes(r.id)&&placeAtLeast('kiosk')),...UPGRADES.filter(u=>!has(u.id)&&(u.id!=='catbed'||placeAtLeast('shop'))),...(placeAtLeast('shop')?DECOR.filter(d=>!ownsDecor(d.id)):[])].some(x=>lv>=x.lv&&save.wallet>=x.price);
+  const dots={today:shoppingList().list.length>0,grow:!!canGrow};
+  document.querySelectorAll<HTMLElement>('.mtabs [data-mtab]').forEach(b=>{b.querySelector<HTMLElement>('.dot').hidden=!dots[b.dataset.mtab]});
+}
 export function renderMarket(){
-  renderNews();renderPlace();renderFriends();renderNeeds();renderRevenue();
+  renderNews();renderPlace();tabDots();renderFriends();renderNeeds();renderRevenue();
   $('#m-quests').innerHTML=questRows(S.quests);
   $('#mday').textContent=`Buổi sáng · Ngày ${save.day}`;
   $('#mwallet').textContent=save.wallet+'k';
