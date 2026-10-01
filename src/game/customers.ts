@@ -11,7 +11,9 @@ import {S} from './state';
 /* ---------- daily events, seasons and regulars ---------- */
 export const season=(()=>{const d=new Date(),m=d.getMonth()+1,day=d.getDate();if((m===9&&day>=12)||(m===10&&day<=12))return'trungthu';if((m===1&&day>=20)||(m===2&&day<=20))return'tet';return null})();
 export function ev(){return EVENTS[save.event&&save.eventDay===save.day?save.event:'normal']||EVENTS.normal}
-export function tipBoost(){return ev().tip*(season?SEASONS[season].tip:1)*cozyEffect().tip}
+export function tipBoost(){return ev().tip*(season?SEASONS[season].tip:1)*cozyEffect().tip*(has('paint')?1.05:1)*(has('fan')?1.05:1)}
+/** cart/kiosk upgrades that bring customers in faster */
+export function spawnBoost(){return (has('bell')?1.1:1)*(has('radio')?1.1:1)}
 export function rollEvent(day){
   if(day<3)return'normal';
   const keys=Object.keys(EVENTS).filter(k=>k==='normal'||k!==save.lastEvent);
@@ -51,7 +53,7 @@ export function genOrder(type){
 export function spawn(force?){
   const free=[0,1,2].filter(i=>!S.slots[i]&&i<placeInfo().slots);
   if(!free.length)return false;
-  const slot=pick(free),type=force||pickType(),pat=ev().pat*TYPES[type].patience*Math.max(.62,1-.07*(S.day-1))*(has('lights')?1.2:1)*(staffOn('tu')?1.15:1)*cozyEffect().patience;
+  const slot=pick(free),type=force||pickType(),pat=ev().pat*TYPES[type].patience*Math.max(.62,1-.07*(S.day-1))*(has('lights')?1.2:1)*(staffOn('tu')?1.15:1)*cozyEffect().patience*(has('parasol')?1.08:1)*(has('garland')?1.08:1);
   let order=genOrder(type),look=makeLook(type),friend=null;
   // sometimes a regular walks in and orders their favourite
   if(type==='regular'&&Math.random()<.35){

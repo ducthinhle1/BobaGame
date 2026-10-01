@@ -91,5 +91,7 @@ Lượt truy cập, loại thiết bị, trình duyệt, quốc gia do Umami t�
 - [x] Sự kiện mỗi ngày (mưa, ngày lễ, nắng nóng, reviewer) và theo mùa (Trung Thu, Tết)
 - [x] Mặt bằng: xe đẩy → ki-ốt góc chợ → tiệm (nhân viên, trang trí, đơn online chỉ có ở tiệm)
 - [x] Trang trí tiệm: 8 món, điểm ấm cúng tăng tip và độ kiên nhẫn
+- [x] Thấy rõ lợi ích nâng cấp: màn hình khai trương, hóa đơn ghi “Nhờ nâng cấp hôm nay”, nâng cấp riêng cho xe đẩy và ki-ốt
+- [ ] Quà đăng nhập theo chuỗi ngày, bộ sưu tập mèo, thành tích
 - [ ] Quán cà phê mèo 2 tầng / chi nhánh thứ hai
 - [ ] Kiểm thử tự động (Playwright) cho vòng chơi một ngày trong CI

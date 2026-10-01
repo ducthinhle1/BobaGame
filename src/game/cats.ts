@@ -1,6 +1,6 @@
 import {EVENTS} from '../data';
 import {audio,meow,purr} from './audio';
-import {H,OUT,W,cg,g,pick,placeAtLeast,save,tea} from './core';
+import {H,OUT,W,cg,g,has,pick,placeAtLeast,save,tea} from './core';
 import {ev,season} from './customers';
 import {drawShopDecor,ownsDecor} from './decor';
 import {blit,drawPerson,inEll,px} from './draw';
@@ -206,9 +206,13 @@ function drawCart(t){
   px(g,0,62,W,18,'#E6C3BE');for(let i=0;i<10;i++)px(g,(i*31+12)%W,65+(i%3)*4,3,1,'#D9AFAB');
   // cart body: a pink box with cream stripes on two wheels, a handle on the right
   px(g,4,58,116,3,'#EDB888');px(g,4,58,116,1,'#F7D3A8');px(g,4,61,116,1,'#A76C44');
-  px(g,6,62,112,12,'#F58DA6');for(let x=10;x<118;x+=12)px(g,x,62,5,12,'#FFF4EA');
+  if(has('paint')){ // repainted: brighter pink with white paw prints
+    px(g,6,62,112,12,'#FF9DB5');
+    for(let x=14;x<114;x+=16){px(g,x,66,3,3,'#FFF4EA');px(g,x-1,64,1,1,'#FFF4EA');px(g,x+1,63,1,1,'#FFF4EA');px(g,x+3,64,1,1,'#FFF4EA')}
+  }else{px(g,6,62,112,12,'#F58DA6');for(let x=10;x<118;x+=12)px(g,x,62,5,12,'#FFF4EA')}
   px(g,6,62,112,1,'#D96A86');px(g,6,73,112,1,'#C85C7A');
   px(g,118,55,1,7,'#8A6A78');px(g,118,55,9,1,'#8A6A78');px(g,126,55,2,2,'#5A4A55');
+  if(has('bell')){const sw=Math.round(Math.sin(t*3)*1);px(g,122,56,1,2,'#8A6A78');blit(g,119+sw,57,7,6,(x,y)=>y<5&&Math.abs(x-3)<=1+y*.5,'#F2C94C',OUT);px(g,122+sw,62,1,1,'#C9A15A')}
   [[22,75],[102,75]].forEach(([cx,cy])=>{blit(g,cx-5,cy-5,11,11,(x,y)=>inEll(x,y,5,5,5,5),(x,y)=>inEll(x,y,5,5,2,2)?'#E8DCCF':'#5A4A55',OUT);
     const a=t*.6;px(g,cx+Math.round(Math.cos(a)*3),cy+Math.round(Math.sin(a)*3),1,1,'#E8DCCF');px(g,cx,cy,1,1,OUT)});
   px(g,0,79,W,1,'#D9B4B2');
@@ -220,6 +224,10 @@ function drawUmbrella(t){
   blit(g,16+sway,4,92,14,(x,y)=>inEll(x,y,46,13,46,10)&&y<13,(x,y)=>Math.floor((x-1)/11.5)%2?'#FFF4EA':'#F58DA6',OUT);
   for(let i=0;i<8;i++){const x=18+sway+i*11.5;px(g,Math.round(x),16,10,1,i%2?'#FFF4EA':'#F58DA6');px(g,Math.round(x)+2,17,6,1,i%2?'#FFF4EA':'#F58DA6');px(g,Math.round(x)+3,18,4,1,'#C85C7A')}
   px(g,60+sway,2,4,2,'#F2C94C');
+  if(has('parasol')){ // second layer on top and a row of swinging tassels
+    blit(g,40+sway,1,44,7,(x,y)=>inEll(x,y,22,7,22,6)&&y<7,(x,y)=>Math.floor(x/6)%2?'#F58DA6':'#FFF4EA',OUT);
+    for(let x=20;x<106;x+=4){const s=Math.round(Math.sin(t*2+x*.3)*.6);px(g,x+sway+s,19,1,2,'#F2C94C')}
+  }
 }
 function drawKioskBack(t){
   // two posts holding the roof, a strip of warm bulbs under it
@@ -230,6 +238,19 @@ function drawKioskRoof(t){
   // a mint tin roof with corrugation and a scalloped trim
   px(g,0,0,W,11,'#7ED6B8');for(let x=0;x<W;x+=4)px(g,x,0,1,11,'#5FB89B');px(g,0,0,W,1,'#4E9F86');
   for(let x=0;x<W;x+=6){px(g,x,11,6,1,'#FFF4EA');px(g,x+1,12,4,1,'#FFF4EA');px(g,x+2,13,2,1,'#E0C8B8')}
+  if(has('garland')){ // paper-flower garland along the roof trim
+    for(let x=0;x<W;x++){const y=15+Math.round(1.5*Math.sin(Math.PI*x/40));px(g,x,y,1,1,'#7FB86A');
+      if(x%10===5){const col=['#F58DA6','#F2C94C','#B79BD6','#FFFFFF'][(x/10|0)%4];px(g,x-1,y+1,3,1,col);px(g,x,y,1,3,col);px(g,x,y+1,1,1,'#F2A541')}}
+  }
+  if(has('fan')){ // a ceiling fan, blades turning
+    px(g,118,11,1,4,'#6E5A66');const a=t*7;
+    for(let k=0;k<3;k++){const ang=a+k*Math.PI*2/3;for(let r=2;r<=8;r++)px(g,118+Math.round(Math.cos(ang)*r),16+Math.round(Math.sin(ang)*r*.35),2,1,'#9F97B8')}
+    px(g,116,15,5,3,'#7ED6B8');px(g,117,16,3,1,'#FFF4EA');
+  }
+  if(has('radio')){ // a little cassette radio on the counter, notes drifting up
+    px(g,17,52,12,8,OUT);px(g,18,53,10,6,'#E86A6A');px(g,19,55,3,3,'#3B2A2D');px(g,24,55,3,3,'#3B2A2D');px(g,20,53,6,1,'#FFF4EA');px(g,26,49,1,3,'#8A6A78');
+    for(let i=0;i<2;i++){const ph=(t*.6+i*.5)%1;g.globalAlpha=1-ph;px(g,21+i*6,47-ph*12,1,3,'#8A6A78');px(g,22+i*6,47-ph*12,2,1,'#8A6A78');px(g,20+i*6,49-ph*12,2,2,'#8A6A78');g.globalAlpha=1}
+  }
   // a little hanging cat-face sign
   px(g,79,13,1,3,'#8A6A78');px(g,74,16,11,7,OUT);px(g,75,17,9,5,'#F2A541');px(g,75,15,1,1,'#F2A541');px(g,83,15,1,1,'#F2A541');
   px(g,77,18,1,1,OUT);px(g,81,18,1,1,OUT);px(g,79,19,1,1,'#E86A6A');

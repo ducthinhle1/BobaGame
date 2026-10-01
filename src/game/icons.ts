@@ -62,6 +62,13 @@ export function drawIcon(c,kind,val){
   }else if(kind==='up'){
     const U={
       double:()=>{blit(c,0,0,16,16,(x,y)=>y>3&&y<15&&Math.abs(x-8)<=5.5-(y-3)*.15,(x,y)=>y>11.5?'#3A2418':y>8.5?'#F2C94C':'#C08A5B','#D8D0F0');px(c,9,0,2,7,'#E86A6A')},
+      bell:()=>{blit(c,0,0,16,16,(x,y)=>y>3&&y<12&&Math.abs(x-8)<=2+(y-3)*.5,'#F2C94C',OUT);px(c,7,1,2,3,OUT);px(c,6,12,4,1,OUT);px(c,7,13,2,2,'#C9A15A');px(c,6,5,1,4,'#FFF3B0')},
+      parasol:()=>{blit(c,0,0,16,16,(x,y)=>inEll(x,y,8,8,7.5,6)&&y<8,(x,y)=>Math.floor(x/3)%2?'#FFF4EA':'#F58DA6',OUT);for(let x=1;x<15;x+=2)px(c,x,8,1,2,'#F2C94C');px(c,8,8,1,7,'#8A6A78')},
+      paint:()=>{px(c,1,7,14,6,'#F58DA6');px(c,1,7,14,1,'#FFF4EA');[[4,9],[10,9]].forEach(([x,y])=>{px(c,x,y,2,2,'#FFF4EA');px(c,x-1,y-1,1,1,'#FFF4EA');px(c,x+2,y-1,1,1,'#FFF4EA')});
+        blit(c,0,0,16,16,(x,y)=>inEll(x,y,4,13.5,2.2,2.2),'#5A4A55',OUT);blit(c,0,0,16,16,(x,y)=>inEll(x,y,12,13.5,2.2,2.2),'#5A4A55',OUT);px(c,12,1,2,5,'#C08A5B');px(c,11,5,4,2,'#7ED6B8')},
+      fan:()=>{px(c,7,0,2,5,'#8A6A78');px(c,1,5,14,2,'#B8B2CC');px(c,6,4,4,4,'#7ED6B8');px(c,7,5,2,2,'#FFF4EA');px(c,2,9,2,1,'#CFE9F2');px(c,6,11,3,1,'#CFE9F2');px(c,11,9,2,1,'#CFE9F2')},
+      radio:()=>{px(c,1,5,14,9,OUT);px(c,2,6,12,7,'#E86A6A');blit(c,0,0,16,16,(x,y)=>inEll(x,y,5,9.5,2.3,2.3),'#3B2A2D',null);blit(c,0,0,16,16,(x,y)=>inEll(x,y,11,9.5,2.3,2.3),'#3B2A2D',null);px(c,6,7,4,1,'#FFF4EA');px(c,3,2,1,3,'#8A6A78');px(c,12,1,2,2,'#F2C94C')},
+      garland:()=>{for(let x=0;x<16;x++)px(c,x,3+Math.round(2*Math.sin(Math.PI*x/15)),1,1,'#7FB86A');['#F58DA6','#F2C94C','#B79BD6','#FFFFFF'].forEach((col,i)=>{const x=2+i*4,y=5+Math.round(2*Math.sin(Math.PI*x/15));px(c,x,y,3,1,col);px(c,x+1,y-1,1,3,col);px(c,x+1,y,1,1,'#F2A541')})},
       catbed:()=>{blit(c,0,0,16,16,(x,y)=>inEll(x,y,8,13,7.4,2.6),'#E86A6A',OUT);
         const ear=cx=>(x,y)=>y>2&&y<6.5&&Math.abs(x-cx)<=(y-2)*.6;
         blit(c,0,0,16,16,ear(5),'#F2A541',OUT);blit(c,0,0,16,16,ear(11),'#F2A541',OUT);

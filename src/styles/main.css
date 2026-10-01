@@ -597,3 +597,23 @@ body.bar-new .station .tile .badge{transform:scale(.85);transform-origin:top rig
 .mtab{min-height:240px}
 .prepfoot.sticky{position:sticky;bottom:-76px;z-index:2;margin:14px -8px -8px;padding:12px 8px 10px;background:linear-gradient(rgba(255,251,247,0),var(--surface) 30%)}
 @media (max-width:640px){.mtabs button{font-size:12px;padding:8px 2px}.mtabs .dot{right:4px}}
+
+.receipt .perks{margin:6px 0;padding:6px 8px;border:1px dashed rgba(47,154,108,.5);border-radius:8px;background:rgba(47,154,108,.06)}
+.receipt .perks b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--jade);margin-bottom:2px}
+.receipt .perks .rl span:last-child{color:var(--jade);font-weight:600}
+
+/* grand opening */
+.overlay.opening{z-index:14}
+.opencard{max-width:440px;text-align:center;display:grid;gap:8px;justify-items:center;position:relative;z-index:1}
+.opencard .preptitle{margin:0}
+.op-img{width:100%;max-width:380px;image-rendering:pixelated;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.op-rows{width:100%;display:grid;gap:4px}
+.op-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline;padding:6px 10px;background:var(--surface2);border-radius:10px;font-size:14px;text-align:left}
+.op-row s{color:var(--faint);font-size:13px}
+.op-row b{color:var(--jade);font-size:15px}
+.op-new{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:3px;font-size:13.5px;color:var(--ink)}
+.op-new li::before{content:"✦ ";color:var(--gold)}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:7px;height:11px;border-radius:2px;animation:confetti linear infinite}
+@keyframes confetti{to{top:110%;translate:0 0;rotate:540deg}}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}}

@@ -1,7 +1,7 @@
-import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEEDS_PLACE,NEWS,PEARL_BATCH,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
+import {DECOR,EVENTS,GEAR_NAME,ICES,LEVELS,NEEDS_PLACE,NEWS,PEARL_BATCH,PLACES,RECIPES,REGULARS,SEASONS,STAFF,SUPPLY,TEAS,TOPS,TUB,UPGRADES} from '../data';
 import {track} from './analytics';
-import {audio,meow,sfx} from './audio';
-import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeInfo,save,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
+import {audio,beep,meow,sfx} from './audio';
+import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeIndex,placeInfo,save,scene,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
 import {canMake,ev,rollEvent,season} from './customers';
 import {cozy,decorIconURL,ownsDecor} from './decor';
 import {iconURL} from './icons';
@@ -27,7 +27,7 @@ export function mmsg(t){$('#mmsg').textContent=t}
 export function marketItem(kind,it){
   const lv=levelOf(save.xp),icon=kind==='decor'?decorIconURL(it.id):kind==='up'?iconURL('up',it.id):kind==='staff'?iconURL('staff',it.id):it.gear?iconURL('gear',it.id):iconURL(it.kind,it.id);
   let btn,cls='mitem',note='';
-  const need=NEEDS_PLACE[kind]||NEEDS_PLACE[it.id],placeLock=need&&!placeAtLeast(need)?placeInfo(need):null;
+  const need=NEEDS_PLACE[kind]||NEEDS_PLACE[it.id]||(it.place&&placeIndex(it.place)>placeIndex()?it.place:null),placeLock=need&&!placeAtLeast(need)?placeInfo(need):null;
   if(placeLock&&kind!=='supply'){
     note=kind==='decor'?`${it.desc} <b class="cozyp">+${it.cozy} ấm cúng</b>`:kind==='staff'?`${it.desc} Lương ${it.wage}k/ngày.`:it.desc;
     return `<div class="mitem lockd"><img src="${icon}" alt=""><div>${it.name}<small>${note}</small></div><button class="btn" type="button" disabled>Có ở ${placeLock.name.split(' ')[0]==='Tiệm'?'tiệm':'ki-ốt'}</button></div>`;
@@ -124,7 +124,9 @@ export function moveTo(id){
   if(levelOf(save.xp)<nx.lv||save.wallet<nx.price){sfx.nope();return}
   save.wallet-=nx.price;save.place=nx.id;
   if(nx.id==='kiosk'){['taro','grass'].forEach(x=>{if(!save.owned.includes(x))save.owned.push(x)});save.pantry.taro=(save.pantry.taro||0)+1;save.pantry.grass=(save.pantry.grass||0)+12}
+  const before=placeInfo(PLACES[placeIndex()-1].id);
   track('move',{place:nx.id,day:save.day});persist();sfx.win();meow(1.2,.05,.2);meow(1.35,.04,.6);
+  setTimeout(()=>showOpening(before,nx),160);
   renderMarket();$('#m-place').scrollIntoView({block:'nearest'});
   mmsg(nx.id==='kiosk'?'Chào mừng tới Ki-ốt góc chợ! Có thêm Khoai môn Mèo Tím và sương sáo (tặng kèm 1 gói, 1 hũ).':'Tiệm Mèo Trân Châu khai trương! Giờ bạn có thể thuê nhân viên và trang trí tiệm.');
 }
@@ -153,7 +155,7 @@ export function renderMarket(){
   $('#m-supply').innerHTML=SUPPLY.filter(x=>!x.gear&&save.owned.includes(x.id)).map(x=>marketItem('supply',x)).join('');
   $('#m-gear').innerHTML=SUPPLY.filter(x=>x.gear).map(x=>marketItem('supply',x)).join('');
   $('#m-recipe').innerHTML=RECIPES.map(x=>marketItem('recipe',x)).join('');
-  $('#m-up').innerHTML=UPGRADES.map(x=>marketItem('up',x)).join('');
+  $('#m-up').innerHTML=UPGRADES.filter(x=>!x.place||has(x.id)||placeIndex(x.place)>=placeIndex()).map(x=>marketItem('up',x)).join('');
   $('#m-staff').innerHTML=STAFF.map(x=>marketItem('staff',x)).join('');
   $('#m-decor').innerHTML=DECOR.map(x=>marketItem('decor',x)).join('');
   const cz=cozy();$('#m-cozy').textContent=cz?`· ấm cúng ${cz} điểm (tip +${cz}%)`:'';
@@ -181,6 +183,17 @@ $('#market').addEventListener('click',e=>{
 $('#mgo').addEventListener('click',()=>{
   audio();newDay(save.day);S.phase='prep';showOnly('prep');renderPrep();$('#prep').scrollTop=0;
 });
+/** "Nhờ nâng cấp": what the place, decorations and staff did for you today */
+function perkLines(){
+  const p=S.perks,rows=[];
+  if(p.place)rows.push([`Giá ở ${placeInfo().name} (+${Math.round((placeInfo().pay-1)*100)}% mỗi ly)`,`+${p.place}k`]);
+  if(p.cozy)rows.push([`Tip nhờ đồ trang trí (${cozy()} điểm ấm cúng)`,`+${p.cozy}k`]);
+  if(p.hoa)rows.push(['Chị Hoa pha giúp',`${p.hoa} mẻ`]);
+  if(p.na)rows.push(['Bé Na rót sẵn',`${p.na} ly`]);
+  if(p.tu)rows.push(['Anh Tú mang ra',`${p.tu} ly`]);
+  if(!rows.length)return '';
+  return `<div class="perks"><b>Nhờ nâng cấp hôm nay</b>${rows.map(([a,b])=>`<div class="rl"><span>${a}</span><span>${b}</span></div>`).join('')}</div>`;
+}
 export function endDay(){
   S.phase='closed';S.time=DAY_LEN;S.brewing={};
   const leftovers=Object.keys(S.stock).reduce((a,id)=>a+stockN(id),0);
@@ -214,6 +227,7 @@ export function endDay(){
     <div class="rl"><span>Tiền tip</span><span>${S.tips}k</span></div>
     ${S.spent?`<div class="rl"><span>Đặt hàng giao gấp</span><span>−${S.spent}k</span></div>`:''}
     <div class="rl total"><span>Thu hôm nay</span><span>${S.cash}k</span></div>
+    ${perkLines()}
     ${prevDay&&prevDay.earned>0?`<div class="c">${S.cash>=prevDay.earned?'Tăng':'Giảm'} ${Math.abs(Math.round((S.cash-prevDay.earned)/prevDay.earned*100))}% so với hôm qua (${prevDay.earned}k)</div>`:''}
     ${wage?`<div class="rl"><span>Lương nhân viên</span><span>−${wage}k</span></div>`:''}
     ${S.quests.map(q=>`<div class="rq${q.done?'':' miss'}"><span>${q.done?'✓':'✗'} ${q.text}</span><span>${q.done?'+'+q.cash+'k':''}</span></div>`).join('')}
@@ -244,3 +258,22 @@ export function renderStart(){
   },false);
   first.focus();
 }
+
+/* ---------- grand opening: a picture of the new place and what got better ---------- */
+export function showOpening(before,after){
+  $<HTMLImageElement>('#op-img').src=scene.toDataURL();
+  $('#op-title').textContent=after.name+'!';
+  const pct=p=>p>1?`+${Math.round((p-1)*100)}%`:'giá gốc';
+  const rows:[string,string,string][]=[
+    ['Khách cùng lúc',String(before.slots),String(after.slots)],
+    ['Giá mỗi ly',pct(before.pay),pct(after.pay)],
+  ];
+  const extra=after.perks.filter(p=>!/khách một lúc|mỗi ly/.test(p));
+  $('#op-rows').innerHTML=rows.map(([k,a,b])=>`<div class="op-row"><span>${k}</span><s>${a}</s><b>${b}</b></div>`).join('')
+    +`<ul class="op-new">${extra.map(p=>`<li>${p}</li>`).join('')}</ul>`;
+  const cf=$('#confetti'),cols=['#F58DA6','#F2C94C','#7ED6B8','#B79BD6','#E86A6A','#FFFFFF'];
+  cf.innerHTML=Array.from({length:46},(_v,i)=>`<i style="left:${Math.random()*100}%;background:${cols[i%cols.length]};animation-delay:${(Math.random()*1.2).toFixed(2)}s;animation-duration:${(2.2+Math.random()*1.6).toFixed(2)}s;transform:rotate(${Math.random()*360|0}deg)"></i>`).join('');
+  $('#opening').hidden=false;$('#op-ok').focus();
+  [523,659,784,1047,1319].forEach((f,i)=>beep(f,.14,'square',.03,null,.1+i*.09));meow(1.3,.05,.7);
+}
+$('#op-ok').addEventListener('click',()=>{audio();sfx.click();$('#opening').hidden=true});

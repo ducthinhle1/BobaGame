@@ -2,8 +2,9 @@ import {QUAL,TYPES} from '../data';
 import {countErrors,judge} from '../logic/cup';
 import {bagTip,cupTip} from '../logic/economy';
 import {beep,meow,sfx} from './audio';
-import {$,SLOTS,W,has,orderPrice,save,sealNeeded,tea,useGear} from './core';
+import {$,SLOTS,W,has,orderPrice,placeInfo,save,sealNeeded,tea,useGear} from './core';
 import {befriend,friendOf,leave,tipBoost} from './customers';
+import {cozyEffect} from './decor';
 import {coins,liftCup,puff,shake,sparkle} from './fx';
 import {renderTickets,updateHud} from './orders';
 import {checkQuests} from './quests';
@@ -44,7 +45,7 @@ export function serve(slot){
     const close=c.friend&&friendOf(c.friend).hearts>=3?1.5:1;
     const tip=cupTip({typeTip:T.tip,patience:c.pat/c.maxPat,streak:S.streak,quality:qm,tipJar:has('tipjar'),boost:tipBoost(),close});
     save.xp+=5;
-    S.cash+=price+tip;S.tips+=tip;S.perfect++;S.served++;
+    S.cash+=price+tip;S.tips+=tip;S.perfect++;S.served++;notePerks(price,tip);
     leave(c,'love');c.carry=carry;floatText(slot,`+${price+tip}k`,'good');sfx.win();
     sparkle(c.x,44);coins(c.x,Math.min(7,Math.ceil(tip/3)));
     if([3,5,10,15,20].includes(S.streak))floatText(slot,`Chuỗi ×${S.streak}!`,'streak');
@@ -53,7 +54,7 @@ export function serve(slot){
     if(c.type==='reviewer'){S.cash+=150;save.xp+=40;setTimeout(()=>{floatText(slot,'Review 5 sao!','streak');hint('Reviewer khen tiệm hết lời! Thưởng +150k và +40 XP.')},700);updateHud()}
     hint((S.streak>=3?`Hoàn hảo! Chuỗi ×${S.streak}, tip +50%.`:c.type==='cat'?'Bé mèo ưng lắm. Trả gấp đôi!':'Ly hoàn hảo!')+(qm>1?' Nguyên liệu ngon, tip nhiều hơn.':qm<1?' Khách thấy vị chưa chuẩn, tip ít.':''));
   }else if(verdict==='close'){
-    S.cash+=price;S.served++;S.streak=0;save.xp+=2;
+    S.cash+=price;S.served++;S.streak=0;save.xp+=2;notePerks(price,0);
     leave(c,'ok');c.carry=carry;floatText(slot,`+${price}k`);sfx.ok();hint('Gần đúng. Sai một chỗ nên không có tip.');
   }else{
     S.streak=0;S.missed++;leave(c,'angry');floatText(slot,'Từ chối','bad');checkQuests();sfx.fail();puff(c.x,40);shake();
@@ -74,7 +75,7 @@ export function finishBag(slot){
   const price=Math.round(orderPrice(o)*T.pay*qty),qmAvg=c.perfectCups?c.qmSum/c.perfectCups:1;
   const tip=bagTip({typeTip:T.tip,patience:c.pat/c.maxPat,streak:S.streak,quality:qmAvg,tipJar:has('tipjar'),boost:tipBoost()},c.perfectCups);
   save.xp+=3*c.perfectCups+2;
-  S.cash+=price+tip;S.tips+=tip;S.perfect+=c.perfectCups;S.served+=qty;
+  S.cash+=price+tip;S.tips+=tip;S.perfect+=c.perfectCups;S.served+=qty;notePerks(price,tip);
   leave(c,allPerfect?'love':'ok');c.carry={bag:true};
   floatText(slot,`+${price+tip}k`,'good');sfx.win();sparkle(c.x,44);if(tip)coins(c.x,Math.min(7,Math.ceil(tip/3)));
   hint(c.type==='online'?`Shipper nhận túi ${qty} ly và chạy đi giao. +${price+tip}k!`:`Giao túi ${qty} ly cho khách. +${price+tip}k!`);
@@ -88,3 +89,8 @@ export function floatText(slot,text,cls=''){
 export let hintT=0;
 export function hint(t,sticky?){$('#hint').textContent=t;hintT=t?(sticky?999:3.5):0}
 export function tickHint(dt){if(hintT>0){hintT-=dt;if(hintT<=0)$('#hint').textContent=''}}
+/** keeps today's tally of what upgrades brought in, for the receipt: the place's higher prices and the decorations' tips */
+export function notePerks(price:number,tip:number){
+  const pay=placeInfo().pay;if(pay>1)S.perks.place+=price-Math.round(price/pay);
+  const cz=cozyEffect().tip;if(cz>1&&tip)S.perks.cozy+=tip-Math.round(tip/cz);
+}

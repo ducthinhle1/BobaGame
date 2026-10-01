@@ -10,7 +10,7 @@ export interface Topping { id: string; name: string; short: string; vi: string; 
 export interface QualityInfo { label: string; mul: number; cls: string }
 export interface CustomerType { label: string; patience: number; tip: number; pay: number; strict: boolean }
 export interface SupplyItem { id: string; kind: 'tea' | 'top' | 'gear'; name: string; desc: string; price: number; tub?: boolean; gear?: boolean; pack?: number }
-export interface ShopItem { id: string; kind?: 'tea' | 'top'; name: string; lv: number; price: number; desc: string }
+export interface ShopItem { id: string; kind?: 'tea' | 'top'; name: string; lv: number; price: number; desc: string; place?: 'cart' | 'kiosk' | 'shop' }
 export interface StaffInfo extends ShopItem { wage: number }
 export type PlaceId = 'cart' | 'kiosk' | 'shop';
 /** Where you sell: you start with a pushcart and move up as you earn. */

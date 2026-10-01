@@ -2,7 +2,7 @@ import {PEARL_BATCH,RUSH,SUPPLY} from '../data';
 import {beep,meow,sfx} from './audio';
 import {drawCup,drawScene,updateCats} from './cats';
 import {DAY_LEN,SLOTS,addBatch,feat,packOf,save,staffOn,stockName,teaBatch} from './core';
-import {ev,leave,spawn} from './customers';
+import {ev,leave,spawn,spawnBoost} from './customers';
 import {endDay} from './day';
 import {chimeTinkle} from './decor';
 import {drawLifted,drawParts,drawSign,puff,updateParts} from './fx';
@@ -39,13 +39,13 @@ export function update(dt){
   // Bé Na pours tea, sugar and ice for the ticket you asked about
   if(staffOn('na'))naWork(dt);
   // Anh Tú carries out any cup that matches a ticket
-  if(S.autoServe){S.autoServe.t-=dt;if(S.autoServe.t<=0){const i=S.autoServe.slot;S.autoServe=null;const r=ticketRefs[i];if(r&&r.ready)serve(i)}}
+  if(S.autoServe){S.autoServe.t-=dt;if(S.autoServe.t<=0){const i=S.autoServe.slot;S.autoServe=null;const r=ticketRefs[i];if(r&&r.ready){S.perks.tu++;serve(i)}}}
   // rush hour: customers pour in for 30 seconds mid-shift
   const rush=feat('rush')&&S.time>RUSH[0]&&S.time<RUSH[1];
   if(rush&&!S.rushShown){S.rushShown=true;floatText(1,'Giờ cao điểm!','streak');hint('Giờ cao điểm! Khách kéo đến đông gấp đôi trong 30 giây.');[660,880,660,880].forEach((f,i)=>beep(f,.09,'square',.03,null,i*.12))}
   S.spawnT-=dt;
   if(S.spawnT<=0&&S.time<DAY_LEN-8){
-    S.spawnT=spawn()?(5+Math.random()*4)*Math.max(.55,1-.08*(S.day-1))*(rush?.45:1)/ev().spawn:1;
+    S.spawnT=spawn()?(5+Math.random()*4)*Math.max(.55,1-.08*(S.day-1))*(rush?.45:1)/ev().spawn/spawnBoost():1;
   }
   if(save.event==='review'&&save.eventDay===S.day&&!S.reviewerCame&&S.time>40&&S.slots.some(x=>!x)){S.reviewerCame=true;spawn('reviewer');hint('Reviewer đã tới! Pha thật hoàn hảo nhé.');[880,1100,1320].forEach((f,i)=>beep(f,.1,'triangle',.04,null,i*.1))
   }

@@ -63,6 +63,13 @@ export const RECIPES:ShopItem[]=[
 ];
 
 export const UPGRADES:ShopItem[]=[
+  // bought at the cart or the kiosk; shown there, and the bonus stays with you after moving
+  {id:'bell',name:'Chuông xe đẩy',lv:1,price:160,place:'cart',desc:'Leng keng gọi khách: khách ghé nhanh hơn 10%.'},
+  {id:'parasol',name:'Dù hai lớp có tua rua',lv:1,price:220,place:'cart',desc:'Bóng mát rộng hơn: khách chờ lâu hơn 8%.'},
+  {id:'paint',name:'Sơn lại xe dấu chân mèo',lv:2,price:260,place:'cart',desc:'Xe mới tinh, dễ thương hơn: tip +5%.'},
+  {id:'fan',name:'Quạt trần mini',lv:2,price:320,place:'kiosk',desc:'Mát rượi dưới mái tôn: tip +5%.'},
+  {id:'radio',name:'Radio cát-xét',lv:3,price:300,place:'kiosk',desc:'Nhạc vui tai kéo khách: khách ghé nhanh hơn 10%.'},
+  {id:'garland',name:'Dây hoa giấy',lv:3,price:280,place:'kiosk',desc:'Treo quanh mái ki-ốt: khách chờ lâu hơn 8%.'},
   {id:'double',name:'Menu 2 topping',lv:2,price:560,desc:'Khách được gọi 2 topping, hóa đơn lớn hơn.'},
   {id:'catbed',name:'Nệm êm cho mèo',lv:3,price:420,desc:'Mèo VIP bắt đầu ghé quán và trả gấp đôi.'},
   {id:'bigpot',name:'Ấm trà lớn',lv:4,price:980,desc:'Mỗi mẻ trà được 12 ly thay vì 8.'},

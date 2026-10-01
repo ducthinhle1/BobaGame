@@ -85,6 +85,7 @@ export function rebrew(id,byHoa?){
   S.brewed[id]=1;
   const secs=has('kettle')?3:7;
   save.pantry[id]--;S.brewing[id]=secs;
+  if(byHoa==='hoa')S.perks.hoa++;
   hint(byHoa==='hoa'?`Chị Hoa pha thêm ${stockName(id)}, ${secs} giây nữa có.`:byHoa?`Đang pha ${stockName(id)} vừa giao tới (${secs} giây).`:`Hết ${stockName(id)}. Đang pha gấp từ kho: ${secs} giây.`);sfx.pour();syncBadges();
 }
 export const LOCKED='Đã cho vào ly rồi. Đổ ly để làm lại.';

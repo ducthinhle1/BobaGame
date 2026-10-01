@@ -166,7 +166,7 @@ export function naWork(dt:number){
   if(!S.naJob||S.naJob.cid!==r.c.id){S.naJob={cid:r.c.id,t:1};return}
   S.naJob.t-=dt;if(S.naJob.t>0)return;
   S.naJob=null;if(!useGear('cup'))return;
-  cup.teaQ=takeServing(o.tea);cup.level=0;cup.tea=o.tea;cup.sugar=o.sugar;cup.ice=o.ice;sfx.pour();cupChanged();syncBadges();
+  S.perks.na++;cup.teaQ=takeServing(o.tea);cup.level=0;cup.tea=o.tea;cup.sugar=o.sugar;cup.ice=o.ice;sfx.pour();cupChanged();syncBadges();
 }
 export function updateBars(){
   syncServeBtn();renderCounter();tickCounter();
