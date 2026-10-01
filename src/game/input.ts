@@ -11,10 +11,12 @@ import {hint,serve} from './serve';
 import {musicBase,saveSettings,settings} from './settings';
 import {S} from './state';
 import {dump,pourAgain,sealCup} from './station';
+import {befriendVisitor,visitorAt} from './visitors';
 
 /* ---------- inputs ---------- */
 scene.addEventListener('click',e=>{
   const r=scene.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=H-(r.bottom-e.clientY)/r.width*W;
+  if(visitorAt(x,y)){befriendVisitor();return}
   const c=catAt(x,y);if(c){petCat(c);return}
   SLOTS.forEach((sx,i)=>{if(Math.abs(x-sx)<16){audio();if(document.body.classList.contains('bar-new')){const cu=S.slots[i];if(cu&&cu.state==='wait'){S.focus=cu.id;S.focusManual=true;sfx.click();renderTickets()}}else serve(i)}});
 });

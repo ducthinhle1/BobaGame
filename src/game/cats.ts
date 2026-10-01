@@ -9,6 +9,7 @@ import {METAL,METAL_HI} from './icons';
 import {checkQuests} from './quests';
 import {hint} from './serve';
 import {S,cup} from './state';
+import {drawVisitor} from './visitors';
 
 /* ---------- the shop's cats: Bơ sleeps on the counter, Mochi peeks from the awning, Mun strolls by ---------- */
 /** a cat that lives in the shop; `meowT` counts down to its next idle meow */
@@ -116,6 +117,7 @@ export function drawScene(t){
   px(g,0,52,W,10,'#EDCFCB');
   for(let i=0;i<18;i++)px(g,(i*23+5)%W,53+(i%3)*3,2,1,'#E0B9B8');
   drawWalker(t);
+  drawVisitor(t);
   if(placeAtLeast('shop')){
   // string lights
   const bulbs=['#F2A541','#7ED6B8','#E86A6A','#F4EBD6'];

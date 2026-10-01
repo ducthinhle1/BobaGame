@@ -3,6 +3,7 @@ import {track} from './analytics';
 import {audio,beep,meow,sfx} from './audio';
 import {$,DAY_LEN,NEW_SAVE,dayGoal,g,has,isTub,levelOf,lvProgress,nextPlace,packOf,persist,placeAtLeast,placeIndex,placeInfo,save,scene,setSave,staffOn,stockN,tea,teaBatch,top,unlocked} from './core';
 import {canMake,ev,rollEvent,season} from './customers';
+import {checkDaily} from './daily';
 import {cozy,decorIconURL,ownsDecor} from './decor';
 import {iconURL} from './icons';
 import {last} from './loop';
@@ -10,13 +11,14 @@ import {renderTickets,updateHud} from './orders';
 import {renderPrep} from './prep';
 import {checkQuests,questRows} from './quests';
 import {S,newDay} from './state';
+import {renderCatAlbum} from './visitors';
 
 /* ---------- day flow ---------- */
 export function showOnly(id){['start','market','prep','end'].forEach(x=>$('#'+x).hidden=x!==id)}
 export function openMarket(){
   audio();
   if(save.eventDay!==save.day){save.lastEvent=save.event;save.event=rollEvent(save.day);save.eventDay=save.day;persist()}
-  newDay(save.day);S.phase='market';showOnly('market');showTab('today');
+  newDay(save.day);S.phase='market';showOnly('market');showTab('today');setTimeout(checkDaily,250);
   const teaPacks=unlocked(TEAS).reduce((a,t)=>a+(save.pantry[t.id]||0),0);
   const cheapest=Math.min(...SUPPLY.filter(x=>x.kind==='tea'&&save.owned.includes(x.id)).map(x=>x.price));
   if(!teaPacks&&save.wallet<cheapest){save.pantry.black=(save.pantry.black||0)+1;persist();mmsg('Dì ghé tặng một gói lá trà đen. Chúc bán đắt hàng!')}
@@ -145,7 +147,7 @@ function tabDots(){
   document.querySelectorAll<HTMLElement>('.mtabs [data-mtab]').forEach(b=>{b.querySelector<HTMLElement>('.dot').hidden=!dots[b.dataset.mtab]});
 }
 export function renderMarket(){
-  renderNews();renderPlace();tabDots();renderFriends();renderNeeds();renderRevenue();
+  renderNews();renderPlace();tabDots();renderCatAlbum();renderFriends();renderNeeds();renderRevenue();
   $('#m-quests').innerHTML=questRows(S.quests);
   $('#mday').textContent=`Buổi sáng · Ngày ${save.day}`;
   $('#mwallet').textContent=save.wallet+'k';

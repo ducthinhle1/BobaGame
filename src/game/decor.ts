@@ -5,7 +5,7 @@ import {OUT,W,g,save} from './core';
 import {blit,inEll,px} from './draw';
 
 /** coziness of what the player owns, and what it does */
-export function cozy(){return cozyPoints(save.decor||[],DECOR)}
+export function cozy(){return cozyPoints(save.decor||[],DECOR)+(save.cats||[]).length}
 export function cozyEffect(){return cozyBonus(cozy())}
 export function ownsDecor(id:string){return (save.decor||[]).includes(id)}
 

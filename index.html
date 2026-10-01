@@ -118,9 +118,20 @@
     </section>
     <section class="mtab" data-tab="book" hidden>
     <h3 class="lab">Doanh thu</h3><div class="revbox" id="m-rev"></div>
+    <h3 class="lab">Sổ mèo <span class="cozy" id="m-catsum"></span></h3><div class="catgrid" id="m-cats"></div><p class="qbonus">Thỉnh thoảng có bé mèo ghé quán giữa ca và ngồi ngoài đường với dấu “?”. Chạm vào bé để làm quen. Mỗi bé trong sổ +1 ấm cúng.</p>
     <h3 class="lab">Sổ khách quen</h3><div class="mgrid" id="m-friends"></div><p class="qbonus">Khách quen thỉnh thoảng ghé và gọi món ruột. Mỗi ly hoàn hảo cho họ thêm 1 ♥. Đủ 3 ♥ họ tip gấp rưỡi và kể chuyện, đủ 5 ♥ họ tặng quà.</p>
     </section>
     <div class="prepfoot sticky"><span id="mmsg" aria-live="polite"></span><button class="btn big" id="mgo" type="button">Đi chuẩn bị</button></div>
+  </div>
+</div>
+
+<div class="overlay opening" id="daily" hidden>
+  <div class="card opencard dailycard" role="dialog" aria-modal="true" aria-labelledby="dl-title">
+    <span class="lab" id="dl-streak"></span>
+    <h2 class="preptitle" id="dl-title">Quà mỗi ngày</h2>
+    <div class="dl-track" id="dl-track"></div>
+    <p class="dl-note" id="dl-note"></p>
+    <button class="btn big" id="dl-ok" type="button">Nhận quà</button>
   </div>
 </div>
 

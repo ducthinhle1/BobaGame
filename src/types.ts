@@ -13,6 +13,8 @@ export interface SupplyItem { id: string; kind: 'tea' | 'top' | 'gear'; name: st
 export interface ShopItem { id: string; kind?: 'tea' | 'top'; name: string; lv: number; price: number; desc: string; place?: 'cart' | 'kiosk' | 'shop' }
 export interface StaffInfo extends ShopItem { wage: number }
 export type PlaceId = 'cart' | 'kiosk' | 'shop';
+/** A cat that sometimes visits; tap it to add it to the cat album. `streak`: only from the 7-day login gift. */
+export interface VisitorCat { id: string; name: string; place: PlaceId; fur: string; dark: string; patch?: string; eye: string; bio: string; streak?: boolean }
 /** Where you sell: you start with a pushcart and move up as you earn. */
 /** `pay`: how much more customers pay per cup here (a nicer place charges more). */
 export interface PlaceInfo { id: PlaceId; name: string; lv: number; price: number; slots: number; goal: number; pay: number; desc: string; perks: string[] }
@@ -49,6 +51,8 @@ export interface Save {
   event?: string; eventDay?: number; lastEvent?: string;
   decor?: string[];
   place?: PlaceId;
+  cats?: string[];
+  login?: { last: string; streak: number };
 }
 
 export type CustomerState = 'walk' | 'wait' | 'leave';

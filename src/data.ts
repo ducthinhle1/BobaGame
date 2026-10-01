@@ -1,6 +1,6 @@
 // Mèo Trân Châu — static game data: menu, prices, customer types, levels, shop items, staff.
 // Tune the game here; the game logic lives in src/game/ and src/logic/.
-import type {DecorItem,PlaceInfo,PlaceId,Tea,Topping,QualityInfo,Quality,CustomerType,TypeId,SupplyItem,ShopItem,StaffInfo,GameEvent,Season,Regular} from './types';
+import type {DecorItem,PlaceInfo,PlaceId,VisitorCat,Tea,Topping,QualityInfo,Quality,CustomerType,TypeId,SupplyItem,ShopItem,StaffInfo,GameEvent,Season,Regular} from './types';
 
 // brew: each tea always uses the same prep mini game (steep = lift the tea bag in time,
 // heat = keep the water in the green zone, whisk = whisk up the foam)
@@ -161,3 +161,25 @@ export const PLACES:PlaceInfo[]=[
 ];
 /** the first place where each thing becomes available */
 export const NEEDS_PLACE:Record<string,PlaceId>={recipe:'kiosk',staff:'shop',decor:'shop',online:'shop',catbed:'shop'};
+
+// ---- visiting cats: one may stroll by during a shift; tap it to befriend it. Each one in the album = +1 coziness.
+export const VISITORS:VisitorCat[]=[
+  {id:'muop',name:'Mướp',place:'cart',fur:'#C9A15A',dark:'#8A6A3A',eye:'#7ED6B8',bio:'Mèo mướp đầu hẻm, cứ nghe mùi trân châu là tới.'},
+  {id:'sua',name:'Sữa',place:'cart',fur:'#FFF8EE',dark:'#E8D8C4',eye:'#6FA8E8',bio:'Trắng như ly sữa tươi, thích nằm trong bóng dù.'},
+  {id:'khoi',name:'Khói',place:'kiosk',fur:'#9A94A8',dark:'#6E6880',eye:'#F2C94C',bio:'Mèo xám ở chợ, đi nhẹ như khói, hay ngủ trên thùng ly.'},
+  {id:'tamthe',name:'Tam Thể',place:'kiosk',fur:'#FFF4EA',dark:'#3B2A2D',patch:'#F2A541',eye:'#7ED6B8',bio:'Ba màu may mắn, ghé đâu là chỗ đó đông khách.'},
+  {id:'bong',name:'Bông',place:'shop',fur:'#F7D6DE',dark:'#E0A8B8',eye:'#B79BD6',bio:'Lông xù như kẹo bông, thích ngồi cạnh hũ bánh quy.'},
+  {id:'socola',name:'Sô-cô-la',place:'shop',fur:'#7A4A2A',dark:'#4A2E1A',eye:'#F2C94C',bio:'Nâu bóng, hay đòi uống “một ly không đường”.'},
+  {id:'hoangtu',name:'Hoàng Tử',place:'cart',fur:'#F4AA55',dark:'#E08A34',eye:'#7ED6B8',streak:true,bio:'Đội vương miện nhỏ. Chỉ ghé ai chăm chỉ mở tiệm 7 ngày liền.'},
+];
+
+// ---- daily gift for coming back on consecutive real days (a 7-day cycle)
+export const DAILY_GIFTS=[
+  {label:'+60k',money:60},
+  {label:'1 gói mỗi loại trà',teas:1},
+  {label:'+100k',money:100},
+  {label:'2 bao bột năng',pantry:{pearl:2}},
+  {label:'+150k',money:150},
+  {label:'Bộ ly, ống hút, màng dán, túi',pantry:{cup:30,straw:30,film:30,bag:5}},
+  {label:'+300k và bé mèo Hoàng Tử',money:300,cat:'hoangtu'},
+] as {label:string;money?:number;teas?:number;pantry?:Record<string,number>;cat?:string}[];
