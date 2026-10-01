@@ -695,3 +695,9 @@ body:has(#mini:not([hidden]))::after{content:"";position:fixed;inset:0;backgroun
   #mini:not([hidden]){grid-template-columns:1.2fr 1fr;align-items:center;width:min(640px,calc(100vw - 24px));gap:8px 14px}
   #mini:not([hidden]) #mcv{grid-row:1/4;max-width:none}
 }
+/* phones: when a screen (market, prep, receipt…) is open, the settings/music/sound buttons sit on their own
+   bar at the top, so scrolled text slides under the bar instead of under the buttons */
+@media (max-width:700px),(max-height:520px){
+  body:has(.overlay:not([hidden]))::before{content:"";position:fixed;left:0;right:0;top:0;height:calc(58px + env(safe-area-inset-top,0px));z-index:11;
+    background:rgba(255,246,239,.95);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 1px 0 var(--line)}
+}
