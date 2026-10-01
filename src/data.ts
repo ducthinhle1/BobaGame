@@ -147,9 +147,9 @@ export const DECOR:DecorItem[]=[
 export const PLACES:PlaceInfo[]=[
   {id:'cart',name:'Xe đẩy trà sữa',lv:1,price:0,slots:2,goal:.6,desc:'Chiếc xe đẩy nhỏ ở đầu hẻm, dù hồng che nắng.',
     perks:['2 khách một lúc','Trà sữa Mèo Mun, Trà lài Mèo Vàng, trân châu']},
-  {id:'kiosk',name:'Ki-ốt góc chợ',lv:2,price:1200,slots:3,goal:.85,desc:'Một quầy có mái che ở góc chợ.',
+  {id:'kiosk',name:'Ki-ốt góc chợ',lv:2,price:2000,slots:3,goal:.85,desc:'Một quầy có mái che ở góc chợ.',
     perks:['3 khách một lúc','Thêm Khoai môn Mèo Tím và sương sáo','Học được công thức món mới']},
-  {id:'shop',name:'Tiệm Mèo Trân Châu',lv:4,price:3500,slots:3,goal:1,desc:'Một tiệm thật sự có mái hiên sọc hồng.',
+  {id:'shop',name:'Tiệm Mèo Trân Châu',lv:4,price:6000,slots:3,goal:1,desc:'Một tiệm thật sự có mái hiên sọc hồng.',
     perks:['Thuê nhân viên','Trang trí tiệm','Nhận đơn online MèoShip','Bé Mochi về nằm trên mái hiên']},
 ];
 /** the first place where each thing becomes available */
