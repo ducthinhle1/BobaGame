@@ -13,6 +13,7 @@ import {renderTickets,updateHud} from './orders';
 import {renderPrep} from './prep';
 import {checkQuests,questRows} from './quests';
 import {S,newDay} from './state';
+import {startTitleArt} from './title';
 import {maybeStartTutorial} from './tutorial';
 import {renderCatAlbum} from './visitors';
 
@@ -261,12 +262,15 @@ export function renderStart(){
   const b=$('#startbtns');b.innerHTML='';
   const mk=(label,fn,big)=>{const x=document.createElement('button');x.type='button';x.className='btn'+(big?' big':'');x.textContent=label;x.addEventListener('click',()=>fn(x));b.appendChild(x);return x};
   const fresh=save.day===1&&save.xp===0;
+  const badge=$('#savebadge');badge.hidden=fresh;
+  if(!fresh)badge.textContent=`Ngày ${save.day} · ${placeInfo().name} · Cấp ${levelOf(save.xp)} · ${save.wallet.toLocaleString('vi-VN')}k tiết kiệm`;
   const first=mk(fresh?'Mở tiệm':`Chơi tiếp: ngày ${save.day}`,()=>{track(fresh?'new_game':'continue',{day:save.day,screen:innerWidth>innerHeight?'landscape':'portrait'});openMarket()},true);
   if(!fresh)mk('Chơi lại từ đầu',x=>{
     if(!wipeArmed){wipeArmed=true;x.textContent='Bấm lần nữa để xóa dữ liệu';return}
     track('restart',{from_day:save.day});setSave(NEW_SAVE());persist();wipeArmed=false;openMarket();
   },false);
-  first.focus();
+  b.querySelectorAll('.btn:not(.big)').forEach(x=>x.className='linkbtn');
+  first.focus();startTitleArt();
 }
 
 /* ---------- grand opening: a picture of the new place and what got better ---------- */
