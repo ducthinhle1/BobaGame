@@ -228,7 +228,7 @@ export function endDay(){
     if(items.length)teaser=`<div class="teaser">Còn <b>${need} XP</b> nữa lên cấp ${nl}, mở khóa ${items.join(', ')}.</div>`;
   }
   const r=$('#receipt');
-  r.innerHTML=`<h2>Mèo Trân Châu</h2><div class="c">Tiệm trà sữa mèo · Ngày ${S.day} · đóng cửa 21:30</div><hr>
+  r.innerHTML=`<h2>Mèo Trân Châu</h2><div class="c">${placeInfo().name} · Ngày ${S.day} · đóng cửa 21:30</div><hr>
     <div class="rl"><span>Ly đã bán</span><span>${S.served}</span></div>
     <div class="rl"><span>Ly hoàn hảo</span><span>${S.perfect}</span></div>
     <div class="rl"><span>Khách bỏ về</span><span>${S.missed}</span></div>

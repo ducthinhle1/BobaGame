@@ -701,3 +701,10 @@ body:has(#mini:not([hidden]))::after{content:"";position:fixed;inset:0;backgroun
   body:has(.overlay:not([hidden]))::before{content:"";position:fixed;left:0;right:0;top:0;height:calc(58px + env(safe-area-inset-top,0px));z-index:11;
     background:rgba(255,246,239,.95);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 1px 0 var(--line)}
 }
+
+/* gentle screen transitions */
+.overlay:not([hidden]){animation:fadein .28s ease-out}
+.overlay:not([hidden])>.card,.overlay:not([hidden])>.receipt{animation:rise-in .32s cubic-bezier(.2,.8,.3,1)}
+@keyframes rise-in{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+body.in-shift .wrap{animation:fadein .35s ease-out}
+@media (prefers-reduced-motion:reduce){.overlay:not([hidden]),.overlay:not([hidden])>.card,.overlay:not([hidden])>.receipt,body.in-shift .wrap{animation:none}}
